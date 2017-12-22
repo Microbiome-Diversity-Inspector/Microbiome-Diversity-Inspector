@@ -6,7 +6,7 @@ Microbiome Diversity Inspector - A tool for visual analysis of microbiome data. 
 
 ## How to use/install the tool
 
-Download the repository - [Microbiome-Diversity-Inspector](https://github.com/gbelwariar/Microbiome-Diversity-Inspector) and execute - **tool.html** (*Microbiome-Diversity-Inspector/tool.html*) in a browser(preferably Chrome Browser). In order to interact with the database, the server should be brought up to run using the command - "*node server.js*".
+Download the repository - [Microbiome-Diversity-Inspector](https://github.com/gbelwariar/Microbiome-Diversity-Inspector) and execute - **tool.html** (*Microbiome-Diversity-Inspector/tool.html*) in a browser(preferably Chrome Browser). Also download all the node modules as mentioned [here](https://www.npmjs.com/package/npm-install-all). In order to interact with the database, the server should be brought up to run using the command - "*node server.js*".
 
 ## Languages/Frameworks Used - 
 
