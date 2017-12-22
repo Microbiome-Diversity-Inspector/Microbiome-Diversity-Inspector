@@ -1,0 +1,142 @@
+<html>
+  <head>
+		<script src='angular.js'></script>
+		<script src="chart.js"></script>	
+		<script>
+				// Angular.js code.
+				function MyController($document, $http, $interval) {
+					this.$onInit = (function() {
+						this.intervalService_ = $interval;
+						this.httpService_ = $http;
+						this.document_ = $document;
+						this.resetCounts_();
+					}).bind(this);
+				}		
+		</script>
+		<title>Microbiome Diversity Inspector - A tool for visual analysis of microbiome data.</title>
+		<link rel='shortcut icon' href='favicon.ico'>
+		<link rel='stylesheet' href='tool.css'>
+  </head>
+  <body ng-app='myApp' ng-controller='MyController as myCtrl'>
+		<div class='heading-message align-text-center'>
+            Microbiome Diversity Inspector - A tool for visual analysis of microbiome data.
+    </div>
+		<div class='vertical-separator-from-top-50'>
+			<span class='margin-left-600'>
+				<label for="fileInput" class="custom-file-upload">Select a file</label>
+				<input type="file" id="fileInput" class="inputfile" file-picker/><br>
+			</span>
+			<h3 class='align-text-center'>Choose a file to analyze its entropy.<span></h3>
+		</div>
+		<div class='vertical-separator-from-top-50' ng-show='myCtrl.showAnalysis'>
+			<div class='align-text-center italic-font-size-25' ng-if='!myCtrl.showEntropy'>Analyzing {{myCtrl.fileName}} ...</div>
+			<div class='align-text-center boxed bold-font-size-30' ng-if='myCtrl.showEntropy'>Entropy = {{myCtrl.entropy}}</div>
+			<div class='align-text-center'>
+				<h1>The number of <span class='red-text'>A</span>'s are - <span class='red-text'>{{myCtrl.countOfA}}</span></h1>
+				<h1>The number of <span class='gold-text'>T</span>'s are - <span class='gold-text'>{{myCtrl.countOfT}}</span></h1>
+				<h1>The number of <span class='blue-text'>G</span>'s are - <span class='blue-text'>{{myCtrl.countOfG}}</span></h1>
+				<h1>The number of <span class='green-text'>C</span>'s are - <span class='green-text'>{{myCtrl.countOfC}}<span></h1> 
+			</div>
+			<div class='vertical-separator-from-top-50'><canvas id='myChart' width="1000" height="300"></canvas></div>
+		</div>
+  </body>
+    <script>				  
+				MyController.prototype.drawFreshPieChart_ = function() {
+						if( this.myPieChart_ !== undefined) {
+							this.myPieChart_.destroy();
+						}					
+						var ctx = this.document_[0].getElementById('myChart').getContext('2d');		 
+						data = {
+											datasets: [{
+																	data: [
+																		this.countOfA === 0 ? 1 : this.countOfA,
+																		this.countOfT === 0 ? 1 : this.countOfT,
+																		this.countOfG === 0 ? 1 : this.countOfG,
+																		this.countOfC === 0 ? 1 : this.countOfC],
+																	backgroundColor: ['#FF0000', '#FFD700', '#0000FF', '#008000']
+																}],
+											labels: ['A', 'T', 'G', 'C']
+									 };
+						this.myPieChart_ = new Chart(ctx, {type: 'pie', data: data});								
+				}
+								
+				function getLogOfXBase2(x) {
+					return Math.log(x) / Math.log(2);
+				}				
+								
+				MyController.prototype.getEntropy_ = function() {
+					var totalCount = this.countOfA + this.countOfT + this.countOfG + this.countOfC;
+					if (totalCount === 0) {
+						return 0;
+					}
+					var probabilityOfA = this.countOfA / totalCount;
+					var probabilityOfT = this.countOfT / totalCount;
+					var probabilityOfG = this.countOfG / totalCount;
+					var probabilityOfC = this.countOfC / totalCount;
+					var entropy = -1 * (
+															(probabilityOfA === 0 ? 0 : (probabilityOfA * getLogOfXBase2(probabilityOfA))) +
+															(probabilityOfT === 0 ? 0 : (probabilityOfT * getLogOfXBase2(probabilityOfT))) +
+															(probabilityOfG === 0 ? 0 : (probabilityOfG * getLogOfXBase2(probabilityOfG))) +
+															(probabilityOfC === 0 ? 0 : (probabilityOfC * getLogOfXBase2(probabilityOfC))));
+					return entropy;
+				};
+				
+				MyController.prototype.process_ = function (fileName) {
+						this.fileName = fileName;
+						this.pieChartIntervalPromise_ = this.intervalService_(
+							(function() { this.drawFreshPieChart_(); }).bind(this), 3000);					
+						this.intervalPromise_ = this.intervalService_((function() {
+							this.httpService_.get('http://localhost:8080/')
+									 .then ((function (response) {
+											this.countOfA = response.data.countObj.countOfA;
+											this.countOfT = response.data.countObj.countOfT;
+											this.countOfG = response.data.countObj.countOfG;
+											this.countOfC = response.data.countObj.countOfC;	
+										if (response.data.statusCode === 'x') {
+												this.showEntropy = true;
+												this.entropy = this.getEntropy_();
+												this.drawFreshPieChart_();
+												this.intervalService_.cancel(this.intervalPromise_);
+												this.intervalService_.cancel(this.pieChartIntervalPromise_);
+											}
+									 }).bind(this), function(error) {});
+						}).bind(this), 10);					
+			 };
+			 
+			 MyController.prototype.resetCounts_ = function() {
+			 			this.countOfA = 0;
+						this.countOfT = 0;
+						this.countOfG = 0;
+						this.countOfC = 0;
+						this.showAnalysis = false;
+						this.showEntropy = false;						
+						this.drawFreshPieChart_();
+			 }
+		
+        angular
+                .module('myApp', [])
+								.controller('MyController', ['$document', '$http', '$interval', MyController])
+								.directive('filePicker', function($http, $interval) {
+										return  {
+											link: function(scope, elem, attr, ctrl) {
+												elem.on('change', function() {
+												  scope.myCtrl.resetCounts_();
+													scope.myCtrl.showAnalysis = true;
+													var fileName = elem[0].files[0].name;
+													$interval.cancel(scope.myCtrl.intervalPromise_);
+													$interval.cancel(scope.myCtrl.pieChartIntervalPromise_);
+													$http.post(
+														'http://localhost:8080/',
+														{name: fileName},
+														{headers: {'Content-Type': 'application/json', 'Authorization': 'Basic '}})
+														.then(function(){	
+															scope.myCtrl.process_(fileName);
+														}, function(error){})
+														.catch(function(){});
+												});
+											}
+										};
+								});
+
+		</script>
+</html>
