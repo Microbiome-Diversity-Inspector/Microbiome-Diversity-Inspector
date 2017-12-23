@@ -13,13 +13,15 @@ app.use(cors())
 app.use(bodyParser.json()); // for parsing application/json
 app.use(bodyParser.urlencoded({ extended: true })); // for parsing application/x-www-form-urlencoded
 	
-app.post('/', function(req, res) {
+	
+app.post('/analyze', function(req, res) {
 	  countOfA = 0, countOfT = 0, countOfG = 0, countOfC = 0, first = 0, last = 99, size = 100;
 	  fileName = './' + req.body.name;
 		res.send('Posting done');
 });		
 		
-app.get('/', function (req, res) {
+		
+app.get('/analyze', function (req, res) {
 			var stat = fs.statSync(fileName);
 			if (first > stat.size) { 
 				 var countObj = {
@@ -55,7 +57,7 @@ app.get('/', function (req, res) {
 									break;
 							}
 						}
-					});			
+					});		
 				first += size;
 				last += size;
 			  var countObj = {
@@ -70,6 +72,19 @@ app.get('/', function (req, res) {
 				});
 			}
 })
+
+
+app.post('/convertToFasta', function(req, res) {
+	  fileName = './' + req.body.name;
+		res.send('This is a sample text for .fasta file');
+});	
+
+
+app.post('/convertToFastq', function(req, res) {
+	  fileName = './' + req.body.name;
+		res.send('This is a sample text for .fastq file');
+});	
+
 
 var server = app.listen(8080, function () {
    var host = server.address().address
