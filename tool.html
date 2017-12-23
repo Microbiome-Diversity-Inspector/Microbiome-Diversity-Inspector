@@ -23,10 +23,30 @@
     </div>
 		<div class='vertical-separator-from-top-50'>
 			<span class='margin-left-600'>
-				<label for="fileInput" class="custom-file-upload">Select a file</label>
-				<input type="file" id="fileInput" class="inputfile" file-picker/><br>
+				<label for="fileInputAnalyze" class="custom-file-upload">Select a file</label>
+				<input type="file" id="fileInputAnalyze" class="inputfile" file-picker/><br>
 			</span>
 			<h3 class='align-text-center'>Choose a file to analyze its entropy.<span></h3>
+		</div>
+		<div class='vertical-separator-from-top-50'>
+			<span class='margin-left-600'>
+				<label for="fileInputConvertToFasta" class="custom-file-upload">Select a file</label>
+				<input type="file" id="fileInputConvertToFasta" class="inputfile" file-picker/><br>
+			</span>
+			<h3 class='align-text-center'>Convert a <span class='green-text'>.fastq</span> file to <span class='blue-text'>.fasta</span> file.<span></h3>
+			<div class='align-text-center italic-font-size-25' ng-show='myCtrl.startConversionToFasta'>
+				Converting to <span class='blue-text'>.fasta</span> ... file
+			</div>
+		</div>
+		<div class='vertical-separator-from-top-50'>
+			<span class='margin-left-600'>
+				<label for="fileInputConvertToFastq" class="custom-file-upload">Select a file</label>
+				<input type="file" id="fileInputConvertToFastq" class="inputfile" file-picker/><br>
+			</span>
+			<h3 class='align-text-center'>Convert a <span class='blue-text'>.fasta</span> file to <span class='green-text'>.fastq</span> file.<span></h3>
+			<div class='align-text-center italic-font-size-25' ng-show='myCtrl.startConversionToFastq'>
+				Converting to <span class='green-text'>.fastq</span> ... file
+			</div>
 		</div>
 		<div class='vertical-separator-from-top-50' ng-show='myCtrl.showAnalysis'>
 			<div class='align-text-center italic-font-size-25' ng-if='!myCtrl.showEntropy'>Analyzing {{myCtrl.fileName}} ...</div>
@@ -63,6 +83,28 @@
 				function getLogOfXBase2(x) {
 					return Math.log(x) / Math.log(2);
 				}				
+				
+				function isFileHavingCorrectFormat(fileName, expectedFileFormat) {
+					return (fileName.length < expectedFileFormat.length) ?
+							false : fileName.substring(fileName.length-expectedFileFormat.length) === expectedFileFormat;
+				}
+				
+				/**
+				 *	API to download a file with name - 'fileName' having text - 'text'.
+				 *  See - https://stackoverflow.com/a/18197341/5928129 for more.
+				 */
+				function download(filename, text) {
+					var element = document.createElement('a');
+					element.setAttribute('href', 'data:text/plain;charset=utf-8,' + encodeURIComponent(text));
+					element.setAttribute('download', filename);
+
+					element.style.display = 'none';
+					document.body.appendChild(element);
+
+					element.click();
+
+					document.body.removeChild(element);
+				}				
 								
 				MyController.prototype.getEntropy_ = function() {
 					var totalCount = this.countOfA + this.countOfT + this.countOfG + this.countOfC;
@@ -86,7 +128,7 @@
 						this.pieChartIntervalPromise_ = this.intervalService_(
 							(function() { this.drawFreshPieChart_(); }).bind(this), 3000);					
 						this.intervalPromise_ = this.intervalService_((function() {
-							this.httpService_.get('http://localhost:8080/')
+							this.httpService_.get('http://localhost:8080/analyze')
 									 .then ((function (response) {
 											this.countOfA = response.data.countObj.countOfA;
 											this.countOfT = response.data.countObj.countOfT;
@@ -104,6 +146,7 @@
 			 };
 			 
 			 MyController.prototype.resetCounts_ = function() {
+						// Variables required for analyzing the entropy starts here.
 			 			this.countOfA = 0;
 						this.countOfT = 0;
 						this.countOfG = 0;
@@ -111,6 +154,12 @@
 						this.showAnalysis = false;
 						this.showEntropy = false;						
 						this.drawFreshPieChart_();
+						// Variables required for analyzing the entropy ends here.
+						
+						// Variables required for format conversion starts here.
+						this.startConversionToFasta = false;
+						this.startConversionToFastq = false;
+						// Variables required for format conversion ends here.
 			 }
 		
         angular
@@ -120,23 +169,66 @@
 										return  {
 											link: function(scope, elem, attr, ctrl) {
 												elem.on('change', function() {
-												  scope.myCtrl.resetCounts_();
-													scope.myCtrl.showAnalysis = true;
+													scope.myCtrl.resetCounts_();
 													var fileName = elem[0].files[0].name;
-													$interval.cancel(scope.myCtrl.intervalPromise_);
-													$interval.cancel(scope.myCtrl.pieChartIntervalPromise_);
-													$http.post(
-														'http://localhost:8080/',
-														{name: fileName},
-														{headers: {'Content-Type': 'application/json', 'Authorization': 'Basic '}})
-														.then(function(){	
-															scope.myCtrl.process_(fileName);
-														}, function(error){})
-														.catch(function(){});
+													switch(elem[0].id) {
+														case 'fileInputAnalyze':
+															scope.myCtrl.showAnalysis = true;
+															scope.$apply();	// Placing scope.$apply() to update the view even if removing it works fine.
+															$interval.cancel(scope.myCtrl.intervalPromise_);
+															$interval.cancel(scope.myCtrl.pieChartIntervalPromise_);
+															$http.post(
+																'http://localhost:8080/analyze',
+																{name: fileName},
+																{headers: {'Content-Type': 'application/json', 'Authorization': 'Basic '}})
+																.then(function() {	
+																	scope.myCtrl.process_(fileName);
+																	scope.$apply();	// Placing scope.$apply() to update the view even if removing it works fine.
+																}, function(error) {})
+																.catch(function() {});
+																break;
+														case 'fileInputConvertToFasta':
+															scope.$apply();
+															if (isFileHavingCorrectFormat(fileName, ".fastq") === false) {
+																alert('Please upload a .fastq file');
+																break;
+															}
+															scope.myCtrl.startConversionToFasta = true;
+															scope.$apply();
+															$http.post(
+																'http://localhost:8080/convertToFasta',
+																{name: fileName},
+																{headers: {'Content-Type': 'application/json', 'Authorization': 'Basic '}})
+																.then(function(response) {
+																	download(fileName.substring(0, fileName.length-6) + '.fasta', response.data);
+																	scope.myCtrl.startConversionToFasta = false;
+																	scope.$apply();
+																}, function(error) {})
+																.catch(function() {});
+															break;
+														case 'fileInputConvertToFastq':															
+															scope.$apply();
+															if (isFileHavingCorrectFormat(fileName, ".fasta") === false) {
+																alert('Please upload a .fasta file');
+																break;
+															}
+															scope.myCtrl.startConversionToFastq = true;
+															scope.$apply();
+															$http.post(
+																'http://localhost:8080/convertToFastq',
+																{name: fileName},
+																{headers: {'Content-Type': 'application/json', 'Authorization': 'Basic '}})
+																.then(function(response) {
+																	download(fileName.substring(0, fileName.length-6) + '.fastq', response.data);				
+																	scope.myCtrl.startConversionToFastq = false;
+																	scope.$apply();
+																}, function(error) {})
+																.catch(function() {});
+															break;															
+													}
 												});
 											}
 										};
 								});
-
 		</script>
 </html>
