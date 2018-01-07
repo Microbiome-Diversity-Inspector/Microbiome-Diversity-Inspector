@@ -183,7 +183,6 @@
 																{headers: {'Content-Type': 'application/json', 'Authorization': 'Basic '}})
 																.then(function() {	
 																	scope.myCtrl.process_(fileName);
-																	scope.$apply();	// Placing scope.$apply() to update the view even if removing it works fine.
 																}, function(error) {})
 																.catch(function() {});
 																break;
@@ -202,7 +201,6 @@
 																.then(function(response) {
 																	download(fileName.substring(0, fileName.length-6) + '.fasta', response.data);
 																	scope.myCtrl.startConversionToFasta = false;
-																	scope.$apply();
 																}, function(error) {})
 																.catch(function() {});
 															break;
@@ -221,7 +219,6 @@
 																.then(function(response) {
 																	download(fileName.substring(0, fileName.length-6) + '.fastq', response.data);				
 																	scope.myCtrl.startConversionToFastq = false;
-																	scope.$apply();
 																}, function(error) {})
 																.catch(function() {});
 															break;															
