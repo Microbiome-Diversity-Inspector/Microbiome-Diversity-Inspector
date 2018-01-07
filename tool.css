@@ -22,6 +22,10 @@
   font-size: 30px;
 }
 
+.vertical-separator-from-top-10 {
+	margin-top: 10px;
+}
+
 .vertical-separator-from-top-50 {
 	margin-top: 50px;
 }
@@ -32,6 +36,10 @@
 
 .margin-left-600 {    
   margin-left: 600px;
+}
+
+.margin-left-620 {    
+  margin-left: 620px;
 }
 
 .gold-text {
