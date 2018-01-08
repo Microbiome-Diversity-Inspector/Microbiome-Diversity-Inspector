@@ -96,7 +96,12 @@ app.post('/convertToFasta', function(req, res) {
 				isFirstLineOfSequence = true;
 			} else if (i !== 0 && data.toString()[i-1] !== '\n' && isFirstLineOfSequence === true) {
 				// This is the first line of the sequence.
-				fastaContent += data.toString()[i];
+				if (data.toString()[i] !== '\r') {
+					// Extra check to exclude the carriage return as in Windows(unlike Unix-systems)
+					// based-system '\n' is accompanied with a '\r'.
+					// See - https://stackoverflow.com/a/1761086/5928129 for more.
+					fastaContent += data.toString()[i];
+				}
 				isSecondLineOfSequence = false;
 				isFirstLineOfSequence = true;
 			} else if ((i !== 0 && data.toString()[i-1] === '\n' && isFirstLineOfSequence === true)
@@ -108,10 +113,10 @@ app.post('/convertToFasta', function(req, res) {
 				}
 				isFirstLineOfSequence = false;
 				isSecondLineOfSequence = true;
-				if (currentCharacterCount < FASTA_LINE_LIMIT) {
+				if (currentCharacterCount < FASTA_LINE_LIMIT && data.toString()[i] !== '\r') {
 					fastaContent += data.toString()[i];
 					currentCharacterCount++;	
-				} else if (currentCharacterCount === FASTA_LINE_LIMIT) {
+				} else if (currentCharacterCount === FASTA_LINE_LIMIT && data.toString()[i] !== '\r') {
 					currentCharacterCount = 1;
 					fastaContent += data.toString()[i];
 					fastaContent += '\n';
@@ -124,7 +129,7 @@ app.post('/convertToFasta', function(req, res) {
 		}
 	});		
 	readStream.on('end', () => {
-		console.log('Finished converting - ' + fastqFileName + ' to its FASTA equivalent');
+		console.log('Finished converting - ' + req.body.name + ' to its FASTA equivalent');
 		res.send(fastaContent);
 	});	
 });	
@@ -153,7 +158,7 @@ app.post('/convertToFastq', function(req, res) {
 				currentReadName = '';
 			} else if (i !== 0 && data.toString()[i-1] !== '\n' && isFirstLineOfSequence === true) {
 				// This is the first line of the sequence.
-				if (data.toString()[i] !== '\n') {
+				if (data.toString()[i] !== '\n' && data.toString()[i] !== '\r') {
 					currentReadName += data.toString()[i];
 				}
 				isFirstLineOfSequence = true;
@@ -165,7 +170,7 @@ app.post('/convertToFastq', function(req, res) {
 					currentBase = '';
 				}
 				isFirstLineOfSequence = false;
-				if (data.toString()[i] !== '\n') {
+				if (data.toString()[i] !== '\n' && data.toString()[i] !== '\r') {
 					currentBase += data.toString()[i];
 				}
 			}
@@ -175,72 +180,92 @@ app.post('/convertToFastq', function(req, res) {
 		if (currentReadName !== '') {
 			readNameToBaseMap[currentReadName] = currentBase;
 		}
-		// Parse the QUAL file.
-		isFirstLineOfSequence = true;
-		currentReadName = '';
-		// See - http://biopython.org/DIST/docs/api/Bio.SeqIO.QualityIO-module.html to know more about
-		// Sanger-styled qualities.
-		var currentSangerStyledQualities = '';
-		var currentDecimalQualityInStringFormat = '';
-		var readNameToSangerStyledQualityMap = {};
-		var qualReadStream = fs.createReadStream(qualFileName);
-		qualReadStream.on("data", function(data) {
-			for (var i=0; i<data.toString().length; i++) {
+	});		
+
+	// Parse the QUAL file.
+	isFirstLineOfSequence = true;
+	currentReadName = '';
+	// See - http://biopython.org/DIST/docs/api/Bio.SeqIO.QualityIO-module.html to know more about
+	// Sanger-styled qualities.
+	var currentSangerStyledQualities = '';
+	var currentDecimalQualityInStringFormat = '';
+	var readNameToSangerStyledQualityMap = {};
+	var qualReadStream = fs.createReadStream(qualFileName);
+	qualReadStream.on("data", function(data) {
+		for (var i=0; i<data.toString().length; i++) {
+			// This is the first line of the sequence.
+			if (i === 0
+					|| (data.toString()[i-1] === '\n' && data.toString()[i] === '>' && isFirstLineOfSequence === false)) {
+				if (currentReadName !== '') {
+					readNameToSangerStyledQualityMap[currentReadName] = currentSangerStyledQualities;
+				}
+				isFirstLineOfSequence = true;
+				currentReadName = '';
+			} else if (i !== 0 && data.toString()[i-1] !== '\n' && isFirstLineOfSequence === true) {
 				// This is the first line of the sequence.
-				if (i === 0
-						|| (data.toString()[i-1] === '\n' && data.toString()[i] === '>' && isFirstLineOfSequence === false)) {
-					if (currentReadName !== '') {
-						readNameToSangerStyledQualityMap[currentReadName] = currentSangerStyledQualities;
-					}
-					isFirstLineOfSequence = true;
-					currentReadName = '';
-				} else if (i !== 0 && data.toString()[i-1] !== '\n' && isFirstLineOfSequence === true) {
-					// This is the first line of the sequence.
-					if (data.toString()[i] !== '\n') {
-						currentReadName += data.toString()[i];
-					}
-					isFirstLineOfSequence = true;
-				} else if ((i !== 0 && data.toString()[i-1] === '\n' && isFirstLineOfSequence === true)
-										|| isFirstLineOfSequence === false) { 
-					// This is the second and the last line of the sequence in which the nucelotide data is present.
-					if (i !== 0 && data.toString()[i-1] === '\n' && isFirstLineOfSequence === true) {
-						// Reset the current Sanger-styled quality.
-						currentSangerStyledQualities = '';
-						currentDecimalQualityInStringFormat = '';
-					}
-					isFirstLineOfSequence = false;
-					if (data.toString()[i] !== ' ') {
-						currentDecimalQualityInStringFormat += data.toString()[i];
-					} else {
+				if (data.toString()[i] !== '\n' && data.toString()[i] !== '\r') {
+					currentReadName += data.toString()[i];
+				}
+				isFirstLineOfSequence = true;
+			} else if ((i !== 0 && data.toString()[i-1] === '\n' && isFirstLineOfSequence === true)
+									|| isFirstLineOfSequence === false) { 
+				// This is the second and the last line of the sequence in which the nucelotide data is present.
+				if (i !== 0 && data.toString()[i-1] === '\n' && isFirstLineOfSequence === true) {
+					// Reset the current Sanger-styled quality.
+					currentSangerStyledQualities = '';
+					currentDecimalQualityInStringFormat = '';
+				}
+				isFirstLineOfSequence = false;
+				if (data.toString()[i] !== ' ' && data.toString()[i] !== '\n' && data.toString()[i] !== '\r') {
+					currentDecimalQualityInStringFormat += data.toString()[i];
+				} else if (data.toString()[i] === ' ' || data.toString()[i] === '\n' || data.toString()[i] === '\r') {
+					// Don't add the condition to check agains '\r' since in Windows it will 
+					// just lead to computing the Sanger-styled quality twice of the same 
+					// number as '\r' and '\n' always occurs in pair in Windows.
+					// See this for more - https://stackoverflow.com/a/1761086/5928129.
+					// The second condition in the above OR statement is there to separate
+					// two quality numbers separated just by a newline.
+					if (currentDecimalQualityInStringFormat !== '') {
+						// The above 'if-guard' is to prevent the conversion of an empty decimal
+						// quality into its Sanger-styled counterpart if it has already been 
+						// reset to empty on an encounter of a previous ' ' character.
 						currentSangerStyledQualities =
 								currentSangerStyledQualities +
 								convertDecimalQualityInStringFormatToSangerStyledQuality(currentDecimalQualityInStringFormat);
-						currentDecimalQualityInStringFormat = '';
+						currentDecimalQualityInStringFormat = '';						
 					}
 				}
 			}
-		});	
-		qualReadStream.on('end', () => {
-			if (currentReadName !== '') {
-				readNameToSangerStyledQualityMap[currentReadName] = currentSangerStyledQualities;;
+		}
+	});	
+	qualReadStream.on('end', () => {
+		if (currentReadName !== '') {
+			if (currentDecimalQualityInStringFormat != '') {
+				currentSangerStyledQualities =
+						currentSangerStyledQualities +
+						convertDecimalQualityInStringFormatToSangerStyledQuality(currentDecimalQualityInStringFormat);							
 			}
-			var fastqContent = '';
-			for (var key in readNameToBaseMap) {
-				if (readNameToBaseMap.hasOwnProperty(key)) {
-					fastqContent += '@';
-					fastqContent += key;
-					fastqContent += '\n';
-					fastqContent += readNameToBaseMap[key];
-					fastqContent += '\n';
-					fastqContent += '+';
-					fastqContent += '\n';
-					fastqContent += readNameToSangerStyledQualityMap[key];
-					fastqContent += '\n';
-				}
-			}			
-			console.log('Finished converting - ' + fastaFileName + ' to its FASTA equivalent');
-			res.send(fastqContent);
-		});		
+			readNameToSangerStyledQualityMap[currentReadName] = currentSangerStyledQualities;
+		}
+		var fastqContent = '';
+		for (var key in readNameToBaseMap) {
+			if (readNameToBaseMap.hasOwnProperty(key)) {
+				fastqContent += '@';
+				fastqContent += key;
+				// We don't add a '\r' before adding '\n' since just adding a '\n' is compatible 
+				// with both Windows and Unix-based systems whereas in Unix a '\r' does not signify anything.
+				// See - https://stackoverflow.com/a/1761086/5928129 for more.
+				fastqContent += '\n';	
+				fastqContent += readNameToBaseMap[key];
+				fastqContent += '\n';
+				fastqContent += '+';
+				fastqContent += '\n';
+				fastqContent += readNameToSangerStyledQualityMap[key];
+				fastqContent += '\n';
+			}
+		}			
+		console.log('Finished converting - ' + req.body.fastaFileName + ' to its FASTA equivalent');
+		res.send(fastqContent);
 	});		
 });	
 
