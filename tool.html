@@ -1,7 +1,7 @@
 <html>
   <head>
 		<script src='angular.js'></script>
-		<script src="chart.js"></script>	
+		<script src="canvas.js"></script>
 		<script>
 				// Angular.js code.
 				function MyController($document, $http, $interval) {
@@ -65,27 +65,59 @@
 				<h1>The number of <span class='blue-text'>G</span>'s are - <span class='blue-text'>{{myCtrl.countOfG}}</span></h1>
 				<h1>The number of <span class='green-text'>C</span>'s are - <span class='green-text'>{{myCtrl.countOfC}}<span></h1> 
 			</div>
-			<div class='vertical-separator-from-top-50'><canvas id='myChart' width="1000" height="300"></canvas></div>
+			<div class='vertical-separator-from-top-50'>
+				<div id="chartContainer" style="height: 300px; width: 100%;"></div>
+			</div>
 		</div>
   </body>
 	<script>				  
 			MyController.prototype.drawFreshPieChart_ = function() {
-					if( this.myPieChart_ !== undefined) {
-						this.myPieChart_.destroy();
-					}					
-					var ctx = this.document_[0].getElementById('myChart').getContext('2d');		 
-					data = {
-										datasets: [{
-																data: [
-																	this.countOfA === 0 ? 1 : this.countOfA,
-																	this.countOfT === 0 ? 1 : this.countOfT,
-																	this.countOfG === 0 ? 1 : this.countOfG,
-																	this.countOfC === 0 ? 1 : this.countOfC],
-																backgroundColor: ['#FF0000', '#FFD700', '#0000FF', '#008000']
-															}],
-										labels: ['A', 'T', 'G', 'C']
-								 };
-					this.myPieChart_ = new Chart(ctx, {type: 'pie', data: data});								
+					var dps = []; // dataPoints
+					var chart = new CanvasJS.Chart("chartContainer", {
+						title :{
+							text: "Entropy (of continuous chunks)   Vs   Time",
+							fontColor: "#2f4f4f",
+							fontSize: 30,
+							padding: 10,
+							margin: 15,
+							backgroundColor: "#FFFFE0",
+							borderThickness: 1,
+							cornerRadius: 5						
+						},     
+						axisY: {
+							includeZero: false
+						},      						
+						data: [{
+							type: "line",
+							dataPoints: dps
+						}]
+					});
+
+					var xVal = 0;
+					var updateInterval = 500;
+					var dataLength = 20; // number of dataPoints visible at any point
+
+					var updateChart = (function (count) {
+						// Stop updating the chart once the whole file is analyzed.
+						if (this.showEntropy === true) {
+							return;
+						}
+						count = count || 1;
+						//debugger;
+						for (var j = 0; j < count; j++) {
+							dps.push({
+								x: xVal,
+								y: this.entropyOfCurrentWindow
+							});
+							xVal++;
+						}
+						if (dps.length > dataLength) {
+							dps.shift();
+						}
+						chart.render();
+					}).bind(this);
+					updateChart(dataLength);
+					setInterval(function(){updateChart()}, updateInterval);
 			}
 							
 			function getLogOfXBase2(x) {
@@ -114,15 +146,15 @@
 				document.body.removeChild(element);
 			}				
 							
-			MyController.prototype.getEntropy_ = function() {
-				var totalCount = this.countOfA + this.countOfT + this.countOfG + this.countOfC;
+			MyController.prototype.getEntropy_ = function(countOfA, countOfT, countOfG, countOfC) {
+				var totalCount = countOfA + countOfT + countOfG + countOfC;
 				if (totalCount === 0) {
 					return 0;
 				}
-				var probabilityOfA = this.countOfA / totalCount;
-				var probabilityOfT = this.countOfT / totalCount;
-				var probabilityOfG = this.countOfG / totalCount;
-				var probabilityOfC = this.countOfC / totalCount;
+				var probabilityOfA = countOfA / totalCount;
+				var probabilityOfT = countOfT / totalCount;
+				var probabilityOfG = countOfG / totalCount;
+				var probabilityOfC = countOfC / totalCount;
 				var entropy = -1 * (
 														(probabilityOfA === 0 ? 0 : (probabilityOfA * getLogOfXBase2(probabilityOfA))) +
 														(probabilityOfT === 0 ? 0 : (probabilityOfT * getLogOfXBase2(probabilityOfT))) +
@@ -132,19 +164,24 @@
 			};
 			
 			MyController.prototype.process_ = function (fileName) {
-					this.pieChartIntervalPromise_ = this.intervalService_(
-						(function() { this.drawFreshPieChart_(); }).bind(this), 3000);					
+					this.drawFreshPieChart_();					
 					this.intervalPromise_ = this.intervalService_((function() {
 						this.httpService_.get('http://localhost:8080/analyze')
 								 .then ((function (response) {
+										this.entropyOfCurrentWindow =
+												this.getEntropy_(
+														response.data.countObj.countOfA - this.countOfA,
+														response.data.countObj.countOfT - this.countOfT,
+														response.data.countObj.countOfG - this.countOfG,
+														response.data.countObj.countOfC - this.countOfC);									 
 										this.countOfA = response.data.countObj.countOfA;
 										this.countOfT = response.data.countObj.countOfT;
 										this.countOfG = response.data.countObj.countOfG;
-										this.countOfC = response.data.countObj.countOfC;	
+										this.countOfC = response.data.countObj.countOfC;		
 									if (response.data.statusCode === 'x') {
 											this.showEntropy = true;
-											this.entropy = this.getEntropy_();
-											this.drawFreshPieChart_();
+											this.entropy =
+													this.getEntropy_(this.countOfA, this.countOfT, this.countOfG, this.countOfC);
 											this.intervalService_.cancel(this.intervalPromise_);
 											this.intervalService_.cancel(this.pieChartIntervalPromise_);
 										}
@@ -159,8 +196,9 @@
 					this.countOfG = 0;
 					this.countOfC = 0;
 					this.showAnalysis = false;
-					this.showEntropy = false;						
-					this.drawFreshPieChart_();
+					this.showEntropy = false;	
+					this.entropyOfCurrentWindow = 0; 						
+					//this.drawFreshPieChart_();
 					// Variables required for analyzing the entropy ends here.
 					
 					// Variables required for format conversion starts here.
