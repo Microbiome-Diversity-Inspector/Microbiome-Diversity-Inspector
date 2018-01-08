@@ -76,8 +76,8 @@ app.get('/analyze', function (req, res) {
 
 
 app.post('/convertToFasta', function(req, res) {
-	fileName = './' + req.body.name;
-	var readStream = fs.createReadStream(fileName);
+	var fastqFileName = './' + req.body.name;
+	var readStream = fs.createReadStream(fastqFileName);
 	// The line limit in FASTA format as mentioned in - https://en.wikipedia.org/wiki/FASTA_format
 	var FASTA_LINE_LIMIT = 60;
 	var currentCharacterCount = 1;
@@ -95,6 +95,7 @@ app.post('/convertToFasta', function(req, res) {
 				isSecondLineOfSequence = false;
 				isFirstLineOfSequence = true;
 			} else if (i !== 0 && data.toString()[i-1] !== '\n' && isFirstLineOfSequence === true) {
+				// This is the first line of the sequence.
 				fastaContent += data.toString()[i];
 				isSecondLineOfSequence = false;
 				isFirstLineOfSequence = true;
@@ -116,23 +117,143 @@ app.post('/convertToFasta', function(req, res) {
 					fastaContent += '\n';
 				}
 			} else {
+				// Neither the first line of the sequence nor the second line.
 				isFirstLineOfSequence = false;
 				isSecondLineOfSequence = false;
 			}
 		}
 	});		
 	readStream.on('end', () => {
-		console.log('Finished converting - ' + fileName + ' to its FASTA equivalent');
+		console.log('Finished converting - ' + fastqFileName + ' to its FASTA equivalent');
 		res.send(fastaContent);
 	});	
 });	
 
 
 app.post('/convertToFastq', function(req, res) {
-	fileName = './' + req.body.name;
-	res.send('This is a sample text for .fastq file');
+	var fastaFileName = './' + req.body.fastaFileName;
+	var qualFileName = './' + req.body.qualFileName;
+	// Parse the FASTA file.
+	// If 'isFirstLineOfSequence' is set to false then it automatically means that the current
+	// line is the second line of the sequence having the nucelotide sequence.
+	var isFirstLineOfSequence = true;
+	var currentReadName = '';
+	var currentBase = '';
+	var readNameToBaseMap = {};
+	var fastaReadStream = fs.createReadStream(fastaFileName);
+	fastaReadStream.on("data", function(data) {
+		for (var i=0; i<data.toString().length; i++) {
+			// This is the first line of the sequence.
+			if (i === 0
+					|| (data.toString()[i-1] === '\n' && data.toString()[i] === '>' && isFirstLineOfSequence === false)) {
+				if (currentReadName !== '') {
+					readNameToBaseMap[currentReadName] = currentBase;
+				}
+				isFirstLineOfSequence = true;
+				currentReadName = '';
+			} else if (i !== 0 && data.toString()[i-1] !== '\n' && isFirstLineOfSequence === true) {
+				// This is the first line of the sequence.
+				if (data.toString()[i] !== '\n') {
+					currentReadName += data.toString()[i];
+				}
+				isFirstLineOfSequence = true;
+			} else if ((i !== 0 && data.toString()[i-1] === '\n' && isFirstLineOfSequence === true)
+									|| isFirstLineOfSequence === false) { 
+				// This is the second and the last line of the sequence in which the nucelotide data is present.
+				if (i !== 0 && data.toString()[i-1] === '\n' && isFirstLineOfSequence === true) {
+					// Reset the current base.
+					currentBase = '';
+				}
+				isFirstLineOfSequence = false;
+				if (data.toString()[i] !== '\n') {
+					currentBase += data.toString()[i];
+				}
+			}
+		}
+	});		
+	fastaReadStream.on('end', () => {
+		if (currentReadName !== '') {
+			readNameToBaseMap[currentReadName] = currentBase;
+		}
+		// Parse the QUAL file.
+		isFirstLineOfSequence = true;
+		currentReadName = '';
+		// See - http://biopython.org/DIST/docs/api/Bio.SeqIO.QualityIO-module.html to know more about
+		// Sanger-styled qualities.
+		var currentSangerStyledQualities = '';
+		var currentDecimalQualityInStringFormat = '';
+		var readNameToSangerStyledQualityMap = {};
+		var qualReadStream = fs.createReadStream(qualFileName);
+		qualReadStream.on("data", function(data) {
+			for (var i=0; i<data.toString().length; i++) {
+				// This is the first line of the sequence.
+				if (i === 0
+						|| (data.toString()[i-1] === '\n' && data.toString()[i] === '>' && isFirstLineOfSequence === false)) {
+					if (currentReadName !== '') {
+						readNameToSangerStyledQualityMap[currentReadName] = currentSangerStyledQualities;
+					}
+					isFirstLineOfSequence = true;
+					currentReadName = '';
+				} else if (i !== 0 && data.toString()[i-1] !== '\n' && isFirstLineOfSequence === true) {
+					// This is the first line of the sequence.
+					if (data.toString()[i] !== '\n') {
+						currentReadName += data.toString()[i];
+					}
+					isFirstLineOfSequence = true;
+				} else if ((i !== 0 && data.toString()[i-1] === '\n' && isFirstLineOfSequence === true)
+										|| isFirstLineOfSequence === false) { 
+					// This is the second and the last line of the sequence in which the nucelotide data is present.
+					if (i !== 0 && data.toString()[i-1] === '\n' && isFirstLineOfSequence === true) {
+						// Reset the current Sanger-styled quality.
+						currentSangerStyledQualities = '';
+						currentDecimalQualityInStringFormat = '';
+					}
+					isFirstLineOfSequence = false;
+					if (data.toString()[i] !== ' ') {
+						currentDecimalQualityInStringFormat += data.toString()[i];
+					} else {
+						currentSangerStyledQualities =
+								currentSangerStyledQualities +
+								convertDecimalQualityInStringFormatToSangerStyledQuality(currentDecimalQualityInStringFormat);
+						currentDecimalQualityInStringFormat = '';
+					}
+				}
+			}
+		});	
+		qualReadStream.on('end', () => {
+			if (currentReadName !== '') {
+				readNameToSangerStyledQualityMap[currentReadName] = currentSangerStyledQualities;;
+			}
+			var fastqContent = '';
+			for (var key in readNameToBaseMap) {
+				if (readNameToBaseMap.hasOwnProperty(key)) {
+					fastqContent += '@';
+					fastqContent += key;
+					fastqContent += '\n';
+					fastqContent += readNameToBaseMap[key];
+					fastqContent += '\n';
+					fastqContent += '+';
+					fastqContent += '\n';
+					fastqContent += readNameToSangerStyledQualityMap[key];
+					fastqContent += '\n';
+				}
+			}			
+			console.log('Finished converting - ' + fastaFileName + ' to its FASTA equivalent');
+			res.send(fastqContent);
+		});		
+	});		
 });	
 
+
+/**
+ * A private function to map a decimal quality to Sanger-styled quality 
+ * using the formula - chr(Q+33) as mentioned in - 
+ * http://biopython.org/DIST/docs/api/Bio.SeqIO.QualityIO-module.html
+ */
+function convertDecimalQualityInStringFormatToSangerStyledQuality(input) {
+	var qualityInDecimalFormat = parseInt(input, 10);
+	return String.fromCharCode(qualityInDecimalFormat + 33);
+}
 
 var server = app.listen(8080, function () {
 	var host = server.address().address
