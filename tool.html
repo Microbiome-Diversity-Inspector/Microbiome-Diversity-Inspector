@@ -22,7 +22,7 @@
             Microbiome Diversity Inspector - A tool for visual analysis of microbiome data.
     </div>
 		<div class='vertical-separator-from-top-50'>
-			<span class='margin-left-600'>
+			<span class='margin-left-620'>
 				<label for="fileInputAnalyze" class="custom-file-upload">Select a file</label>
 				<input type="file" id="fileInputAnalyze" class="inputfile" file-picker/><br>
 			</span>
@@ -30,7 +30,7 @@
 		</div>
 		<div class='vertical-separator-from-top-50'>
 			<span class='margin-left-600'>
-				<label for="fileInputConvertToFasta" class="custom-file-upload">Select a file</label>
+				<label for="fileInputConvertToFasta" class="custom-file-upload">Select a FASTQ file</label>
 				<input type="file" id="fileInputConvertToFasta" class="inputfile" file-picker/><br>
 			</span>
 			<h3 class='align-text-center'>Convert a <span class='green-text'>.fastq</span> file to <span class='blue-text'>.fasta</span> file.<span></h3>
@@ -39,10 +39,18 @@
 			</div>
 		</div>
 		<div class='vertical-separator-from-top-50'>
-			<span class='margin-left-600'>
-				<label for="fileInputConvertToFastq" class="custom-file-upload">Select a file</label>
-				<input type="file" id="fileInputConvertToFastq" class="inputfile" file-picker/><br>
-			</span>
+			<div>
+				<span class='margin-left-600'>
+					<label for="fastaFileUploader" class="custom-file-upload">Select a FASTA file</label>
+					<input type="file" id="fastaFileUploader" class="inputfile" file-picker/><br>
+				</span>
+			</div>
+			<div class='vertical-separator-from-top-10'>
+				<span class='margin-left-600'>
+					<label for="qualFileUploader" class="custom-file-upload">Select a QUAL file</label>
+					<input type="file" id="qualFileUploader" class="inputfile" file-picker/><br>
+				</span>
+			</div>
 			<h3 class='align-text-center'>Convert a <span class='blue-text'>.fasta</span> file to <span class='green-text'>.fastq</span> file.<span></h3>
 			<div class='align-text-center italic-font-size-25' ng-show='myCtrl.startConversionToFastq'>
 				Converting to <span class='blue-text'>{{myCtrl.fileName}}</span> ...
@@ -158,6 +166,8 @@
 					// Variables required for format conversion starts here.
 					this.startConversionToFasta = false;
 					this.startConversionToFastq = false;
+					this.fastaFileName;		// Setting on controller to share the file name with QUAL file uploader.
+					this.qualFileName;		// Setting on controller to share the file name with FASTA file uploader.
 					// Variables required for format conversion ends here.
 		 }
 	
@@ -204,24 +214,56 @@
 															}, function(error) {})
 															.catch(function() {});
 														break;
-													case 'fileInputConvertToFastq':															
+													case 'fastaFileUploader':															
 														scope.$apply();
 														if (isFileHavingCorrectFormat(fileName, ".fasta") === false) {
 															alert('Please upload a .fasta file');
 															break;
 														}
-														scope.myCtrl.startConversionToFastq = true;
+														scope.myCtrl.fastaFileName = fileName;
+														if (scope.myCtrl.qualFileName !== undefined) {
+															// Keep this code in sync with - case 'qualFileUploader'.
+															scope.myCtrl.startConversionToFastq = true;
+															scope.$apply();
+															$http.post(
+																'http://localhost:8080/convertToFastq',
+																{
+																	fastaFileName: scope.myCtrl.fastaFileName,
+																	qualFileName: scope.myCtrl.qualFileName
+																},
+																{headers: {'Content-Type': 'application/json', 'Authorization': 'Basic '}})
+																.then(function(response) {
+																	download(scope.myCtrl.fastaFileName.substring(0, scope.myCtrl.fastaFileName.length-6) + '.fastq', response.data);				
+																	scope.myCtrl.startConversionToFastq = false;
+																}, function(error) {})
+																.catch(function() {});
+														}
+														break;
+													case 'qualFileUploader':															
 														scope.$apply();
-														$http.post(
-															'http://localhost:8080/convertToFastq',
-															{name: fileName},
-															{headers: {'Content-Type': 'application/json', 'Authorization': 'Basic '}})
-															.then(function(response) {
-																download(fileName.substring(0, fileName.length-6) + '.fastq', response.data);				
-																scope.myCtrl.startConversionToFastq = false;
-															}, function(error) {})
-															.catch(function() {});
-														break;															
+														if (isFileHavingCorrectFormat(fileName, ".qual") === false) {
+															alert('Please upload a .qual file');
+															break;
+														}
+														scope.myCtrl.qualFileName = fileName;
+														if (scope.myCtrl.fastaFileName !== undefined) {
+															// Keep this code in sync with - case 'fastaFileUploader'.
+															scope.myCtrl.startConversionToFastq = true;
+															scope.$apply();
+															$http.post(
+																'http://localhost:8080/convertToFastq',
+																{
+																	fastaFileName: scope.myCtrl.fastaFileName,
+																	qualFileName: scope.myCtrl.qualFileName
+																},
+																{headers: {'Content-Type': 'application/json', 'Authorization': 'Basic '}})
+																.then(function(response) {
+																	download(scope.myCtrl.fastaFileName.substring(0, scope.myCtrl.fastaFileName.length-6) + '.fastq', response.data);				
+																	scope.myCtrl.startConversionToFastq = false;
+																}, function(error) {})
+																.catch(function() {});
+														}
+														break;																													
 												}
 											});
 										}
