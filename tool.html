@@ -25,14 +25,14 @@
 				<label for="fileInputAnalyze" class="custom-file-upload">Select a file</label>
 				<input type="file" id="fileInputAnalyze" class="inputfile" file-picker/><br>
 			</span>
-			<h3 class='align-text-center open-sans-sans-serif-text'>Choose a file to analyze its entropy.<span></h3>
+			<h3 class='align-text-center open-sans-sans-serif-text'>Entropy Analysis.<span></h3>
 		</div>
 		<div class='vertical-separator-from-top-50'>
 			<span class='margin-left-600'>
 				<label for="fileInputConvertToFasta" class="custom-file-upload">Select a FASTQ file</label>
 				<input type="file" id="fileInputConvertToFasta" class="inputfile" file-picker/><br>
 			</span>
-			<h3 class='align-text-center open-sans-sans-serif-text'>Convert a <span class='green-text'>.fastq</span> file to <span class='blue-text'>.fasta</span> file.<span></h3>
+			<h3 class='align-text-center open-sans-sans-serif-text'>Convert <span class='green-text'>FASTQ</span> to <span class='blue-text'>FASTA</span>.<span></h3>
 			<div class='align-text-center italic-font-size-25 open-sans-sans-serif-text' ng-show='myCtrl.startConversionToFasta'>
 				Converting <span class='green-text'>{{myCtrl.fileName}}</span> ...
 			</div>
@@ -50,7 +50,7 @@
 					<input type="file" id="qualFileUploader" class="inputfile" file-picker/><br>
 				</span>
 			</div>
-			<h3 class='align-text-center open-sans-sans-serif-text'>Convert a <span class='blue-text'>.fasta</span> file to <span class='green-text'>.fastq</span> file.<span></h3>
+			<h3 class='align-text-center open-sans-sans-serif-text'>Convert <span class='blue-text'>FASTA</span> to <span class='green-text'>FASTQ</span>.<span></h3>
 			<div class='align-text-center italic-font-size-25 open-sans-sans-serif-text' ng-show='myCtrl.startConversionToFastq'>
 				Converting to <span class='blue-text'>{{myCtrl.fileName}}</span> ...
 			</div>
