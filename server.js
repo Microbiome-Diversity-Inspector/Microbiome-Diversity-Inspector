@@ -15,7 +15,7 @@ app.use(bodyParser.urlencoded({ extended: true })); // for parsing application/x
 	
 	
 app.post('/analyze', function(req, res) {
-	countOfA = 0, countOfT = 0, countOfG = 0, countOfC = 0, first = 0, last = 99, size = 100;
+	countOfA = 0, countOfT = 0, countOfG = 0, countOfC = 0, first = 0, last = 499, size = 500;
 	fileName = './' + req.body.name;
 	res.send('Posting done');
 });		
