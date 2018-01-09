@@ -1,3 +1,7 @@
+body {
+	background-color: #FFE033
+}
+
 .heading-message {
 	font-weight: bold;
   font-size: 30px;
@@ -42,8 +46,8 @@
   margin-left: 620px;
 }
 
-.gold-text {
-	color: #FFD700
+.burgundy-text {
+	color: #900C3F
 }
 
 .red-text {
@@ -58,10 +62,15 @@
 	color: #008000
 }
 
+.open-sans-sans-serif-text {
+	font-family: 'Open Sans', sans-serif;
+}
+
 /* 
 	 External CSS styles 
 	 Sources - 
 			1) https://stackoverflow.com/a/25825731/5928129
+			2) https://wdexplorer.com/20-examples-beautiful-css-typography-design/
 */
 
 input[type="file"] {
@@ -69,9 +78,32 @@ input[type="file"] {
 }
 
 .custom-file-upload {
-    border: 2px solid red;
+		font-family: 'Raleway',sans-serif;
+		font-weight: 600;
+    border: 2px solid #3368FF;
     display: inline-block;
     padding: 12px 12px;
     cursor: pointer;
-		color: blue;
+		color: #ffffff;
+		background-color: #3368FF;
+}
+
+.main-title {
+	color: #111;
+	font-family: 'Helvetica Neue', sans-serif;
+	font-size: 60px;
+	font-weight: bold;
+	letter-spacing: -1px;
+	line-height: 1;
+	text-align: center;
+}
+
+.title-description {
+	color: #111;
+	font-family: 'Open Sans', sans-serif;
+	font-size: 30px;
+	font-weight: 300;
+	line-height: 32px;
+	margin: 0 0 72px;
+	text-align: center;
 }
