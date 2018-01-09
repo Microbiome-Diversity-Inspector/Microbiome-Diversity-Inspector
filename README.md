@@ -12,8 +12,9 @@ Download the repository - [Microbiome-Diversity-Inspector](https://github.com/gb
 
 1) JavaScript  
 2) AngularJS (1.x)
-3) HTML
-4) CSS
+3) [CanvasJS](https://canvasjs.com/)
+4) HTML
+5) CSS
 
 ## Contributors
 
