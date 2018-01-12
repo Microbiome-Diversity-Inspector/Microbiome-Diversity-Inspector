@@ -9,32 +9,30 @@
 						this.intervalService_ = $interval;
 						this.httpService_ = $http;
 						this.document_ = $document;
-						this.fastaFileName;		// Setting on controller to share the file name with QUAL file uploader.
-						this.qualFileName;		// Setting on controller to share the file name with FASTA file uploader.
-						this.reset_();
+						this.resetCounts_();
 					}).bind(this);
 				}		
 		</script>
-		<title>Microbiome Diversity Inspector - A tool for visual analysis of microbiome data.</title>
+		<title>Microbiome Diversity Inspector - A tool for visual analysis of microbiome data</title>
 		<link rel='shortcut icon' href='favicon.ico'>
 		<link rel='stylesheet' href='tool.css'>
   </head>
   <body ng-app='myApp' ng-controller='MyController as myCtrl'>
 		<div class='heading-message align-text-center main-title'>Microbiome Diversity Inspector</div>
-		<div class='heading-message align-text-center title-description'>A tool for visual analysis of microbiome data.</div>
+		<div class='heading-message align-text-center title-description'>A tool for visual analysis of microbiome data</div>
 		<div class='vertical-separator-from-top-50'>
 			<span class='margin-left-620'>
 				<label for="fileInputAnalyze" class="custom-file-upload">Select a file</label>
 				<input type="file" id="fileInputAnalyze" class="inputfile" file-picker/><br>
 			</span>
-			<h3 class='align-text-center open-sans-sans-serif-text'>Entropy Analysis.<span></h3>
+			<h3 class='align-text-center open-sans-sans-serif-text'>Entropy Analysis<span></h3>
 		</div>
 		<div class='vertical-separator-from-top-50'>
 			<span class='margin-left-600'>
 				<label for="fileInputConvertToFasta" class="custom-file-upload">Select a FASTQ file</label>
 				<input type="file" id="fileInputConvertToFasta" class="inputfile" file-picker/><br>
 			</span>
-			<h3 class='align-text-center open-sans-sans-serif-text'>Convert <span class='green-text'>FASTQ</span> to <span class='blue-text'>FASTA</span>.<span></h3>
+			<h3 class='align-text-center open-sans-sans-serif-text'>Convert <span class='green-text'>FASTQ</span> to <span class='blue-text'>FASTA</span><span></h3>
 			<div class='align-text-center italic-font-size-25 open-sans-sans-serif-text' ng-show='myCtrl.startConversionToFasta'>
 				Converting <span class='green-text'>{{myCtrl.fileName}}</span> ...
 			</div>
@@ -52,7 +50,7 @@
 					<input type="file" id="qualFileUploader" class="inputfile" file-picker/><br>
 				</span>
 			</div>
-			<h3 class='align-text-center open-sans-sans-serif-text'>Convert <span class='blue-text'>FASTA</span> to <span class='green-text'>FASTQ</span>.<span></h3>
+			<h3 class='align-text-center open-sans-sans-serif-text'>Convert <span class='blue-text'>FASTA</span> to <span class='green-text'>FASTQ</span><span></h3>
 			<div class='align-text-center italic-font-size-25 open-sans-sans-serif-text' ng-show='myCtrl.startConversionToFastq'>
 				Converting to <span class='blue-text'>{{myCtrl.fileName}}</span> ...
 			</div>
@@ -60,41 +58,19 @@
 		<div class='vertical-separator-from-top-50' ng-show='myCtrl.showAnalysis'>
 			<div class='align-text-center italic-font-size-25' ng-if='!myCtrl.showEntropy'>Analyzing {{myCtrl.fileName}} ...</div>
 			<div class='align-text-center boxed bold-font-size-30' ng-if='myCtrl.showEntropy'>Entropy = {{myCtrl.entropy}}</div>
+			<div class='align-text-center'>
+				<h1>The number of <span class='red-text'>A</span>'s are - <span class='red-text'>{{myCtrl.countOfA}}</span></h1>
+				<h1>The number of <span class='burgundy-text'>T</span>'s are - <span class='burgundy-text'>{{myCtrl.countOfT}}</span></h1>
+				<h1>The number of <span class='blue-text'>G</span>'s are - <span class='blue-text'>{{myCtrl.countOfG}}</span></h1>
+				<h1>The number of <span class='green-text'>C</span>'s are - <span class='green-text'>{{myCtrl.countOfC}}<span></h1> 
+			</div>
 			<div class='vertical-separator-from-top-50'>
 				<div id="chartContainer" style="height: 300px; width: 100%;"></div>
 			</div>
 		</div>
   </body>
-	<script>
-			function getLogOfXBase2(x) {
-				return Math.log(x) / Math.log(2);
-			}				
-			
-			function isFileHavingCorrectFormat(fileName, expectedFileFormat) {
-				return (fileName.length < expectedFileFormat.length) ?
-						false : fileName.substring(fileName.length-expectedFileFormat.length) === expectedFileFormat;
-			}
-			
-			/**
-			 *	API to download a file with name - 'fileName' having text - 'text'.
-			 *  See - https://stackoverflow.com/a/18197341/5928129 for more.
-			 */
-			function download(filename, text) {
-				var element = document.createElement('a');
-				element.setAttribute('href', 'data:text/plain;charset=utf-8,' + encodeURIComponent(text));
-				element.setAttribute('download', filename);
-				element.style.display = 'none';
-				document.body.appendChild(element);
-				element.click();
-				document.body.removeChild(element);
-			}				
-	
-			/**
-			 * Refresh the graph between entropy of partitioned blocks of DNA and time.
-			 * 
-			 * @private
-			 */	
-			MyController.prototype.refreshEntropyGraph_ = function() {
+	<script>				  
+			MyController.prototype.drawFreshPieChart_ = function() {
 					var dps = []; // dataPoints
 					var chart = new CanvasJS.Chart("chartContainer", {
 						title :{
@@ -118,8 +94,7 @@
 					var xVal = 0;
 					var updateInterval = 500;
 					var dataLength = 20; // number of dataPoints visible at any point
-
-					var updateGraph = (function (count) {
+					var updateChart = (function (count) {
 						// Stop updating the chart once the whole file is analyzed.
 						if (this.showEntropy === true) {
 							return;
@@ -138,22 +113,33 @@
 						}
 						chart.render();
 					}).bind(this);
-					updateGraph(dataLength);
-					setInterval(function(){updateGraph()}, updateInterval);
+					updateChart(dataLength);
+					setInterval(function(){updateChart()}, updateInterval);
 			}
-
+							
+			function getLogOfXBase2(x) {
+				return Math.log(x) / Math.log(2);
+			}				
+			
+			function isFileHavingCorrectFormat(fileName, expectedFileFormat) {
+				return (fileName.length < expectedFileFormat.length) ?
+						false : fileName.substring(fileName.length-expectedFileFormat.length) === expectedFileFormat;
+			}
 			
 			/**
-			 * Returns the entropy from the counts of adenine (A), cytosine (C),
-  		 * guanine (G), thymine (T), and uracil (U).
-			 * 
-			 * @private
-			 * @param {number} countOfA The count of Adenine base.
-			 * @param {number} countOfT The count of Thymine base.
-			 * @param {number} countOfG The count of Guanine base.
-			 * @param {number} countOfC The count of Cytosine base.			 
-       * @return {number}
-			 */				
+			 *	API to download a file with name - 'fileName' having text - 'text'.
+			 *  See - https://stackoverflow.com/a/18197341/5928129 for more.
+			 */
+			function download(filename, text) {
+				var element = document.createElement('a');
+				element.setAttribute('href', 'data:text/plain;charset=utf-8,' + encodeURIComponent(text));
+				element.setAttribute('download', filename);
+				element.style.display = 'none';
+				document.body.appendChild(element);
+				element.click();
+				document.body.removeChild(element);
+			}				
+							
 			MyController.prototype.getEntropy_ = function(countOfA, countOfT, countOfG, countOfC) {
 				var totalCount = countOfA + countOfT + countOfG + countOfC;
 				if (totalCount === 0) {
@@ -171,15 +157,8 @@
 				return entropy;
 			};
 			
-			
-			/**
-			 * Initiates the entropy analysis process.
-			 * 
-			 * @private
-			 * @param {string} fileName The name of the file to analyze.			 
-			 */							
 			MyController.prototype.process_ = function (fileName) {
-					this.refreshEntropyGraph_();					
+					this.drawFreshPieChart_();					
 					this.intervalPromise_ = this.intervalService_((function() {
 						this.httpService_.get('http://localhost:8080/analyze')
 								 .then ((function (response) {
@@ -204,14 +183,7 @@
 					}).bind(this), 10);					
 		 };
 		 
-		 
-		/**
-		 * Reset the variables in the tool to provide ability to the users to 
-		 * start another task by halting an already-running task.
-		 * 
-		 * @private
-		 */						 
-		 MyController.prototype.reset_ = function() {
+		 MyController.prototype.resetCounts_ = function() {
 					// Variables required for analyzing the entropy starts here.
 					this.countOfA = 0;
 					this.countOfT = 0;
@@ -220,11 +192,14 @@
 					this.showAnalysis = false;
 					this.showEntropy = false;	
 					this.entropyOfCurrentWindow = 0; 						
+					//this.drawFreshPieChart_();
 					// Variables required for analyzing the entropy ends here.
 					
 					// Variables required for format conversion starts here.
 					this.startConversionToFasta = false;
 					this.startConversionToFastq = false;
+					this.fastaFileName;		// Setting on controller to share the file name with QUAL file uploader.
+					this.qualFileName;		// Setting on controller to share the file name with FASTA file uploader.
 					// Variables required for format conversion ends here.
 		 }
 	
@@ -235,16 +210,11 @@
 									return  {
 										link: function(scope, elem, attr, ctrl) {
 											elem.on('change', function() {
-												scope.myCtrl.reset_();
+												scope.myCtrl.resetCounts_();
 												var fileName = elem[0].files[0].name;
 												scope.myCtrl.fileName = fileName;
 												switch(elem[0].id) {
 													case 'fileInputAnalyze':
-														if (isFileHavingCorrectFormat(fileName, ".fastq") === false &&
-																isFileHavingCorrectFormat(fileName, ".fasta") === false) {
-															alert('Please upload a FASTQ/FASTA file');
-															break;
-														}													
 														scope.myCtrl.showAnalysis = true;
 														scope.$apply();	// Placing scope.$apply() to update the view even if removing it works fine.
 														$interval.cancel(scope.myCtrl.intervalPromise_);
@@ -261,7 +231,7 @@
 													case 'fileInputConvertToFasta':
 														scope.$apply();
 														if (isFileHavingCorrectFormat(fileName, ".fastq") === false) {
-															alert('Please upload a FASTQ file');
+															alert('Please upload a .fastq file');
 															break;
 														}
 														scope.myCtrl.startConversionToFasta = true;
@@ -279,7 +249,7 @@
 													case 'fastaFileUploader':															
 														scope.$apply();
 														if (isFileHavingCorrectFormat(fileName, ".fasta") === false) {
-															alert('Please upload a FASTA file');
+															alert('Please upload a .fasta file');
 															break;
 														}
 														scope.myCtrl.fastaFileName = fileName;
@@ -304,7 +274,7 @@
 													case 'qualFileUploader':															
 														scope.$apply();
 														if (isFileHavingCorrectFormat(fileName, ".qual") === false) {
-															alert('Please upload a QUAL file');
+															alert('Please upload a .qual file');
 															break;
 														}
 														scope.myCtrl.qualFileName = fileName;
