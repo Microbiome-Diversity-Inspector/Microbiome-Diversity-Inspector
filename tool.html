@@ -148,7 +148,10 @@
   		 * guanine (G), thymine (T), and uracil (U).
 			 * 
 			 * @private
-			 * @param {number, number, number, number}
+			 * @param {number} countOfA The count of Adenine base.
+			 * @param {number} countOfT The count of Thymine base.
+			 * @param {number} countOfG The count of Guanine base.
+			 * @param {number} countOfC The count of Cytosine base.			 
        * @return {number}
 			 */				
 			MyController.prototype.getEntropy_ = function(countOfA, countOfT, countOfG, countOfC) {
@@ -173,6 +176,7 @@
 			 * Initiates the entropy analysis process.
 			 * 
 			 * @private
+			 * @param {string} fileName The name of the file to analyze.			 
 			 */							
 			MyController.prototype.process_ = function (fileName) {
 					this.refreshEntropyGraph_();					
