@@ -19,6 +19,6 @@ Download the repository - [Microbiome-Diversity-Inspector](https://github.com/gb
 ## Contributors
 
 <!-- ALL-CONTRIBUTORS-LIST:START - Do not remove or modify this section -->
-| [<img src="https://avatars2.githubusercontent.com/u/14831291?s=400&v=4" width="100px;"/><br /><sub>Rachit Belwariar</sub>](https://github.com/gbelwariar)<br /> | [<img src="https://avatars0.githubusercontent.com/u/17107752?s=400&v=4" width="100px;"/><br /><sub>Mazhar Imam Khan</sub>](https://github.com/MAZHARMIK)<br /> |
-| :---: | :---: |
+ [<img src="https://avatars2.githubusercontent.com/u/14831291?s=400&v=4" width="100px;"/><br /><sub>Rachit Belwariar</sub>](https://github.com/gbelwariar)<br /> | [<img src="https://avatars0.githubusercontent.com/u/17107752?s=400&v=4" width="100px;"/><br /><sub>Mazhar Imam Khan</sub>](https://github.com/MAZHARMIK)<br /> 
+ :---: | :---: 
 <!-- ALL-CONTRIBUTORS-LIST:END -->
