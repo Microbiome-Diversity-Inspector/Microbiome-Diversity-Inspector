@@ -1,10 +1,15 @@
 body {
-	background-color: #01E88B;
+	background: url(source.gif) 100%;
+	background-repeat: no-repeat;
+	height: 100%; 
+	background-position: center;
+	background-size: cover;
+	color:white;
 }
 
 .heading-message {
 	font-weight: bold;
-  font-size: 30px;
+    font-size: 30px;
 }
 
 .align-text-center {
@@ -23,7 +28,7 @@ body {
 
 .bold-font-size-30 {
 	font-weight: bold;
-  font-size: 30px;
+	font-size: 30px;
 }
 
 .vertical-separator-from-top-10 {
@@ -80,12 +85,13 @@ input[type="file"] {
 .custom-file-upload {
 		font-family: 'Raleway',sans-serif;
 		font-weight: 600;
-    border: 2px solid #3368FF;
-    display: inline-block;
-    padding: 12px 12px;
-    cursor: pointer;
-		color: #ffffff;
-		background-color: #3368FF;
+		border: 2px solid #3368FF;
+		border-radius: 15px;
+		display: inline-block;
+		padding: 12px 12px;
+		cursor: pointer;
+		color: #000000;
+		background-color: #663366;
 }
 
 .main-title {
