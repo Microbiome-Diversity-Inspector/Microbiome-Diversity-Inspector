@@ -67,6 +67,14 @@ body {
 	color: #008000
 }
 
+.orange-text {
+	color: orange
+}
+
+.light-green-text {
+	color: #99CC00;
+}
+
 .open-sans-sans-serif-text {
 	font-family: 'Open Sans', sans-serif;
 }
