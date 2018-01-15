@@ -1,3 +1,4 @@
+<!DOCTYPE html>
 <html>
   <head>
 		<script src='angular.js'></script>
@@ -13,7 +14,7 @@
 					}).bind(this);
 				}		
 		</script>
-		<title style="color:white;">Microbiome Diversity Inspector - A tool for visual analysis of microbiome data</title>
+		<title>Microbiome Diversity Inspector - A tool for visual analysis of microbiome data</title>
 		<link rel='shortcut icon' href='favicon.ico'>
 		<link rel='stylesheet' href='tool.css'>
   </head>
@@ -32,7 +33,7 @@
 				<label for="fileInputConvertToFasta" class="custom-file-upload">Select a FASTQ file</label>
 				<input type="file" id="fileInputConvertToFasta" class="inputfile" file-picker/><br>
 			</span>
-			<h3 class='align-text-center open-sans-sans-serif-text'>Convert <span style="color:orange;">FASTQ</span> to <span style="color:#99CC00;">FASTA</span><span></h3>
+			<h3 class='align-text-center open-sans-sans-serif-text'>Convert <span class="orange-text">FASTQ</span> to <span class="light-green-text">FASTA</span><span></h3>
 			<div class='align-text-center italic-font-size-25 open-sans-sans-serif-text' ng-show='myCtrl.startConversionToFasta'>
 				Converting <span class='green-text'>{{myCtrl.fileName}}</span> ...
 			</div>
@@ -50,7 +51,7 @@
 					<input type="file" id="qualFileUploader" class="inputfile" file-picker/><br>
 				</span>
 			</div>
-			<h3 class='align-text-center open-sans-sans-serif-text'>Convert <span style="color:#99CC00;">FASTA</span> to <span style="color:orange;">FASTQ</span><span></h3>
+			<h3 class='align-text-center open-sans-sans-serif-text'>Convert <span class="light-green-text">FASTA</span> to <span class="orange-text">FASTQ</span><span></h3>
 			<div class='align-text-center italic-font-size-25 open-sans-sans-serif-text' ng-show='myCtrl.startConversionToFastq'>
 				Converting to <span class='blue-text'>{{myCtrl.fileName}}</span> ...
 			</div>
@@ -301,5 +302,6 @@
 										}
 									};
 							});
+	</script>
 	</script>
 </html>
