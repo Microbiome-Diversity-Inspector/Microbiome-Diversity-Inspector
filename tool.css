@@ -103,7 +103,7 @@ input[type="file"] {
 }
 
 .main-title {
-	color: #111;
+	color: white;
 	font-family: 'Helvetica Neue', sans-serif;
 	font-size: 60px;
 	font-weight: bold;
@@ -113,7 +113,7 @@ input[type="file"] {
 }
 
 .title-description {
-	color: #111;
+	color: white;
 	font-family: 'Open Sans', sans-serif;
 	font-size: 30px;
 	font-weight: 300;
