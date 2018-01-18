@@ -1,10 +1,10 @@
 var express = require('express');
 var path = require('path');
-var app = express();
 var fs = require('fs');
 var stream = require('stream');
 var readline = require('readline');
 var bodyParser = require('body-parser');
+var app = express();
 
 var countOfA, countOfT, countOfG, countOfC, first, last, size, fileName;
 
@@ -13,11 +13,13 @@ app.use(bodyParser.json()); // for parsing application/json
 app.use(bodyParser.urlencoded({ extended: true })); // for parsing application/x-www-form-urlencoded
 
 
-app.get( '/', function( req, res ) {
+app.get('/', function( req, res ) {
 	res.sendFile(path.join(__dirname, 'tool.html'));
 });	
 	
-	
+// TODO: Comply with REST standards. POST calls are meant to alter the system whereas none
+// of the POST requests below is altering the system due to the intentional "lack" of database
+// in this project.
 app.post('/analyze', function(req, res) {
 	countOfA = 0, countOfT = 0, countOfG = 0, countOfC = 0, first = 0, last = 499, size = 500;
 	fileName = './' + req.body.name;
