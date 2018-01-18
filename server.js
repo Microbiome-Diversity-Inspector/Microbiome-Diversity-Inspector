@@ -1,5 +1,5 @@
 var express = require('express');
-var cors = require('cors')
+var path = require('path');
 var app = express();
 var fs = require('fs');
 var stream = require('stream');
@@ -8,10 +8,14 @@ var bodyParser = require('body-parser');
 
 var countOfA, countOfT, countOfG, countOfC, first, last, size, fileName;
 
-app.use(cors())		
-
+app.use(express.static(path.join(__dirname, '')));
 app.use(bodyParser.json()); // for parsing application/json
 app.use(bodyParser.urlencoded({ extended: true })); // for parsing application/x-www-form-urlencoded
+
+
+app.get( '/', function( req, res ) {
+	res.sendFile(path.join(__dirname, 'tool.html'));
+});	
 	
 	
 app.post('/analyze', function(req, res) {
