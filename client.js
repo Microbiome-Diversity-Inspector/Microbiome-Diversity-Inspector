@@ -1,5 +1,20 @@
 function MyController($document, $http, $interval) {
+	this.selectedCityUrlPrefix;
+	this.accessionNumber;
 	this.$onInit = (function() {
+		this.cities = [
+		{
+			name: 'New York',
+			urlPrefix: 'http://ala.boku.ac.at/camda2017/MetaSUB/NY/data/'
+		},
+		{
+			name: 'Boston',
+			urlPrefix: 'http://ala.boku.ac.at/camda2017/MetaSUB/Boston/data/'
+		},
+		{
+			name: 'Sacramento',
+			urlPrefix: 'http://ala.boku.ac.at/camda2017/MetaSUB/Sacramento/data/'
+		}];		
 		this.intervalService_ = $interval;
 		this.httpService_ = $http;
 		this.document_ = $document;
@@ -9,14 +24,17 @@ function MyController($document, $http, $interval) {
 	}).bind(this);
 }		
 
+
 function getLogOfXBase2(x) {
 	return Math.log(x) / Math.log(2);
 }				
+
 
 function isFileHavingCorrectFormat(fileName, expectedFileFormat) {
 	return (fileName.length < expectedFileFormat.length) ?
 			false : fileName.substring(fileName.length-expectedFileFormat.length) === expectedFileFormat;
 }
+
 
 /**
  *	API to download a file with name - 'fileName' having text - 'text'.
@@ -31,6 +49,7 @@ function download(filename, text) {
 	element.click();
 	document.body.removeChild(element);
 }				
+
 
 /**
  * Refresh the graph between entropy of partitioned blocks of DNA and time.
@@ -149,11 +168,11 @@ MyController.prototype.process_ = function (fileName) {
 
 
 /**
-* Reset the variables in the tool to provide ability to the users to 
-* start another task by halting an already-running task.
-* 
-* @private
-*/						 
+ * Reset the variables in the tool to provide ability to the users to 
+ * start another task by halting an already-running task.
+ * 
+ * @private
+ */						 
 MyController.prototype.reset_ = function() {
 		// Variables required for analyzing the entropy starts here.
 		this.countOfA = 0;
@@ -170,6 +189,16 @@ MyController.prototype.reset_ = function() {
 		this.startConversionToFastq = false;
 		// Variables required for format conversion ends here.
 }
+
+
+/**
+ * Sends a FTP request to download the required MetaSum data.
+ */						 
+MyController.prototype.downloadMetaSubData = function() {
+		alert("Enter the below details to download the required file-\nUsername- 'CAMDA', Password- 'Pivo'");
+		window.open(this.selectedCityUrlPrefix + this.accessionNumber + '.fastq.dsrc');
+};
+
 
 angular
 				.module('myApp', [])
