@@ -5,24 +5,59 @@
 		<script src="canvas.js"></script>
 		<script src='client.js'></script>
 		<title>Microbiome Diversity Inspector - A tool for visual analysis of microbiome data</title>
-		<link rel='shortcut icon' href='favicon.ico'>
-		<link rel='stylesheet' href='tool.css'>
+		<link rel='shortcut icon' type="image/x-icon" href='favicon.ico'>
+		<link rel='stylesheet' type="text/css" href='tool.css'>
   </head>
   <body ng-app='myApp' ng-controller='MyController as myCtrl'>
 	  	<!--TODO: Separate each of the below tempates into its own directive/components following the principles
 			  of modularity and separation of concerns.-->
 		<div class='heading-message align-text-center main-title'>Microbiome Diversity Inspector</div>
 		<div class='heading-message align-text-center title-description'>A tool for visual analysis of microbiome data</div>
-		<div class='vertical-separator-from-top-50'>
-			<span class='margin-left-620'>
-				<label for="fileInputAnalyze" class="custom-file-upload">Select a file</label>
+		<div class='align-text-center'>
+			<form name='metaSubForm'>
+				<h3 class='open-sans-sans-serif-text'>Download MetaSUB data</h3>
+				<div>
+						<div ng-repeat='city in myCtrl.cities'>
+								<label>
+										<input name='city' type='radio'
+													 value='{{city.urlPrefix}}'
+													 ng-model='myCtrl.selectedCityUrlPrefix'
+													 required='!myCtrl.selectedCityUrlPrefix'>
+										<span class='font-size-20'>{{city.name}}</span>
+								</label>
+						</div>
+						<div ng-show='!metaSubForm.$submitted'>
+								<span class='invalidation-message font-size-20'
+											ng-show='metaSubForm.city.$error.required'>
+										Please select a city.
+								</span>
+						</div>    
+						<div class='vertical-separator-from-top-10'>
+								<label>
+										<span class='font-size-20'>SRR Accession Number</span>
+										<input name='accessionNumber' type='text' placeholder='Example - SRR1748535'
+												pattern='SRR\d+' required ng-model='myCtrl.accessionNumber'>
+								</label>
+						</div>						
+						<div class='vertical-separator-from-top-10'>
+								<button class='submit button' 
+												ng-click='metaSubForm.$valid && myCtrl.downloadMetaSubData()'>
+										<span class='font-size-20'>Download</span>
+								</button>
+						</div>						
+				</div>
+		 </form>
+		</div>
+		<div class='align-text-center vertical-separator-from-top-50'>
+			<span>
+				<label for="fileInputAnalyze" class="button font-size-20">Select a file</label>
 				<input type="file" id="fileInputAnalyze" class="inputfile" file-picker/><br>
 			</span>
-			<h3 class='align-text-center open-sans-sans-serif-text'>Entropy Analysis<span></h3>
+			<h3 class='align-text-center open-sans-sans-serif-text'>Entropy Analysis</h3>
 		</div>
-		<div class='vertical-separator-from-top-50'>
-			<span class='margin-left-600'>
-				<label for="fileInputConvertToFasta" class="custom-file-upload">Select a FASTQ file</label>
+		<div class='align-text-center vertical-separator-from-top-50'>
+			<span>
+				<label for="fileInputConvertToFasta" class="button">Select a FASTQ file</label>
 				<input type="file" id="fileInputConvertToFasta" class="inputfile" file-picker/><br>
 			</span>
 			<h3 class='align-text-center open-sans-sans-serif-text'>Convert <span class="orange-text">FASTQ</span> to <span class="light-green-text">FASTA</span><span></h3>
@@ -30,16 +65,16 @@
 				Converting <span class='orange-text'>{{myCtrl.fileName}}</span> ...
 			</div>
 		</div>
-		<div class='vertical-separator-from-top-50'>
+		<div class='align-text-center vertical-separator-from-top-50'>
 			<div>
-				<span class='margin-left-600'>
-					<label for="fastaFileUploader" class="custom-file-upload">Select a FASTA file</label>
+				<span>
+					<label for="fastaFileUploader" class="button font-size-20">Select a FASTA file</label>
 					<input type="file" id="fastaFileUploader" class="inputfile" file-picker/><br>
 				</span>
 			</div>
-			<div class='vertical-separator-from-top-10'>
-				<span class='margin-left-600'>
-					<label for="qualFileUploader" class="custom-file-upload">Select a QUAL file</label>
+			<div class='align-text-center vertical-separator-from-top-10'>
+				<span>
+					<label for="qualFileUploader" class="button font-size-20">Select a QUAL file</label>
 					<input type="file" id="qualFileUploader" class="inputfile" file-picker/><br>
 				</span>
 			</div>
