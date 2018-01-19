@@ -9,7 +9,7 @@ body {
 
 .heading-message {
 	font-weight: bold;
-    font-size: 30px;
+  font-size: 30px;
 }
 
 .align-text-center {
@@ -27,8 +27,12 @@ body {
 }
 
 .bold-font-size-30 {
-	font-weight: bold;
+	font-weight: bold
 	font-size: 30px;
+}
+
+.font-size-20 {
+	font-size: 20px;
 }
 
 .vertical-separator-from-top-10 {
@@ -37,18 +41,6 @@ body {
 
 .vertical-separator-from-top-50 {
 	margin-top: 50px;
-}
-
-.margin-left-510 {    
-  margin-left: 510px;
-}
-
-.margin-left-600 {    
-  margin-left: 600px;
-}
-
-.margin-left-620 {    
-  margin-left: 620px;
 }
 
 .burgundy-text {
@@ -79,6 +71,10 @@ body {
 	font-family: 'Open Sans', sans-serif;
 }
 
+.invalidation-message {
+  color: #f44336;
+}
+
 /* 
 	 External CSS styles 
 	 Sources - 
@@ -90,7 +86,7 @@ input[type="file"] {
     display: none;
 }
 
-.custom-file-upload {
+.button {
 		font-family: 'Raleway',sans-serif;
 		font-weight: 600;
 		border: 2px solid #3368FF;
