@@ -192,12 +192,14 @@ MyController.prototype.reset_ = function() {
 
 
 /**
- * Sends a FTP request to download the required MetaSum data.
+ * Sends a HTTP request to download the required MetaSum data from
+ * http://ala.boku.ac.at/ server.
  */						 
 MyController.prototype.downloadMetaSubData = function() {
 		alert("Enter the below details to download the required file-\nUsername- 'CAMDA', Password- 'Pivo'");
 		window.open(this.selectedCityUrlPrefix + this.accessionNumber + '.fastq.dsrc');
 };
+
 
 
 angular
