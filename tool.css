@@ -23,12 +23,12 @@ body {
 .italic-font-size-25 {
 	font-style: italic;
 	font-weight: bold;
-  font-size: 25px;
+        font-size: 25px;
 }
 
 .bold-font-size-30 {
-	font-weight: bold
-	font-size: 30px;
+	font-weight: bold;
+        font-size: 40px;
 }
 
 .font-size-20 {
