@@ -4,7 +4,7 @@
 
 Microbiome Diversity Inspector - A tool for visual analysis of microbiome data. This project was done as a part of "Major Project" course in 7th Semester and 8th Semester. Find more details [here](https://docs.google.com/presentation/d/1319g9zOQpjt3MVGcQxWaKRCSVT_WgVh2ykTLYEK-eUc/edit?usp=sharing).
 
-# How to use/install the tool
+## How to use/install the tool
 
 The tool can be used as a web application or as well as a standalone desktop application as described below -
 
