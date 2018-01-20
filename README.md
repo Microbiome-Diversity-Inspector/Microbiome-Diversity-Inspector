@@ -4,19 +4,28 @@
 
 Microbiome Diversity Inspector - A tool for visual analysis of microbiome data. This project was done as a part of "Major Project" course in 7th Semester and 8th Semester. Find more details [here](https://docs.google.com/presentation/d/1319g9zOQpjt3MVGcQxWaKRCSVT_WgVh2ykTLYEK-eUc/edit?usp=sharing).
 
-## How to use/install the tool
+# How to use/install the tool
 
-Download the repository - [Microbiome-Diversity-Inspector](https://github.com/gbelwariar/Microbiome-Diversity-Inspector). Bring up the server using the command - "*node server.js*" and then open - *http://localhost:8080/* in a browser. Also download all the node modules as mentioned [here](https://www.npmjs.com/package/npm-install-all). 
+The tool can be used as a web application or as well as a standalone desktop application as described below -
 
-## Languages/Frameworks Used - 
+### How to use the Web Version
+
+Download the repository - [Microbiome-Diversity-Inspector](https://github.com/gbelwariar/Microbiome-Diversity-Inspector). Following this, download all the node modules as mentioned [here](https://www.npmjs.com/package/npm-install-all). Bring up the server using the command - "**node server.js**" and then open - *http://localhost:8080/* in a browser.  
+
+### How to use the Desktop Version 
+
+Download the repository - [Microbiome-Diversity-Inspector](https://github.com/gbelwariar/Microbiome-Diversity-Inspector). Following this, download all the node modules as mentioned [here](https://www.npmjs.com/package/npm-install-all). Then, install [Nativefier](https://github.com/jiahaog/nativefier) which is built on the top of [Electron](https://electronjs.org) using the command - "**npm install nativefier -g**" followed by "**nativefier --name "Microbiome Diversity Inspector" "http://localhost:8080"**". This will configure/install the desktop application inside the directory from where the aforementioned commands where executed. To run the application, bring up the server using the command - "**node server.js**" and then launch the installed desktop application.
+
+## Languages/Frameworks/Technologies Used - 
 
 1) JavaScript  
 2) AngularJS (1.x)
 3) Node.js
 4) Express
-5) [CanvasJS](https://canvasjs.com/)
-6) HTML
-7) CSS
+5) [Nativefier](https://github.com/jiahaog/nativefier) (built on the top of [Electron](https://electronjs.org))
+6) [CanvasJS](https://canvasjs.com/)
+7) HTML
+8) CSS
 
 ## Contributors
 
