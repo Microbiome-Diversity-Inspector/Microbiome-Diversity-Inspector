@@ -10,17 +10,17 @@ body {
 .metasub-download{
 	background-color: lightgrey;
 	position: relative;
-    left: 437px;
+        left: 437px;
 	width: 300px;
-    border: 25px solid white;
-    padding: 25px;
+    	border: 25px solid white;
+    	padding: 25px;
 	border-radius: 25px;
-    margin: 25px;
+    	margin: 25px;
 }
 
 .heading-message {
 	font-weight: bold;
-    font-size: 30px;
+    	font-size: 30px;
 }
 
 .align-text-center {
@@ -34,12 +34,12 @@ body {
 .italic-font-size-25 {
 	font-style: italic;
 	font-weight: bold;
-    font-size: 25px;
+    	font-size: 25px;
 }
 
 .bold-font-size-30 {
 	font-weight: bold;
-    font-size: 40px;
+    	font-size: 40px;
 }
 
 .font-size-20 {
