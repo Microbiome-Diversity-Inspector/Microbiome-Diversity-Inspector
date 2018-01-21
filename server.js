@@ -18,11 +18,11 @@ app.get('/', function( req, res ) {
 });	
 	
 // TODO: Comply with REST standards. POST calls are meant to alter the system whereas none
-// of the POST requests below is altering the system due to the intentional "lack" of database
-// in this project.
+// of the POST request is altering the system due to the intentional "lack" of database in
+// this project.
 app.post('/analyze', function(req, res) {
 	countOfA = 0, countOfT = 0, countOfG = 0, countOfC = 0, first = 0, last = 499, size = 500;
-	fileName = './' + req.body.name;
+	fileName = path.join(__dirname, req.body.name);
 	res.send('Posting done');
 });		
 		
@@ -82,7 +82,7 @@ app.get('/analyze', function (req, res) {
 
 
 app.post('/convertToFasta', function(req, res) {
-	var fastqFileName = './' + req.body.name;
+	var fastqFileName = path.join(__dirname, req.body.name);
 	var readStream = fs.createReadStream(fastqFileName);
 	// The line limit in FASTA format as mentioned in - https://en.wikipedia.org/wiki/FASTA_format
 	var FASTA_LINE_LIMIT = 60;
@@ -142,8 +142,8 @@ app.post('/convertToFasta', function(req, res) {
 
 
 app.post('/convertToFastq', function(req, res) {
-	var fastaFileName = './' + req.body.fastaFileName;
-	var qualFileName = './' + req.body.qualFileName;
+	var fastaFileName = path.join(__dirname, req.body.fastaFileName);
+	var qualFileName = path.join(__dirname, req.body.qualFileName);
 	// Parse the FASTA file.
 	// If 'isFirstLineOfSequence' is set to false then it automatically means that the current
 	// line is the second line of the sequence having the nucelotide sequence.
@@ -225,7 +225,7 @@ app.post('/convertToFastq', function(req, res) {
 				if (data.toString()[i] !== ' ' && data.toString()[i] !== '\n' && data.toString()[i] !== '\r') {
 					currentDecimalQualityInStringFormat += data.toString()[i];
 				} else if (data.toString()[i] === ' ' || data.toString()[i] === '\n' || data.toString()[i] === '\r') {
-					// Don't add the condition to check agains '\r' since in Windows it will 
+					// Don't add the condition to check again '\r' since in Windows it will 
 					// just lead to computing the Sanger-styled quality twice of the same 
 					// number as '\r' and '\n' always occurs in pair in Windows.
 					// See this for more - https://stackoverflow.com/a/1761086/5928129.
