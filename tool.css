@@ -9,13 +9,14 @@ body {
 
 .metasub-download{
 	background-color: lightgrey;
+  	position: absolute;
+	background-color: lightgrey;
 	position: relative;
-        left: 437px;
 	width: 300px;
-    	border: 25px solid white;
-    	padding: 25px;
+  	border: 25px solid white;
+  	padding: 25px;
 	border-radius: 25px;
-    	margin: 25px;
+  	margin: auto;
 }
 
 .heading-message {
