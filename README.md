@@ -26,10 +26,13 @@ The tool provides various file-processing options like - converting a FASTQ file
 2) AngularJS (1.x)
 3) Node.js
 4) Express
-5) [Nativefier](https://github.com/jiahaog/nativefier) (built on the top of [Electron](https://electronjs.org))
-6) [CanvasJS](https://canvasjs.com/)
-7) HTML
-8) CSS
+5) [nodemon](https://nodemon.io/) (For development purpose)
+6) [Browsersync](https://browsersync.io/) (For development purpose)
+7) [ESLint](https://eslint.org/) (For development purpose)
+8) [Nativefier](https://github.com/jiahaog/nativefier) (Built on the top of [Electron](https://electronjs.org))
+9) [CanvasJS](https://canvasjs.com/)
+10) HTML
+11) CSS
 
 ## Contributors
 
