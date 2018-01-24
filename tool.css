@@ -8,15 +8,14 @@ body {
 }
 
 .metasub-download {
-	background-color: lightgrey;
-  position: absolute;
-	background-color: lightgrey;
+	background-color: black;
+  	position: absolute;
 	position: relative;
 	width: 300px;
-  border: 25px solid white;
-  padding: 25px;
+  	border: 25px solid white;
+  	padding: 25px;
 	border-radius: 25px;
-  margin: auto;
+  	margin: auto;
 }
 
 .heading-message {
