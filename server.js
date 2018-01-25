@@ -17,9 +17,10 @@ app.get('/', function( req, res ) {
 	res.sendFile(path.join(__dirname, 'tool.html'));
 });
 
+
 // TODO: Comply with REST standards. POST calls are meant to alter the system whereas none
 // of the POST request is altering the system due to the intentional "lack" of database in
-// this project.
+// this project. 
 app.post('/analyze', function(req, res) {
 	countOfA = 0, countOfT = 0, countOfG = 0, countOfC = 0, first = 0, last = 499, size = 500;
 	fileName = path.join(__dirname, req.body.name);
@@ -81,7 +82,7 @@ app.get('/analyze', function(req, res) {
 });
 
 
-app.post('/convertToFasta', function(req, res) {
+app.post('/convert-to-fasta', function(req, res) {
 	let fastqFileName = path.join(__dirname, req.body.name);
 	let readStream = fs.createReadStream(fastqFileName);
 	// The line limit in FASTA format as mentioned in - https://en.wikipedia.org/wiki/FASTA_format
@@ -141,7 +142,7 @@ app.post('/convertToFasta', function(req, res) {
 });
 
 
-app.post('/convertToFastq', function(req, res) {
+app.post('/convert-to-fastq', function(req, res) {
 	let fastaFileName = path.join(__dirname, req.body.fastaFileName);
 	let qualFileName = path.join(__dirname, req.body.qualFileName);
 	// Parse the FASTA file.
@@ -285,6 +286,7 @@ function convertDecimalQualityInStringFormatToSangerStyledQuality(input) {
 	let qualityInDecimalFormat = parseInt(input, 10);
 	return String.fromCharCode(qualityInDecimalFormat + 33);
 }
+
 
 var server = app.listen(8080, function() {
 	let host = server.address().address;
