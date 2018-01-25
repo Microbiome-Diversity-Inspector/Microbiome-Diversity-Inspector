@@ -20,7 +20,7 @@ Download the repository - [Microbiome-Diversity-Inspector](https://github.com/gb
 
 The tool provides various file-processing options like - converting a FASTQ file to a FASTA file and vice versa, analyze entropy of a file containing metagenomic data in real-time. Since such files could be of huge size, thus there is always a possibilty of the server being choked to death. Hence in order to process the files in real-time, the tool requires all such input files to be present in the same directory in which *server.js* is present. Thus, a good rule of thumb is to download the files to be processed in the same directory, therefore eliminating the need to move the downloaded file from one directory to another.
 
-## Languages/Frameworks/Technologies Used - 
+## Technologies (Languages/Frameworks/Packages) Used - 
 
 1) JavaScript  
 2) AngularJS (1.x)
@@ -29,7 +29,7 @@ The tool provides various file-processing options like - converting a FASTQ file
 5) [nodemon](https://nodemon.io/) (For development purpose)
 6) [Browsersync](https://browsersync.io/) (For development purpose)
 7) [ESLint](https://eslint.org/) (For development purpose)
-8) [Nativefier](https://github.com/jiahaog/nativefier) (Built on the top of [Electron](https://electronjs.org))
+8) [Nativefier](https://github.com/jiahaog/nativefier) (Built on the top of [Electron](https://electronjs.org), used for deployment)
 9) [CanvasJS](https://canvasjs.com/)
 10) HTML
 11) CSS
