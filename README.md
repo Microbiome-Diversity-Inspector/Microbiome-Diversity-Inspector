@@ -2,23 +2,25 @@
 
 # Microbiome Diversity Inspector
 
-Microbiome Diversity Inspector - A tool for visual analysis of microbiome data. This project was done as a part of "Major Project" course in 7th Semester and 8th Semester. Find more details [here](https://docs.google.com/presentation/d/1319g9zOQpjt3MVGcQxWaKRCSVT_WgVh2ykTLYEK-eUc/edit?usp=sharing).
+Microbiome Diversity Inspector - A tool for visual analysis of microbiome data. This project was done as a part of "Major Project" course in 7th Semester and 8th Semester under [Prof. Malay Bhattacharyya](http://www.iiests.ac.in/index.php/it-malay-bhattacharyya-about). Find more details [here](https://docs.google.com/presentation/d/1319g9zOQpjt3MVGcQxWaKRCSVT_WgVh2ykTLYEK-eUc/edit?usp=sharing).
 
 ## How to use/install the tool
 
 The tool can be used as a web application or as well as a standalone desktop application as described below -
 
-### How to use the Web Version
+### *Using the Web Version*
 
 Download the repository - [Microbiome-Diversity-Inspector](https://github.com/gbelwariar/Microbiome-Diversity-Inspector). Following this, download all the node modules as mentioned [here](https://www.npmjs.com/package/npm-install-all). Bring up the server using the command - "**node server.js**" and then open - *http://localhost:8080/* in a browser.  
 
-### How to use the Desktop Version 
+### *Using the Desktop/Standalone Version* 
 
 Download the repository - [Microbiome-Diversity-Inspector](https://github.com/gbelwariar/Microbiome-Diversity-Inspector). Following this, download all the node modules as mentioned [here](https://www.npmjs.com/package/npm-install-all). Then, install [Nativefier](https://github.com/jiahaog/nativefier) which is built on the top of [Electron](https://electronjs.org) using the command - "**npm install nativefier -g**" followed by "**nativefier --name "Microbiome Diversity Inspector" "http://localhost:8080"**". This will install the desktop application inside the directory from where the aforementioned commands where executed. To run the application, bring up the server using the command - "**node server.js**" and then launch the installed desktop application.
 
-#### Note - 
+#### Notes - 
 
-The tool provides various file-processing options like - converting a FASTQ file to a FASTA file and vice versa, analyze entropy of a file containing metagenomic data in real-time. Since such files could be of huge size, thus there is always a possibilty of the server being choked to death. Hence in order to process the files in real-time, the tool requires all such input files to be present in the same directory in which *server.js* is present. Thus, a good rule of thumb is to download the files to be processed in the same directory, therefore eliminating the need to move the downloaded file from one directory to another.
+a) The tool provides various file-processing options like - converting a FASTQ file to a FASTA file and vice versa, analyze entropy of a file containing metagenomic data in real-time. Since such files could be of huge size, thus there is always a possibilty of the server being choked to death. Hence in order to process the files in real-time, the tool requires all such input files to be present in the same directory in which *server.js* is present. Thus, a good rule of thumb is to download the files to be processed in the same directory, therefore eliminating the need to move the downloaded file from one directory to another.
+
+b) Some features of this tool, like- downloading the MetaSub data requires an internet connection to work.
 
 ## Technologies (Languages/Frameworks/Packages) Used - 
 
