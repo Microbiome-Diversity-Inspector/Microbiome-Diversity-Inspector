@@ -241,7 +241,7 @@ angular
 											scope.myCtrl.startConversionToFasta = true;
 											scope.$apply();
 											$http.post(
-												'http://localhost:8080/convertToFasta',
+												'http://localhost:8080/convert-to-fasta',
 												{name: fileName},
 												{headers: {'Content-Type': 'application/json', 'Authorization': 'Basic '}})
 												.then(function(response) {
@@ -262,7 +262,7 @@ angular
 												scope.myCtrl.startConversionToFastq = true;
 												scope.$apply();
 												$http.post(
-													'http://localhost:8080/convertToFastq',
+													'http://localhost:8080/convert-to-fastq',
 													{
 														fastaFileName: scope.myCtrl.fastaFileName,
 														qualFileName: scope.myCtrl.qualFileName
@@ -287,7 +287,7 @@ angular
 												scope.myCtrl.startConversionToFastq = true;
 												scope.$apply();
 												$http.post(
-													'http://localhost:8080/convertToFastq',
+													'http://localhost:8080/convert-to-fastq',
 													{
 														fastaFileName: scope.myCtrl.fastaFileName,
 														qualFileName: scope.myCtrl.qualFileName
