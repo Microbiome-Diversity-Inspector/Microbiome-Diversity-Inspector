@@ -225,6 +225,19 @@ MyController.prototype.showSamples = function() {
 };
 
 
+/**
+ *  Toggles the visibility of input API Key.
+ */
+MyController.prototype.toggleVisibility = function() {
+		var inputElem = this.document_[0].getElementById('apiKey');
+    if (inputElem.type === 'password') {
+        inputElem.type = 'text';
+    } else {
+        inputElem.type = 'password';
+    }
+};
+
+
 angular
 				.module('myApp', [])
 				.controller('MyController', ['$scope', '$document', '$http', '$interval', MyController])
