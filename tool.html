@@ -91,8 +91,9 @@
 					<div class='vertical-separator-from-top-10'>
 							<label>
 									<span class='font-size-20'>One Codex API Key</span>
-									<input name='sampleID' type='text' pattern='^\S+$' 
+									<input id="apiKey" name='apiKey' type='password' pattern='^\S+$' 
 											required ng-model='myCtrl.apiKey'>
+									<input type="checkbox" ng-click="myCtrl.toggleVisibility()"><span class='font-size-20'>Show</span>
 							</label>
 					</div>				
 					<div class='vertical-separator-from-top-10'>
