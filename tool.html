@@ -14,7 +14,7 @@
 			  of modularity and separation of concerns.-->
 		<div class='heading-message align-text-center main-title'>Microbiome Diversity Inspector</div>
 		<div class='heading-message align-text-center title-description'>A tool for visual analysis of microbiome data</div>
-		<div class='align-text-center metasub-download'>
+		<div class='align-text-center card card-size-300'>
 			<form name='metaSubForm'>
 				<h3 class='open-sans-sans-serif-text'>Download MetaSUB data</h3>
 				<div>
@@ -83,6 +83,45 @@
 				Converting to <span class='light-green-text'>{{myCtrl.fileName}}</span> ...
 			</div>
 		</div>
+		<div class='align-text-center card tooltip'>
+			<span class="tooltiptext">See <a href='https://docs.google.com/document/d/e/2PACX-1vQHX_-TCCtYtODA4xQgCnc5GtjeOP8sy08JE5spjB1usOiGmyPsriQoRr2U4IsJfFC1rJiFIlJYS-Za/pub' target='_blank'>this</a> to learn about API Key</span>
+			<form name='alphaDiversity'>
+				<h3 class='open-sans-sans-serif-text'>Compute α-diversity</h3>
+				<div>    
+					<div class='vertical-separator-from-top-10'>
+							<label>
+									<span class='font-size-20'>One Codex API Key</span>
+									<input name='sampleID' type='text' pattern='^\S+$' 
+											required ng-model='myCtrl.apiKey'>
+							</label>
+					</div>				
+					<div class='vertical-separator-from-top-10'>
+							<button class='submit button' ng-click='myCtrl.showSamples()'>
+									<span class='font-size-20'>Show samples</span>
+							</button>
+					</div>						
+				</div>
+		 </form>	
+		 <div class='vertical-separator-from-top-20' ng-if='myCtrl.shouldShowSamples'>	 
+			 <table id="samples">
+				 <caption><span class='font-size-20'>Samples</span></caption>
+				 <tr>
+				 	 <th>Sample No.</th>
+					 <th>Name</th>
+					 <th>Size (in Mb)</th>
+					 <th>Action</th>
+				 </tr>			
+				 <tr ng-repeat='sample in myCtrl.samples track by $index'>
+					 <td>{{$index+1}}</td>
+					 <td>{{sample.filename}}
+					 <td>{{sample.size/1048576 | number : 1}}</td>
+					 <td>
+						 <button class='submit button' ng-click='myCtrl.computeAlphaDiversity(sample)'>Compute</button>
+					 </td>
+				 </tr>
+			 </table>			
+		</div>		 
+		</div>				
 		<div class='vertical-separator-from-top-50' ng-show='myCtrl.showAnalysis'>
 			<div class='align-text-center italic-font-size-25' ng-if='!myCtrl.showEntropy'>Analyzing {{myCtrl.fileName}} ...</div>
 			<div class='align-text-center boxed bold-font-size-30' ng-if='myCtrl.showEntropy'>Entropy = {{myCtrl.entropy}}</div>
