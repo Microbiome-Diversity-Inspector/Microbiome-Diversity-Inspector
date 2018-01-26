@@ -87,7 +87,7 @@ body {
 			6) https://www.w3schools.com/css/css_form.asp
 */
 
-input[type=text], select {
+input[type=text], input[type=password], select {
     width: 200px;
     padding: 12px 20px;
     margin: 8px 0;
@@ -96,6 +96,7 @@ input[type=text], select {
     border-radius: 4px;
     box-sizing: border-box;
 }
+
 
 input[type="file"] {
     display: none;
