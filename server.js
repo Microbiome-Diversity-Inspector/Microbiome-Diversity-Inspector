@@ -4,6 +4,7 @@ var fs = require('fs');
 var stream = require('stream');
 var readline = require('readline');
 var bodyParser = require('body-parser');
+var XMLHttpRequest = require("xmlhttprequest").XMLHttpRequest;
 var app = express();
 
 var countOfA, countOfT, countOfG, countOfC, first, last, size, fileName;
@@ -24,7 +25,7 @@ app.get('/', function( req, res ) {
 app.post('/analyze', function(req, res) {
 	countOfA = 0, countOfT = 0, countOfG = 0, countOfC = 0, first = 0, last = 499, size = 500;
 	fileName = path.join(__dirname, req.body.name);
-	res.send('Posting done');
+	res.send('Posting done.');
 });
 
 
@@ -97,7 +98,8 @@ app.post('/convert-to-fasta', function(req, res) {
 		for (let i=0; i<data.toString().length; i++) {
 			// This is the first line of the sequence.
 			if (i === 0
-					|| (data.toString()[i-1] === '\n' && data.toString()[i] === '@' && isFirstLineOfSequence === false)) {
+					|| (data.toString()[i-1] === '\n' && data.toString()[i] === '@'
+							&& isFirstLineOfSequence === false)) {
 				fastaContent += '>';
 				isSecondLineOfSequence = false;
 				isFirstLineOfSequence = true;
@@ -112,7 +114,8 @@ app.post('/convert-to-fasta', function(req, res) {
 				isSecondLineOfSequence = false;
 				isFirstLineOfSequence = true;
 			} else if ((i !== 0 && data.toString()[i-1] === '\n' && isFirstLineOfSequence === true)
-									|| (i !== 0 && data.toString()[i-1] !== '\n' && isSecondLineOfSequence === true)) {
+									|| (i !== 0 && data.toString()[i-1] !== '\n'
+											&& isSecondLineOfSequence === true)) {
 				// This is the second line of the sequence in which the nucelotide data is present.
 				if (i !== 0 && data.toString()[i-1] === '\n' && isFirstLineOfSequence === true) {
 					// Reset the character count counter.
@@ -136,7 +139,7 @@ app.post('/convert-to-fasta', function(req, res) {
 		}
 	});
 	readStream.on('end', function() {
-		console.log('Finished converting - ' + req.body.name + ' to its FASTA equivalent');
+		console.log('Finished converting - ' + req.body.name + ' to its FASTA equivalent.');
 		res.send(fastaContent);
 	});
 });
@@ -157,7 +160,8 @@ app.post('/convert-to-fastq', function(req, res) {
 		for (let i=0; i<data.toString().length; i++) {
 			// This is the first line of the sequence.
 			if (i === 0
-					|| (data.toString()[i-1] === '\n' && data.toString()[i] === '>' && isFirstLineOfSequence === false)) {
+					|| (data.toString()[i-1] === '\n' && data.toString()[i] === '>'
+							&& isFirstLineOfSequence === false)) {
 				if (currentReadName !== '') {
 					readNameToBaseMap[currentReadName] = currentBase;
 				}
@@ -171,7 +175,8 @@ app.post('/convert-to-fastq', function(req, res) {
 				isFirstLineOfSequence = true;
 			} else if ((i !== 0 && data.toString()[i-1] === '\n' && isFirstLineOfSequence === true)
 									|| isFirstLineOfSequence === false) {
-				// This is the second and the last line of the sequence in which the nucelotide data is present.
+				// This is the second and the last line of the sequence in which the nucelotide
+				// data is present.
 				if (i !== 0 && data.toString()[i-1] === '\n' && isFirstLineOfSequence === true) {
 					// Reset the current base.
 					currentBase = '';
@@ -202,7 +207,8 @@ app.post('/convert-to-fastq', function(req, res) {
 		for (let i=0; i<data.toString().length; i++) {
 			// This is the first line of the sequence.
 			if (i === 0
-					|| (data.toString()[i-1] === '\n' && data.toString()[i] === '>' && isFirstLineOfSequence === false)) {
+					|| (data.toString()[i-1] === '\n' && data.toString()[i] === '>'
+							&& isFirstLineOfSequence === false)) {
 				if (currentReadName !== '') {
 					readNameToSangerStyledQualityMap[currentReadName] = currentSangerStyledQualities;
 				}
@@ -225,7 +231,8 @@ app.post('/convert-to-fastq', function(req, res) {
 				isFirstLineOfSequence = false;
 				if (data.toString()[i] !== ' ' && data.toString()[i] !== '\n' && data.toString()[i] !== '\r') {
 					currentDecimalQualityInStringFormat += data.toString()[i];
-				} else if (data.toString()[i] === ' ' || data.toString()[i] === '\n' || data.toString()[i] === '\r') {
+				} else if (data.toString()[i] === ' ' || data.toString()[i] === '\n'
+									|| data.toString()[i] === '\r') {
 					// Don't add the condition to check again '\r' since in Windows it will
 					// just lead to computing the Sanger-styled quality twice of the same
 					// number as '\r' and '\n' always occurs in pair in Windows.
@@ -271,20 +278,68 @@ app.post('/convert-to-fastq', function(req, res) {
 				fastqContent += '\n';
 			}
 		}
-		console.log('Finished converting - ' + req.body.fastaFileName + ' to its FASTA equivalent');
+		console.log('Finished converting - ' + req.body.fastaFileName + ' to its FASTA equivalent.');
 		res.send(fastqContent);
 	});
 });
 
 
+app.get('/compute-alpha-diversity', function( req, res ) {
+		let request = new XMLHttpRequest();
+		let url = 'https://app.onecodex.com/api/v1/analyses/' + req.query.sampleId + '/results';
+		request.open('GET', url, true);
+		request.setRequestHeader(
+				'Authorization', 'Basic ' +  Buffer.from(req.query.apiKey + ':').toString('base64'));
+		request.onload = function () {
+			let response = JSON.parse(request.responseText);
+			if (request.status >= 500) {
+				res.send('X');
+			} else {
+				// Formula used to compute alpha-diversity is as follows - 
+				// qD = 1/(sqrt[q-1]{sum{i=1}^{S} Pi^q})
+				// pronounced as - 'inverse of (q-1)th root of summation of Pi for all
+				// species - 'i' present in the dataset, where Pi is the ratio of count
+				// of individual of species - i to the total number of species and q is
+				// the order of diversity'.
+				let organisms = response.table;
+				let q = req.query.orderOfDiversity;	// The order of diversity.
+				let m = 0;		// The total number of organism in the dataset.
+				for (let i=0; i<organisms.length; i++) {
+					if (isNonHostSpecies(organisms[i]) === true) {
+						m += organisms[i].readcount;
+					}
+				}
+				let basicSum = 0;
+				for (let i=0; i<organisms.length; i++) {
+					if (isNonHostSpecies(organisms[i]) === true) {
+						basicSum += Math.pow(organisms[i].readcount/m /** Pi */, q);
+					}
+				}			
+				let alphaDiversity = Math.pow(basicSum, 1-q);
+				console.log('Alpha-diversity of the file has been computed.');
+				res.send(alphaDiversity.toString());
+			}
+		};
+		request.send();	 
+});
+
+
 /**
  * A private function to map a decimal quality to Sanger-styled quality
- * using the formula - chr(Q+33) as mentioned in -
+ * using the formula - chr(Q+33) as mentioned in - 
  * http://biopython.org/DIST/docs/api/Bio.SeqIO.QualityIO-module.html
  */
 function convertDecimalQualityInStringFormatToSangerStyledQuality(input) {
 	let qualityInDecimalFormat = parseInt(input, 10);
 	return String.fromCharCode(qualityInDecimalFormat + 33);
+}
+
+
+/**
+ * A private function to find if the organism is a non-host/non-human species.
+ */
+function isNonHostSpecies(organism) {
+	return organism.rank === 'species' && organism.name !== 'Homo sapiens';
 }
 
 
