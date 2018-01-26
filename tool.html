@@ -23,7 +23,7 @@
 										<input name='city' type='radio'
 													 value='{{city.urlPrefix}}'
 													 ng-model='myCtrl.selectedCityUrlPrefix'
-													 required='!myCtrl.selectedCityUrlPrefix'>
+													 ng-required='true'>
 										<span class='font-size-20'>{{city.name}}</span>
 								</label>
 						</div>
@@ -37,11 +37,11 @@
 								<label>
 										<span class='font-size-20'>SRR Accession Number</span>
 										<input name='accessionNumber' type='text' placeholder='Example - SRR1748535'
-												pattern='SRR\d+' required ng-model='myCtrl.accessionNumber'>
+												pattern='SRR\d+' ng-required='true' ng-model='myCtrl.accessionNumber'>
 								</label>
 						</div>						
 						<div class='vertical-separator-from-top-10'>
-								<button class='submit button' ng-click='myCtrl.downloadMetaSubData()'>
+								<button class='submit button' ng-click='metaSubForm.$valid && myCtrl.downloadMetaSubData()'>
 										<span class='font-size-20'>Download</span>
 								</button>
 						</div>						
@@ -83,21 +83,21 @@
 				Converting to <span class='light-green-text'>{{myCtrl.fileName}}</span> ...
 			</div>
 		</div>
-		<div class='align-text-center card tooltip'>
+		<div class='align-text-center card card-size-300 tooltip' expandable-card>
 			<span class="tooltiptext">See <a href='https://docs.google.com/document/d/e/2PACX-1vQHX_-TCCtYtODA4xQgCnc5GtjeOP8sy08JE5spjB1usOiGmyPsriQoRr2U4IsJfFC1rJiFIlJYS-Za/pub' target='_blank'>this</a> to learn about API Key</span>
-			<form name='alphaDiversity'>
+			<form name='alphaDiversityForm'>
 				<h3 class='open-sans-sans-serif-text'>Compute α-diversity</h3>
 				<div>    
 					<div class='vertical-separator-from-top-10'>
 							<label>
 									<span class='font-size-20'>One Codex API Key</span>
-									<input id="apiKey" name='apiKey' type='password' pattern='^\S+$' 
-											required ng-model='myCtrl.apiKey'>
+									<input id="apiKey" name='apiKey' type='password' placeholder='No spaces allowed' 
+											pattern='^\S+$' ng-required='true' ng-model='myCtrl.apiKey'>
 									<input type="checkbox" ng-click="myCtrl.toggleVisibility()"><span class='font-size-20'>Show</span>
 							</label>
 					</div>				
 					<div class='vertical-separator-from-top-10'>
-							<button class='submit button' ng-click='myCtrl.showSamples()'>
+							<button class='submit button' ng-click='alphaDiversityForm.$valid && myCtrl.showSamples()'>
 									<span class='font-size-20'>Show samples</span>
 							</button>
 					</div>						
@@ -109,16 +109,36 @@
 				 <tr>
 				 	 <th>Sample No.</th>
 					 <th>Name</th>
-					 <th>Size (in Mb)</th>
+					 <th>Size (in MB)</th>
+					 <th>Order of Diversity(q)</th>
 					 <th>Action</th>
+					 <th>Alpha-diversity</th>
 				 </tr>			
 				 <tr ng-repeat='sample in myCtrl.samples track by $index'>
 					 <td>{{$index+1}}</td>
 					 <td>{{sample.filename}}
-					 <td>{{sample.size/1048576 | number : 1}}</td>
+					 <td>{{sample.size/1000000 | number : 1}}</td>
+					 <td>
+						 <div class='vertical-separator-from-top-10'>
+						     <input id="orderOfDiversity" name='orderOfDiversity' type='text' placeholder='Example - 1'
+										pattern='\d+' ng-required='true' ng-model='sample.orderOfDiversity'>
+					   </div>							 
+					 </td>
 					 <td>
 						 <button class='submit button' ng-click='myCtrl.computeAlphaDiversity(sample)'>Compute</button>
 					 </td>
+					 <td>
+						<span ng-if='sample.alphaDiversityComputationStatus.started == false'>
+							{{sample.alphaDiversity}}
+						</span>
+						<span ng-if='sample.alphaDiversityComputationStatus.started == true && sample.alphaDiversityComputationStatus.completed == false'>
+							<img height='50' width='50' src='ball_loading.GIF'>
+						</span>
+						<span ng-if='sample.alphaDiversityComputationStatus.completed == true'>
+							{{sample.alphaDiversity | number : 2}}
+						</span>						
+					 </td>
+					 <!--<td></td>-->				 
 				 </tr>
 			 </table>			
 		</div>		 
