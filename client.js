@@ -1,6 +1,7 @@
 function MyController($scope, $document, $http, $interval) {
 	this.selectedCityUrlPrefix;
 	this.accessionNumber;
+	this.sampleId;
 	this.apiKey;
 	this.samples;
 	this.$onInit = (function() {
@@ -213,13 +214,25 @@ MyController.prototype.downloadMetaSubData = function() {
  * Shows all the samples uploaded by the user having the input API Key.
  */
 MyController.prototype.showSamples = function() {
-		var request = new XMLHttpRequest();
+		let request = new XMLHttpRequest();
 		request.open('GET', 'https://app.onecodex.com/api/v1/samples', true);
 		request.setRequestHeader('Authorization', 'Basic ' +  btoa(this.apiKey + ':'));
 		request.onload = (function () {
-			this.samples = JSON.parse(request.responseText);
-			this.shouldShowSamples = true;
-			this.scope_.$digest();
+			let response = JSON.parse(request.responseText);
+			if (request.status === 401) {
+				alert('Wrong credentials!');
+			} else {
+				this.samples = JSON.parse(request.responseText);
+				for (let i=0; i<this.samples.length; i++) {
+					this.samples[i].alphaDiversity = '_';
+					this.samples[i].alphaDiversityComputationStatus = {
+						started: false,
+						completed: false
+					};
+				}
+				this.shouldShowSamples = true;
+				this.scope_.$digest();
+			}
 		}).bind(this);
 		request.send();
 };
@@ -229,12 +242,55 @@ MyController.prototype.showSamples = function() {
  *  Toggles the visibility of input API Key.
  */
 MyController.prototype.toggleVisibility = function() {
-		var inputElem = this.document_[0].getElementById('apiKey');
+		let inputElem = this.document_[0].getElementById('apiKey');
     if (inputElem.type === 'password') {
         inputElem.type = 'text';
     } else {
         inputElem.type = 'password';
     }
+};
+
+
+/**
+ * Compute alpha-diversity of the given sample.
+ *
+ * @param {Object} sample This is the sample whose alpha-diversity is to be determined.
+ * @param {string} sample.primary_classification  A reference to a Classification for the sample.
+ *																								This will typically be the One Codex Database or
+ *																								Targeted Loci Database results as appropriate.
+ *																							  Note that samples will not have a primary_classification
+ *																							  while they are still importing or being uploaded.
+ *                                                It has the following format -
+ *																								{$ref: '/api/v1/classifications/SAMPLE_ID'}			
+ * @param {string} sample.orderOfDiversity Denoted by 'q', it is an important factor in determining
+ *																				 the weight assigned to a species. 
+ */
+MyController.prototype.computeAlphaDiversity = function(sample) {
+		// Refresh the alpha-diversity computation status.
+		sample.alphaDiversityComputationStatus = {
+			started: false,
+			completed: false
+		};
+		if (!sample.orderOfDiversity) {
+			alert('Please specify an order of diversity!');
+		} else {
+			sample.alphaDiversityComputationStatus.started = true;
+			let query = 'apiKey=' + this.apiKey + '&' + 'sampleId=' +
+									sample.primary_classification.$ref.substring(24) +
+									'&' + 'orderOfDiversity=' + sample.orderOfDiversity;
+			// Carry out the time-consuming computations in the server-side to 
+			// avoid freezing of the browser/destop application.
+			let url = 'http://localhost:8080/compute-alpha-diversity?' + query;
+			this.httpService_.get(url)
+						.then((function(response) {
+							if (response.data === 'x') {
+								alert('Sorry, internal server error!');
+							} else {
+								sample.alphaDiversityComputationStatus.completed = true;
+								sample.alphaDiversity = response.data;
+							}
+						}).bind(this), function(error) {});					
+		}
 };
 
 
@@ -340,4 +396,17 @@ angular
 								});
 							},
 						};
+				})
+				.directive('expandableCard', function() {
+					return {
+						link: function(scope, elem, attr, ctrl) {
+							scope.$watch(function() {
+								return scope.myCtrl.shouldShowSamples;
+							}, function(newVal, oldVal) {
+								if (newVal !== oldVal && newVal === true) {
+									elem.removeClass('card-size-300');
+								}
+							});
+						}
+					};
 				});
