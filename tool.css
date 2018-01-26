@@ -97,6 +97,11 @@ input[type=text], input[type=password], select {
     box-sizing: border-box;
 }
 
+input[type="checkbox"] {
+    position: relative;
+    width: 20px;
+    height: 20px;
+}
 
 input[type="file"] {
     display: none;
