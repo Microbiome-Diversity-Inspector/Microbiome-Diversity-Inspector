@@ -179,7 +179,7 @@ input[type="file"] {
 .tooltip .tooltiptext {
     visibility: hidden;
     width: 200px;
-    background-color: white;
+    background-color: #FF6347;
     color: black;
     text-align: center;
     padding: 5px 0;
