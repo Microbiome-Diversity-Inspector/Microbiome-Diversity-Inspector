@@ -113,11 +113,15 @@
 		 <div class='vertical-separator-from-top-20' ng-if='myCtrl.shouldShowSamples'>	 
 			 <div class='open-sans-sans-serif-text font-size-20'>
 			   Mean α-diversity -
-				 <span class='tomato-text'>{{myCtrl.resultantMeanAndStandardDeviation.mean}}</span>
+				 <span class='tomato-text'>
+				   {{(myCtrl.resultantMeanAndStandardDeviation.mean == '_') ? '_' : (myCtrl.resultantMeanAndStandardDeviation.mean | number : 2)}}
+				 </span>
 			 </div>
 			 <div class='open-sans-sans-serif-text font-size-20'>
 			   Standard Deviation in α-diversity -
-				 <span class='tomato-text'>{{myCtrl.resultantMeanAndStandardDeviation.standardDeviation}}</span>
+				 <span class='tomato-text'>
+				   {{(myCtrl.resultantMeanAndStandardDeviation.standardDeviation == '_') ? '_' : (myCtrl.resultantMeanAndStandardDeviation.standardDeviation | number : 2)}}
+				 </span>
 			 </div>
 			 <div class='vertical-separator-from-top-20'>
 				 <table id="samples">
