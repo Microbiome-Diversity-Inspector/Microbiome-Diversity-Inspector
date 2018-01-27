@@ -38,7 +38,7 @@ b) Some features of this tool, like- computation of alpha-diversity and download
 
 ## External Services Used - 
 
-1) [One Codex RESTful APIs](https://docs.onecodex.com/) - Powering the computation of alpha-diversity.
+1) [One Codex RESTful APIs](https://docs.onecodex.com/) - Powers the computation of alpha-diversity.
 
 ## Contributors
 
