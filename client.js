@@ -1,9 +1,9 @@
 function MyController($scope, $document, $http, $interval) {
 	this.selectedCityUrlPrefix;
 	this.accessionNumber;
-	this.sampleId;
 	this.apiKey;
 	this.samples;
+	this.selectedSamples;
 	this.$onInit = (function() {
 		this.cities = [
 		{
@@ -45,13 +45,13 @@ function isFileHavingCorrectFormat(fileName, expectedFileFormat) {
  *  See - https://stackoverflow.com/a/18197341/5928129 for more.
  */
 function download(filename, text) {
-	let elem = document.createElement('a');
-	elem.setAttribute('href', 'data:text/plain;charset=utf-8,' + encodeURIComponent(text));
-	elem.setAttribute('download', filename);
-	elem.style.display = 'none';
-	document.body.appendChild(elem);
-	elem.click();
-	document.body.removeChild(elem);
+		let elem = document.createElement('a');
+		elem.setAttribute('href', 'data:text/plain;charset=utf-8,' + encodeURIComponent(text));
+		elem.setAttribute('download', filename);
+		elem.style.display = 'none';
+		document.body.appendChild(elem);
+		elem.click();
+		document.body.removeChild(elem);
 }
 
 
@@ -106,8 +106,8 @@ MyController.prototype.refreshEntropyGraph_ = function() {
 		}).bind(this);
 		updateGraph(dataLength);
 		setInterval(function() {
-updateGraph()
-}, updateInterval);
+			updateGraph()
+		}, updateInterval);
 };
 
 
@@ -195,8 +195,72 @@ MyController.prototype.reset_ = function() {
 		this.startConversionToFastq = false;
 		// Variables required for format conversion ends here.
 		
-		// Variables required for alpha-diversity computation starts here.
+		// Variables required for alpha-diversity related computation starts here.
 		this.shouldShowSamples = false;
+		// Contains the final mean and standard-deviation and is of the format -
+		// {mean: 'XXX' /**string*/, standardDeviation: 'YYY' /**string*/}
+		this.resultantMeanAndStandardDeviation = {
+			mean: '_',
+			standardDeviation: '_'
+		}
+};
+
+/**
+ * @typedef {Object} MeanAndStandardDeviation
+ * @property {string} mean The mean.
+ * @property {string} standardDeviation The standard deviation.
+ */
+
+/**
+ * Computes the mean and standard deviation (calculated using Bessel's correction as 
+ * mentioned here - https://en.wikipedia.org/wiki/Bessel%27s_correction) of all the 
+ * selected samples.
+ *
+ * @private
+ */
+MyController.prototype.computeMeanAndStandardDeviationOfSelectedSamples_ = function() {
+		this.selectedSamples = [];
+		for (let i=0; i<this.samples.length; i++) {
+			if (this.samples[i].isIncluded && this.samples[i].isIncluded.value === true) {
+				this.selectedSamples.push(this.samples[i]);
+			}
+		}
+		// This variable is set to true if the alpha diversity of one or more than one selected 
+		// sample(s) is/are still getting computed in the server OR if none of the sample is 
+		// selected by default. In that case, the user will be shown '_' as the value of the 
+		// mean and standard deviation.
+		let invalidComputation = false;
+		if (this.selectedSamples.length === 0) {
+			invalidComputation = true;
+		}
+		let sum = 0;
+		for (let i=0; i<this.selectedSamples.length; i++) {
+			if (this.selectedSamples[i].alphaDiversity === '_') {
+				invalidComputation = true;
+				break;
+			} else {
+				// Convert the alpha diversity from string to number.
+				sum += +this.selectedSamples[i].alphaDiversity;
+			}
+		}
+		if (invalidComputation === false) {
+			let mean = sum/this.selectedSamples.length;
+			let standardDeviationInnerSum = 0;
+			for (let i=0; i<this.selectedSamples.length; i++) {
+				standardDeviationInnerSum += Math.pow(+this.selectedSamples[i].alphaDiversity - mean, 2);
+			}		
+			let standardDeviation =
+					Math.pow(standardDeviationInnerSum/(this.selectedSamples.length === 1 ? 1 : this.selectedSamples.length - 1), 0.5);
+			this.resultantMeanAndStandardDeviation = {
+				mean: mean.toString(),
+				standardDeviation: standardDeviation.toString()		
+			};		
+		} else {
+			this.resultantMeanAndStandardDeviation = {
+				mean: '_',
+				standardDeviation: '_'
+			};
+		}
 };
 
 
@@ -264,15 +328,21 @@ MyController.prototype.toggleVisibility = function() {
  *																								{$ref: '/api/v1/classifications/SAMPLE_ID'}			
  * @param {string} sample.orderOfDiversity Denoted by 'q', it is an important factor in determining
  *																				 the weight assigned to a species. 
+ * @param {string} sample.alphaDiversity  The alpha diversity of the sample. 
+ * @param {Object} sample.alphaDiversityComputationStatus  Has two properties - 'started' and 'completeed'
+ *																												 denoting whether the computation has started
+ *																												 or not and whether the computation is finished
+ *																												 or not. 
  */
 MyController.prototype.computeAlphaDiversity = function(sample) {
-		// Refresh the alpha-diversity computation status.
+		// Refresh the alpha-diversity computation status and alpha-diversity.
+		sample.alphaDiversity = '_';
 		sample.alphaDiversityComputationStatus = {
 			started: false,
 			completed: false
 		};
 		if (!sample.orderOfDiversity) {
-			alert('Please specify an order of diversity!');
+			alert('Please specify a valid order of diversity!');
 		} else {
 			sample.alphaDiversityComputationStatus.started = true;
 			let query = 'apiKey=' + this.apiKey + '&' + 'sampleId=' +
@@ -288,6 +358,7 @@ MyController.prototype.computeAlphaDiversity = function(sample) {
 							} else {
 								sample.alphaDiversityComputationStatus.completed = true;
 								sample.alphaDiversity = response.data;
+								this.computeMeanAndStandardDeviationOfSelectedSamples_();
 							}
 						}).bind(this), function(error) {});					
 		}
@@ -406,6 +477,16 @@ angular
 								if (newVal !== oldVal && newVal === true) {
 									elem.removeClass('card-size-300');
 								}
+							});
+						}
+					};
+				})
+				.directive('checkboxMeanAndStandardDeviationTrigger', function() {
+					return {
+						link: function(scope, elem, attr, ctrl) {
+							elem.on('change', function() {
+								scope.myCtrl.computeMeanAndStandardDeviationOfSelectedSamples_();	
+								scope.$apply();
 							});
 						}
 					};
