@@ -20,7 +20,7 @@ Download the repository - [Microbiome-Diversity-Inspector](https://github.com/gb
 
 a) The tool provides various file-processing options like - converting a FASTQ file to a FASTA file and vice versa, analyze entropy of a file containing metagenomic data in real-time. Since such files could be of huge size, thus there is always a possibilty of the server being choked to death. Hence in order to process the files in real-time, the tool requires all such input files to be present in the same directory in which *server.js* is present. Thus, a good rule of thumb is to download the files to be processed in the same directory, therefore eliminating the need to move the downloaded file from one directory to another.
 
-b) Some features of this tool, like- downloading the MetaSub data requires an internet connection to work.
+b) Some features of this tool, like- computation of alpha-diversity and downloading the MetaSub data requires an active internet connection for proper functioning.
 
 ## Technologies (Languages/Frameworks/Packages) Used - 
 
@@ -35,6 +35,10 @@ b) Some features of this tool, like- downloading the MetaSub data requires an in
 9) [CanvasJS](https://canvasjs.com/)
 10) HTML
 11) CSS
+
+## External Services Used - 
+
+1) [One Codex RESTful APIs](https://docs.onecodex.com/) - Powering the computation of alpha-diversity.
 
 ## Contributors
 
