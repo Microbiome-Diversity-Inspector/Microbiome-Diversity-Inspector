@@ -14,7 +14,7 @@
 			  of modularity and separation of concerns.-->
 		<div class='heading-message align-text-center main-title'>Microbiome Diversity Inspector</div>
 		<div class='heading-message align-text-center title-description'>A tool for visual analysis of microbiome data</div>
-		<div class='align-text-center metasub-download'>
+		<div class='align-text-center card card-size-300'>
 			<form name='metaSubForm'>
 				<h3 class='open-sans-sans-serif-text'>Download MetaSUB data</h3>
 				<div>
@@ -23,7 +23,7 @@
 										<input name='city' type='radio'
 													 value='{{city.urlPrefix}}'
 													 ng-model='myCtrl.selectedCityUrlPrefix'
-													 required='!myCtrl.selectedCityUrlPrefix'>
+													 ng-required='true'>
 										<span class='font-size-20'>{{city.name}}</span>
 								</label>
 						</div>
@@ -37,11 +37,11 @@
 								<label>
 										<span class='font-size-20'>SRR Accession Number</span>
 										<input name='accessionNumber' type='text' placeholder='Example - SRR1748535'
-												pattern='SRR\d+' required ng-model='myCtrl.accessionNumber'>
+												pattern='SRR\d+' ng-required='true' ng-model='myCtrl.accessionNumber'>
 								</label>
 						</div>						
 						<div class='vertical-separator-from-top-10'>
-								<button class='submit button' ng-click='myCtrl.downloadMetaSubData()'>
+								<button class='submit button' ng-click='metaSubForm.$valid && myCtrl.downloadMetaSubData()'>
 										<span class='font-size-20'>Download</span>
 								</button>
 						</div>						
@@ -83,6 +83,65 @@
 				Converting to <span class='light-green-text'>{{myCtrl.fileName}}</span> ...
 			</div>
 		</div>
+		<div class='align-text-center card card-size-300 tooltip' expandable-card>
+			<span class="tooltiptext">See <a href='https://docs.google.com/document/d/e/2PACX-1vQHX_-TCCtYtODA4xQgCnc5GtjeOP8sy08JE5spjB1usOiGmyPsriQoRr2U4IsJfFC1rJiFIlJYS-Za/pub' target='_blank'>this</a> to learn about API Key</span>
+			<form name='alphaDiversityForm'>
+				<h3 class='open-sans-sans-serif-text'>Compute α-diversity</h3>
+				<div>    
+					<div class='vertical-separator-from-top-10'>
+							<label>
+									<span class='font-size-20'>One Codex API Key</span>
+									<input id="apiKey" name='apiKey' type='password' placeholder='No spaces allowed' 
+											pattern='^\S+$' ng-required='true' ng-model='myCtrl.apiKey'>
+									<input type="checkbox" ng-click="myCtrl.toggleVisibility()"><span class='font-size-20'>Show</span>
+							</label>
+					</div>				
+					<div class='vertical-separator-from-top-10'>
+							<button class='submit button' ng-click='alphaDiversityForm.$valid && myCtrl.showSamples()'>
+									<span class='font-size-20'>Show samples</span>
+							</button>
+					</div>						
+				</div>
+		 </form>	
+		 <div class='vertical-separator-from-top-20' ng-if='myCtrl.shouldShowSamples'>	 
+			 <table id="samples">
+				 <caption><span class='font-size-20'>Samples</span></caption>
+				 <tr>
+				 	 <th>Sample No.</th>
+					 <th>Name</th>
+					 <th>Size (in MB)</th>
+					 <th>Order of Diversity(q)</th>
+					 <th>Action</th>
+					 <th>Alpha-diversity</th>
+				 </tr>			
+				 <tr ng-repeat='sample in myCtrl.samples track by $index'>
+					 <td>{{$index+1}}</td>
+					 <td>{{sample.filename}}
+					 <td>{{sample.size/1000000 | number : 1}}</td>
+					 <td>
+						 <div class='vertical-separator-from-top-10'>
+						     <input id="orderOfDiversity" name='orderOfDiversity' type='text' placeholder='Example - 1'
+										pattern='\d+' ng-required='true' ng-model='sample.orderOfDiversity'>
+					   </div>							 
+					 </td>
+					 <td>
+						 <button class='submit button' ng-click='myCtrl.computeAlphaDiversity(sample)'>Compute</button>
+					 </td>
+					 <td>
+						<span ng-if='sample.alphaDiversityComputationStatus.started == false'>
+							{{sample.alphaDiversity}}
+						</span>
+						<span ng-if='sample.alphaDiversityComputationStatus.started == true && sample.alphaDiversityComputationStatus.completed == false'>
+							<img height='50' width='50' src='ball_loading.GIF'>
+						</span>
+						<span ng-if='sample.alphaDiversityComputationStatus.completed == true'>
+							{{sample.alphaDiversity | number : 2}}
+						</span>						
+					 </td>			 
+				 </tr>
+			 </table>			
+		</div>		 
+		</div>				
 		<div class='vertical-separator-from-top-50' ng-show='myCtrl.showAnalysis'>
 			<div class='align-text-center italic-font-size-25' ng-if='!myCtrl.showEntropy'>Analyzing {{myCtrl.fileName}} ...</div>
 			<div class='align-text-center boxed bold-font-size-30' ng-if='myCtrl.showEntropy'>Entropy = {{myCtrl.entropy}}</div>
