@@ -10,35 +10,39 @@ The tool can be used as a web application or as well as a standalone desktop app
 
 ### *Using the Web Version*
 
-Download the repository - [Microbiome-Diversity-Inspector](https://github.com/gbelwariar/Microbiome-Diversity-Inspector). Following this, download all the node modules as mentioned [here](https://www.npmjs.com/package/npm-install-all). Bring up the server using the command - "**node server.js**" and then open - *http://localhost:8080/* in a browser.  
+Download the repository - [Microbiome-Diversity-Inspector](https://github.com/gbelwariar/Microbiome-Diversity-Inspector). Following this, download all the node modules as mentioned [here](https://www.npmjs.com/package/npm-install-all). Bring up the server using the command - `node server.js` and then open - `http://localhost:8080/` in a browser.  
 
 ### *Using the Desktop/Standalone Version* 
 
-Download the repository - [Microbiome-Diversity-Inspector](https://github.com/gbelwariar/Microbiome-Diversity-Inspector). Following this, download all the node modules as mentioned [here](https://www.npmjs.com/package/npm-install-all). Then, install [Nativefier](https://github.com/jiahaog/nativefier) which is built on the top of [Electron](https://electronjs.org) using the command - "**npm install nativefier -g**" followed by "**nativefier --name "Microbiome Diversity Inspector" "http://localhost:8080"**". This will install the desktop application inside the directory from where the aforementioned commands where executed. To run the application, bring up the server using the command - "**node server.js**" and then launch the installed desktop application.
+Download the repository - [Microbiome-Diversity-Inspector](https://github.com/gbelwariar/Microbiome-Diversity-Inspector). Following this, download all the node modules as mentioned [here](https://www.npmjs.com/package/npm-install-all). Then, install [Nativefier](https://github.com/jiahaog/nativefier) which is built on the top of [Electron](https://electronjs.org) using the command - `npm install nativefier -g` followed by `nativefier --name "Microbiome Diversity Inspector" "http://localhost:8080"`. This will install the desktop application inside the directory from where the aforementioned commands where executed. To run the application, bring up the server using the command - `node server.js` and then launch the installed desktop application.
 
 #### Notes - 
 
-a) The tool provides various file-processing options like - converting a FASTQ file to a FASTA file and vice versa, analyze entropy of a file containing metagenomic data in real-time. Since such files could be of huge size, thus there is always a possibilty of the server being choked to death. Hence in order to process the files in real-time, the tool requires all such input files to be present in the same directory in which *server.js* is present. Thus, a good rule of thumb is to download the files to be processed in the same directory, therefore eliminating the need to move the downloaded file from one directory to another.
++ The tool provides various file-processing options like - converting a FASTQ file to a FASTA file and vice versa, analyze entropy of a file containing metagenomic data in real-time. Since such files could be of huge size, thus there is always a possibilty of the server being choked to death. Hence in order to process the files in real-time, the tool requires all such input files to be present in the same directory in which `server.js` is present. Thus, a good rule of thumb is to download the files to be processed in the same directory, therefore eliminating the need to move the downloaded file from one directory to another.
 
-b) Some features of this tool, like- computation of alpha-diversity and downloading the MetaSub data requires an active internet connection for proper functioning.
++ Some features of this tool, like- computation of alpha-diversity and downloading the MetaSub data requires an active internet connection for proper functioning.
 
 ## Technologies (Languages/Frameworks/Packages) Used - 
 
-1) JavaScript  
-2) AngularJS (1.x)
-3) Node.js
-4) Express
-5) [nodemon](https://nodemon.io/) (For development purpose)
-6) [Browsersync](https://browsersync.io/) (For development purpose)
-7) [ESLint](https://eslint.org/) (For development purpose)
-8) [Nativefier](https://github.com/jiahaog/nativefier) (Built on the top of [Electron](https://electronjs.org), used for deployment)
-9) [CanvasJS](https://canvasjs.com/)
-10) HTML
-11) CSS
++ JavaScript  
++ AngularJS (1.x)
++ Node.js
++ Express
++ [nodemon](https://nodemon.io/) (For development purpose)
++ [Browsersync](https://browsersync.io/) (For development purpose)
++ [ESLint](https://eslint.org/) (For development purpose)
++ [Nativefier](https://github.com/jiahaog/nativefier) (Built on the top of [Electron](https://electronjs.org), used for deployment)
++ [CanvasJS](https://canvasjs.com/)
++ HTML
++ CSS
 
 ## External Services Used - 
 
-1) [One Codex RESTful APIs](https://docs.onecodex.com/) - Powers the computation of alpha-diversity.
++ [One Codex RESTful APIs](https://docs.onecodex.com/) - Powers the computation of alpha-diversity.
+
+## Known Issues/Limitations - 
+
++ The server will not send AJAX requests to One Codex's exposed URL endpoints if there is a proxy connection enabled in the browser. Since the desktop application is an [Electron](https://electronjs.org) wrapper over the web application, hence this limitation also holds for the desktop application as well.
 
 ## Contributors
 
