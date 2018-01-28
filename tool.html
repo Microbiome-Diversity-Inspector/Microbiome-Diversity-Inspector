@@ -61,7 +61,7 @@
 			<div class='vertical-separator-from-top-50'>
 				<div id="chartContainer" style="height: 300px; width: 100%;"></div>
 			</div>
-		</div>	
+		</div>			
 		<div class='align-text-center vertical-separator-from-top-50'>
 			<span>
 				<label for="fileInputConvertToFasta" class="button hover-effect">Select a FASTQ file</label>
@@ -111,42 +111,61 @@
 				</div>
 		 </form>	
 		 <div class='vertical-separator-from-top-20' ng-if='myCtrl.shouldShowSamples'>	 
-			 <table id="samples">
-				 <caption><span class='font-size-20'>Samples</span></caption>
-				 <tr>
-				 	 <th>Sample No.</th>
-					 <th>Name</th>
-					 <th>Size (in MB)</th>
-					 <th>Order of Diversity(q)</th>
-					 <th>Action</th>
-					 <th>Alpha-diversity</th>
-				 </tr>			
-				 <tr ng-repeat='sample in myCtrl.samples track by $index'>
-					 <td>{{$index+1}}</td>
-					 <td>{{sample.filename}}
-					 <td>{{sample.size/1000000 | number : 1}}</td>
-					 <td>
-						 <div class='vertical-separator-from-top-10'>
-						     <input id="orderOfDiversity" name='orderOfDiversity' type='text' placeholder='Example - 1'
-										pattern='\d+' ng-required='true' ng-model='sample.orderOfDiversity'>
-					   </div>							 
-					 </td>
-					 <td>
-						 <button class='submit button' ng-click='myCtrl.computeAlphaDiversity(sample)'>Compute</button>
-					 </td>
-					 <td>
-						<span ng-if='sample.alphaDiversityComputationStatus.started == false'>
-							{{sample.alphaDiversity}}
-						</span>
-						<span ng-if='sample.alphaDiversityComputationStatus.started == true && sample.alphaDiversityComputationStatus.completed == false'>
-							<img height='50' width='50' src='ball_loading.GIF'>
-						</span>
-						<span ng-if='sample.alphaDiversityComputationStatus.completed == true'>
-							{{sample.alphaDiversity | number : 2}}
-						</span>						
-					 </td>			 
-				 </tr>
-			 </table>			
+			 <div class='open-sans-sans-serif-text font-size-20'>
+			   Mean α-diversity -
+				 <span class='tomato-text'>
+				   {{(myCtrl.resultantMeanAndStandardDeviation.mean == '_') ? '_' : (myCtrl.resultantMeanAndStandardDeviation.mean | number : 2)}}
+				 </span>
+			 </div>
+			 <div class='open-sans-sans-serif-text font-size-20'>
+			   Standard Deviation in α-diversity -
+				 <span class='tomato-text'>
+				   {{(myCtrl.resultantMeanAndStandardDeviation.standardDeviation == '_') ? '_' : (myCtrl.resultantMeanAndStandardDeviation.standardDeviation | number : 2)}}
+				 </span>
+			 </div>
+			 <div class='vertical-separator-from-top-20'>
+				 <table id="samples">
+					 <caption><span class='font-size-20'>Samples</span></caption>
+					 <tr>
+						 <th>Sample No.</th>
+						 <th>Name</th>
+						 <th>Size (in MB)</th>
+						 <th>Order of Diversity(q)</th>
+						 <th>Actions</th>
+						 <th>Alpha-diversity</th>
+					 </tr>			
+					 <tr ng-repeat='sample in myCtrl.samples track by $index'>
+						 <td>{{$index+1}}</td>
+						 <td>{{sample.filename}}
+						 <td>{{sample.size/1000000 | number : 1}}</td>
+						 <td>
+							 <div class='vertical-separator-from-top-10'>
+									 <input name='orderOfDiversity' type='text' placeholder='Example - 1'
+											pattern='\d+' ng-required='true' ng-model='sample.orderOfDiversity'>
+							 </div>							 
+						 </td>
+						 <td>
+							 <button class='submit button' ng-click='myCtrl.computeAlphaDiversity(sample)'>Compute</button>
+							 <!-- Bind the checkbox value to an object - {isIncluded: {value: true/false}} since if it would
+							 have been binded to a primitive, like - {isIncluded: true/false}, then a change in this property 
+							 would not be reflected in the parent(here- the controller). This happens because ng-repeat creates 
+							 new scope for allowed of its children-->
+							 <input type="checkbox" ng-model='sample.isIncluded.value' checkbox-mean-and-standard-deviation-trigger>
+						 </td>
+						 <td>
+							<span ng-if='sample.alphaDiversityComputationStatus.started == false'>
+								{{sample.alphaDiversity}}
+							</span>
+							<span ng-if='sample.alphaDiversityComputationStatus.started == true && sample.alphaDiversityComputationStatus.completed == false'>
+								<img height='50' width='50' src='ball_loading.GIF'>
+							</span>
+							<span ng-if='sample.alphaDiversityComputationStatus.completed == true'>
+								{{sample.alphaDiversity | number : 2}}
+							</span>						
+						 </td>
+					 </tr>
+				 </table>		
+			 </div>			 
 		</div>		 
 		</div>				
   </body>
