@@ -2,8 +2,8 @@
 <html>
   <head>
 		<meta name="viewport" content="width=device-width, initial-scale=1">
-		<script src='angular.js'></script>
-		<script src="canvas.js"></script>
+		<script src='third_party/angular.js'></script>
+		<script src="third_party/canvas.js"></script>
 		<script src='client.js'></script>
 		<title>Microbiome Diversity Inspector - A tool for visual analysis of microbiome data</title>
 		<link rel='shortcut icon' type="image/x-icon" href='favicon.ico'>
@@ -37,7 +37,7 @@
 								<label>
 										<span class='font-size-20'>SRR Accession Number</span>
 										<input name='accessionNumber' type='text' placeholder='Example - SRR1748535'
-												pattern='SRR\d+' ng-required='true' ng-model='myCtrl.accessionNumber'>
+												pattern='^\s*SRR\d+\s*$' ng-required='true' ng-model='myCtrl.accessionNumber'>
 								</label>
 						</div>						
 						<div class='vertical-separator-from-top-10'>
@@ -57,7 +57,7 @@
 		</div>
 		<div class='vertical-separator-from-top-50' ng-show='myCtrl.showAnalysis'>
 			<div class='align-text-center italic-font-size-25' ng-if='!myCtrl.showEntropy'>Analyzing {{myCtrl.fileName}} ...</div>
-			<div class='align-text-center boxed bold-font-size-30' ng-if='myCtrl.showEntropy'>Entropy = {{myCtrl.entropy}}</div>
+			<div class='align-text-center boxed bold-font-size-30' ng-if='myCtrl.showEntropy'>Entropy = {{myCtrl.entropy | number : 2}}</div>
 			<div class='vertical-separator-from-top-50'>
 				<div id="chartContainer" style="height: 300px; width: 100%;"></div>
 			</div>
@@ -99,7 +99,7 @@
 							<label>
 									<span class='font-size-20'>One Codex API Key</span>
 									<input id="apiKey" name='apiKey' type='password' placeholder='No spaces allowed' 
-											pattern='^\S+$' ng-required='true' ng-model='myCtrl.apiKey'>
+											pattern='^\s*\S+\s*$' ng-required='true' ng-model='myCtrl.apiKey'>
 									<input type="checkbox" ng-click="myCtrl.toggleVisibility()"><span class='font-size-20'>Show</span>
 							</label>
 					</div>				
@@ -141,7 +141,7 @@
 						 <td>
 							 <div class='vertical-separator-from-top-10'>
 									 <input name='orderOfDiversity' type='text' placeholder='Example - 1'
-											pattern='\d+' ng-required='true' ng-model='sample.orderOfDiversity'>
+											pattern='^\s*\d+\s*$' ng-required='true' ng-model='sample.orderOfDiversity'>
 							 </div>							 
 						 </td>
 						 <td>
@@ -157,7 +157,7 @@
 								{{sample.alphaDiversity}}
 							</span>
 							<span ng-if='sample.alphaDiversityComputationStatus.started == true && sample.alphaDiversityComputationStatus.completed == false'>
-								<img height='50' width='50' src='ball_loading.GIF'>
+								<img height='50' width='50' src='images/ball_loading.GIF'>
 							</span>
 							<span ng-if='sample.alphaDiversityComputationStatus.completed == true'>
 								{{sample.alphaDiversity | number : 2}}
