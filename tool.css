@@ -188,6 +188,7 @@ input[type="file"] {
     text-align: center;
     padding: 5px 0;
     border-radius: 6px;
+	font-weight: bold;
 }
 
 .tooltip:hover .tooltiptext {
