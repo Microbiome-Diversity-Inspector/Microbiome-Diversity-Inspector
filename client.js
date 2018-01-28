@@ -55,6 +55,23 @@ function download(filename, text) {
 }
 
 
+function removeLeadingAndTrailingWhitespaces(input) {
+		let startIndex = 0;
+		while (startIndex < input.length && input[startIndex] === ' ') {
+			startIndex++;
+		}
+		let endIndex = input.length - 1;
+		while(endIndex >= 0 &&  input[endIndex] === ' ') {
+			endIndex--;
+		}
+		let res = '';
+		for (let i=startIndex; i<=endIndex; i++) {
+			res += input[i];
+		}
+		return res;
+}
+
+
 /**
  * Refresh the graph between entropy of partitioned blocks of DNA and time.
  *
@@ -270,7 +287,7 @@ MyController.prototype.computeMeanAndStandardDeviationOfSelectedSamples_ = funct
  */
 MyController.prototype.downloadMetaSubData = function() {
 		alert('Enter the below details to download the required file-\nUsername- \'CAMDA\', Password- \'Pivo\'');
-		window.open(this.selectedCityUrlPrefix + this.accessionNumber + '.fastq.dsrc');
+		window.open(this.selectedCityUrlPrefix + removeLeadingAndTrailingWhitespaces(this.accessionNumber) + '.fastq.dsrc');
 };
 
 
@@ -280,7 +297,7 @@ MyController.prototype.downloadMetaSubData = function() {
 MyController.prototype.showSamples = function() {
 		let request = new XMLHttpRequest();
 		request.open('GET', 'https://app.onecodex.com/api/v1/samples', true);
-		request.setRequestHeader('Authorization', 'Basic ' +  btoa(this.apiKey + ':'));
+		request.setRequestHeader('Authorization', 'Basic ' + btoa(removeLeadingAndTrailingWhitespaces(this.apiKey) + ':'));
 		request.onload = (function () {
 			let response = JSON.parse(request.responseText);
 			if (request.status === 401) {
@@ -345,9 +362,9 @@ MyController.prototype.computeAlphaDiversity = function(sample) {
 			alert('Please specify a valid order of diversity!');
 		} else {
 			sample.alphaDiversityComputationStatus.started = true;
-			let query = 'apiKey=' + this.apiKey + '&' + 'sampleId=' +
+			let query = 'apiKey=' + removeLeadingAndTrailingWhitespaces(this.apiKey) + '&' + 'sampleId=' +
 									sample.primary_classification.$ref.substring(24) +
-									'&' + 'orderOfDiversity=' + sample.orderOfDiversity;
+									'&' + 'orderOfDiversity=' + (+removeLeadingAndTrailingWhitespaces(sample.orderOfDiversity));
 			// Carry out the time-consuming computations in the server-side to 
 			// avoid freezing of the browser/destop application.
 			let url = 'http://localhost:8080/compute-alpha-diversity?' + query;
