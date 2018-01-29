@@ -1,0 +1,23 @@
+{
+  "name": "Microbiome_Diversity_Inspector",
+  "version": "1.0.0",
+  "description": "",
+  "main": "angular.js",
+  "dependencies": {
+    "express": "^4.16.2",
+    "xmlhttprequest": "^1.8.0"
+  },
+  "devDependencies": {
+    "eslint": "^4.16.0",
+    "eslint-config-google": "^0.9.1",
+    "nodemon": "^1.14.11"
+  },
+  "scripts": {
+    "start": "nodemon server.js",
+    "lint": "eslint --fix --cache client.js server.js",
+    "dev": "browser-sync start --proxy localhost:8080 --files '*.css, *.html, *.js'"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC"
+}
