@@ -129,7 +129,7 @@
 					 <tr>
 						 <th>Sample No.</th>
 						 <th>Name</th>
-						 <th>Size (in MB)</th>
+						 <th>Size</th>
 						 <th>Order of Diversity(q)</th>
 						 <th>Actions</th>
 						 <th>Alpha-diversity</th>
@@ -137,7 +137,10 @@
 					 <tr ng-repeat='sample in myCtrl.samples track by $index'>
 						 <td>{{$index+1}}</td>
 						 <td>{{sample.filename}}
-						 <td>{{sample.size/1000000 | number : 1}}</td>
+						 <td>
+						   {{(sample.size > 1000000000) ? sample.size/1000000000 : sample.size/1000000 | number : 1}}
+							 {{(sample.size > 1000000000) ? 'GB' : 'MB'}}		 
+						 </td>
 						 <td>
 							 <div class='vertical-separator-from-top-10'>
 									 <input name='orderOfDiversity' type='text' placeholder='Example - 1'
