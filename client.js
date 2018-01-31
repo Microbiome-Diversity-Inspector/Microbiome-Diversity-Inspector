@@ -29,6 +29,10 @@ function MyController($scope, $document, $http, $interval) {
 }
 
 
+// TODO: Switch to using Math.log2() and get rid of this function until
+// Math.log2() is supported by Internet Explorer as mentioned in
+// the 'Browser Compatibility' section of
+// https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Math/log2
 function getLogOfXBase2(x) {
 	return Math.log(x) / Math.log(2);
 }
