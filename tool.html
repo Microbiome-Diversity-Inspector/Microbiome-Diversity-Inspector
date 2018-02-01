@@ -10,15 +10,15 @@
 		<link rel='stylesheet' type="text/css" href='tool.css'>
   </head>
   <body ng-app='myApp' ng-controller='MyController as myCtrl'>
-	  	<!--TODO: Separate each of the below tempates into its own directive/components following the principles
-			  of modularity and separation of concerns.-->
+		<!--TODO: Separate each of the below tempates into its own directive/components following the principles
+			of modularity and separation of concerns.-->
 		<div class='heading-message align-text-center main-title'>Microbiome Diversity Inspector</div>
 		<div class='heading-message align-text-center title-description'>A tool for visual analysis of microbiome data</div>
 		<div class='align-text-center card card-size-300'>
 			<form name='metaSubForm'>
 				<h3 class='open-sans-sans-serif-text'>Download MetaSUB data</h3>
 				<div>
-						<div ng-repeat='city in myCtrl.cities'>
+						<div class='align-inner-div-to-center-of-outer-div align-text-left' ng-repeat='city in myCtrl.cities'>
 								<label>
 										<input name='city' type='radio'
 													 value='{{city.urlPrefix}}'
