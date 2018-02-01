@@ -472,6 +472,7 @@ angular
 								.then(function(response) {
 									download(fileName.substring(0, fileName.length-6) + '.fasta', response.data);
 									scope.myCtrl.startConversionToFasta = false;
+									alert('File downloaded at the browser\'s default download path.');
 								}, function(error) {})
 								.catch(function() {});
 							break;
@@ -496,6 +497,7 @@ angular
 									.then(function(response) {
 										download(scope.myCtrl.fastaFileName.substring(0, scope.myCtrl.fastaFileName.length-6) + '.fastq', response.data);
 										scope.myCtrl.startConversionToFastq = false;
+										alert('File downloaded at the browser\'s default download path.');
 									}, function(error) {})
 									.catch(function() {});
 							}
@@ -521,6 +523,7 @@ angular
 									.then(function(response) {
 										download(scope.myCtrl.fastaFileName.substring(0, scope.myCtrl.fastaFileName.length-6) + '.fastq', response.data);
 										scope.myCtrl.startConversionToFastq = false;
+										alert('File downloaded at the browser\'s default download path.');
 									}, function(error) {})
 									.catch(function() {});
 						}
