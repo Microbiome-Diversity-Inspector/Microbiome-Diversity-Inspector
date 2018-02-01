@@ -33,11 +33,27 @@ function MyController($scope, $document, $http, $interval) {
 // Math.log2() is supported by Internet Explorer as mentioned in
 // the 'Browser Compatibility' section of
 // https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Math/log2
+/**
+ * A function to compute the logarithm of the given number to the base - 2.
+ *
+ * @function
+ * @param {number} x The given number.
+ * @return {number} 
+ */
 function getLogOfXBase2(x) {
 	return Math.log(x) / Math.log(2);
 }
 
 
+/**
+ * A function to determine whether a file with the given filename has the given
+ * file format.
+ *
+ * @function
+ * @param {string} fileName The name of the file.
+ * @param {string} expectedFileFormat The file format to check against with.
+ * @return {boolean} 
+ */
 function isFileHavingCorrectFormat(fileName, expectedFileFormat) {
 	return (fileName.length < expectedFileFormat.length) ?
 		false : fileName.substring(fileName.length-expectedFileFormat.length) === expectedFileFormat;
@@ -45,8 +61,12 @@ function isFileHavingCorrectFormat(fileName, expectedFileFormat) {
 
 
 /**
- *	API to download a file with name - 'fileName' having text - 'text'.
+ *	A function to download a file with name - 'fileName' having text - 'text'.
  *  See - https://stackoverflow.com/a/18197341/5928129 for more.
+ *
+ * @function
+ * @param {string} fileName The name of the file.
+ * @param {string} text The content of the file.
  */
 function download(filename, text) {
 	let elem = document.createElement('a');
@@ -59,6 +79,14 @@ function download(filename, text) {
 }
 
 
+/**
+ * A function to remove leading and trailing white-spaces from the given 
+ * input string.
+ *
+ * @function
+ * @param {string} input The input string.
+ * @return {string}
+ */
 function removeLeadingAndTrailingWhitespaces(input) {
 	let startIndex = 0;
 	while (startIndex < input.length && input[startIndex] === ' ') {
@@ -169,27 +197,41 @@ MyController.prototype.getEntropy_ = function(countOfA, countOfT, countOfG, coun
  */
 MyController.prototype.process_ = function(fileName) {
 	this.refreshEntropyGraph_();
-	this.intervalPromise_ = this.intervalService_((function() {
-		this.httpService_.get('http://localhost:8080/analyze')
-					 .then((function(response) {
-				this.entropyOfCurrentWindow =
-									this.getEntropy_(
-										response.data.countObj.countOfA - this.countOfA,
-										response.data.countObj.countOfT - this.countOfT,
-										response.data.countObj.countOfG - this.countOfG,
-										response.data.countObj.countOfC - this.countOfC);
-				this.countOfA = response.data.countObj.countOfA;
-				this.countOfT = response.data.countObj.countOfT;
-				this.countOfG = response.data.countObj.countOfG;
-				this.countOfC = response.data.countObj.countOfC;
-				if (response.data.statusCode === 'x') {
-					this.showEntropy = true;
-					this.entropy =
-										this.getEntropy_(this.countOfA, this.countOfT, this.countOfG, this.countOfC);
-					this.intervalService_.cancel(this.intervalPromise_);
-				}
-					 }).bind(this), function(error) {});
-	}).bind(this), 10);
+	// Note that we must have a delay, no matter whether we choose synchronous 
+	// calling or asynchronous calling to fetch the server-side API, since we 
+	// are plotting the entropies after these delays on a dynamic line-chart.
+	// We prefer to use asynchronous calling instead of synchronous calling since
+	// the combination of asynchronous and synchronous calls ($http and a synchronous 
+	// delay method, e.g. - https://stackoverflow.com/a/38839049/5928129) results in 
+	// performance degradation. Hence it is preferred to use only asynchronous blocking
+	// calls (as used below - $http and $interval). Note that using $interval may 
+	// cause a little variation in the actual counts of the nucleotide bases but since
+	// we are mainly concern with the variation in the entropy of the contiguous blocks,
+	// so this little error can be ignored.	
+	this.intervalPromise_ =
+			this.intervalService_((function() {
+				this.httpService_
+						.get('http://localhost:8080/analyze')
+						.then((function(response) {
+							this.entropyOfCurrentWindow =
+												this.getEntropy_(
+													response.data.countObj.countOfA - this.countOfA,
+													response.data.countObj.countOfT - this.countOfT,
+													response.data.countObj.countOfG - this.countOfG,
+													response.data.countObj.countOfC - this.countOfC);
+							this.countOfA = response.data.countObj.countOfA;
+							this.countOfT = response.data.countObj.countOfT;
+							this.countOfG = response.data.countObj.countOfG;
+							this.countOfC = response.data.countObj.countOfC;
+							isPromiseFulfilled = true;
+							if (response.data.statusCode === 'x') {
+								this.showEntropy = true;
+								this.entropy =
+													this.getEntropy_(this.countOfA, this.countOfT, this.countOfG, this.countOfC);
+								this.intervalService_.cancel(this.intervalPromise_);
+							}
+					}).bind(this), function(error) {});		
+			}).bind(this), 10);
 };
 
 
@@ -298,6 +340,7 @@ MyController.prototype.downloadMetaSubData = function() {
  * Shows all the samples uploaded by the user having the input API Key.
  */
 MyController.prototype.showSamples = function() {
+	// TODO: Replace 'XMLHttpRequest' with Angular's '$http' service.
 	let request = new XMLHttpRequest();
 	request.open('GET', 'https://app.onecodex.com/api/v1/samples', true);
 	request.setRequestHeader('Authorization', 'Basic ' + btoa(removeLeadingAndTrailingWhitespaces(this.apiKey) + ':'));
@@ -396,90 +439,90 @@ angular
 					let fileName = elem[0].files[0].name;
 					scope.myCtrl.fileName = fileName;
 					switch (elem[0].id) {
-					case 'fileInputAnalyze':
-						if (isFileHavingCorrectFormat(fileName, '.fastq') === false &&
-													isFileHavingCorrectFormat(fileName, '.fasta') === false) {
-							alert('Please upload a FASTQ/FASTA file');
-							break;
-						}
-						scope.myCtrl.showAnalysis = true;
-						scope.$apply();	// Placing scope.$apply() to update the view even if removing it works fine.
-						$interval.cancel(scope.myCtrl.intervalPromise_);
-						$http.post(
-							'http://localhost:8080/analyze',
-							{name: fileName},
-							{headers: {'Content-Type': 'application/json', 'Authorization': 'Basic '}})
-							.then(function() {
-								scope.myCtrl.process_(fileName);
-							}, function(error) {})
-							.catch(function() {});
-						break;
-					case 'fileInputConvertToFasta':
-						scope.$apply();
-						if (isFileHavingCorrectFormat(fileName, '.fastq') === false) {
-							alert('Please upload a FASTQ file');
-							break;
-						}
-						scope.myCtrl.startConversionToFasta = true;
-						scope.$apply();
-						$http.post(
-							'http://localhost:8080/convert-to-fasta',
-							{name: fileName},
-							{headers: {'Content-Type': 'application/json', 'Authorization': 'Basic '}})
-							.then(function(response) {
-								download(fileName.substring(0, fileName.length-6) + '.fasta', response.data);
-								scope.myCtrl.startConversionToFasta = false;
-							}, function(error) {})
-							.catch(function() {});
-						break;
-					case 'fastaFileUploader':
-						scope.$apply();
-						if (isFileHavingCorrectFormat(fileName, '.fasta') === false) {
-							alert('Please upload a FASTA file');
-							break;
-						}
-						scope.myCtrl.fastaFileName = fileName;
-						if (scope.myCtrl.qualFileName !== undefined) {
-							// Keep this code in sync with - case 'qualFileUploader'.
-							scope.myCtrl.startConversionToFastq = true;
-							scope.$apply();
+						case 'fileInputAnalyze':
+							if (isFileHavingCorrectFormat(fileName, '.fastq') === false &&
+														isFileHavingCorrectFormat(fileName, '.fasta') === false) {
+								alert('Please upload a FASTQ/FASTA file');
+								break;
+							}
+							scope.myCtrl.showAnalysis = true;
+							scope.$apply();	// Placing scope.$apply() to update the view even if removing it works fine.
+							$interval.cancel(scope.myCtrl.intervalPromise_);
 							$http.post(
-								'http://localhost:8080/convert-to-fastq',
-								{
-									fastaFileName: scope.myCtrl.fastaFileName,
-									qualFileName: scope.myCtrl.qualFileName,
-								},
+								'http://localhost:8080/analyze',
+								{name: fileName},
 								{headers: {'Content-Type': 'application/json', 'Authorization': 'Basic '}})
-								.then(function(response) {
-									download(scope.myCtrl.fastaFileName.substring(0, scope.myCtrl.fastaFileName.length-6) + '.fastq', response.data);
-									scope.myCtrl.startConversionToFastq = false;
+								.then(function() {
+									scope.myCtrl.process_(fileName);
 								}, function(error) {})
 								.catch(function() {});
-						}
-						break;
-					case 'qualFileUploader':
-						scope.$apply();
-						if (isFileHavingCorrectFormat(fileName, '.qual') === false) {
-							alert('Please upload a QUAL file');
 							break;
-						}
-						scope.myCtrl.qualFileName = fileName;
-						if (scope.myCtrl.fastaFileName !== undefined) {
-							// Keep this code in sync with - case 'fastaFileUploader'.
-							scope.myCtrl.startConversionToFastq = true;
+						case 'fileInputConvertToFasta':
+							scope.$apply();
+							if (isFileHavingCorrectFormat(fileName, '.fastq') === false) {
+								alert('Please upload a FASTQ file');
+								break;
+							}
+							scope.myCtrl.startConversionToFasta = true;
 							scope.$apply();
 							$http.post(
-								'http://localhost:8080/convert-to-fastq',
-								{
-									fastaFileName: scope.myCtrl.fastaFileName,
-									qualFileName: scope.myCtrl.qualFileName,
-								},
+								'http://localhost:8080/convert-to-fasta',
+								{name: fileName},
 								{headers: {'Content-Type': 'application/json', 'Authorization': 'Basic '}})
 								.then(function(response) {
-									download(scope.myCtrl.fastaFileName.substring(0, scope.myCtrl.fastaFileName.length-6) + '.fastq', response.data);
-									scope.myCtrl.startConversionToFastq = false;
+									download(fileName.substring(0, fileName.length-6) + '.fasta', response.data);
+									scope.myCtrl.startConversionToFasta = false;
 								}, function(error) {})
 								.catch(function() {});
+							break;
+						case 'fastaFileUploader':
+							scope.$apply();
+							if (isFileHavingCorrectFormat(fileName, '.fasta') === false) {
+								alert('Please upload a FASTA file');
+								break;
+							}
+							scope.myCtrl.fastaFileName = fileName;
+							if (scope.myCtrl.qualFileName !== undefined) {
+								// Keep this code in sync with - case 'qualFileUploader'.
+								scope.myCtrl.startConversionToFastq = true;
+								scope.$apply();
+								$http.post(
+									'http://localhost:8080/convert-to-fastq',
+									{
+										fastaFileName: scope.myCtrl.fastaFileName,
+										qualFileName: scope.myCtrl.qualFileName,
+									},
+									{headers: {'Content-Type': 'application/json', 'Authorization': 'Basic '}})
+									.then(function(response) {
+										download(scope.myCtrl.fastaFileName.substring(0, scope.myCtrl.fastaFileName.length-6) + '.fastq', response.data);
+										scope.myCtrl.startConversionToFastq = false;
+									}, function(error) {})
+									.catch(function() {});
+							}
+							break;
+						case 'qualFileUploader':
+							scope.$apply();
+							if (isFileHavingCorrectFormat(fileName, '.qual') === false) {
+								alert('Please upload a QUAL file');
+								break;
+							}
+							scope.myCtrl.qualFileName = fileName;
+							if (scope.myCtrl.fastaFileName !== undefined) {
+								// Keep this code in sync with - case 'fastaFileUploader'.
+								scope.myCtrl.startConversionToFastq = true;
+								scope.$apply();
+								$http.post(
+									'http://localhost:8080/convert-to-fastq',
+									{
+										fastaFileName: scope.myCtrl.fastaFileName,
+										qualFileName: scope.myCtrl.qualFileName,
+									},
+									{headers: {'Content-Type': 'application/json', 'Authorization': 'Basic '}})
+									.then(function(response) {
+										download(scope.myCtrl.fastaFileName.substring(0, scope.myCtrl.fastaFileName.length-6) + '.fastq', response.data);
+										scope.myCtrl.startConversionToFastq = false;
+									}, function(error) {})
+									.catch(function() {});
 						}
 						break;
 					}
