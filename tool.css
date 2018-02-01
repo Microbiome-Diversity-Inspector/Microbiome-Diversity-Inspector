@@ -24,11 +24,15 @@ body {
 
 .heading-message {
 	font-weight: bold;
-    	font-size: 30px;
+   font-size: 30px;
 }
 
 .align-text-center {
 	text-align: center;
+}
+
+.align-text-left {
+	text-align: left;
 }
 
 .boxed {
@@ -36,14 +40,14 @@ body {
 }
 
 .italic-font-size-25 {
-	font-style: italic;
+  font-style: italic;
 	font-weight: bold;
-    	font-size: 25px;
+  font-size: 25px;
 }
 
 .bold-font-size-30 {
 	font-weight: bold;
-    	font-size: 40px;
+  font-size: 40px;
 }
 
 .font-size-20 {
@@ -92,6 +96,7 @@ body {
 			4) https://www.w3schools.com/css/css_tooltip.asp
 			5) https://www.w3schools.com/css/css_table.asp
 			6) https://www.w3schools.com/css/css_form.asp
+			7) https://stackoverflow.com/a/114549/5928129 
 */
 
 input[type=text], input[type=password], select {
@@ -230,4 +235,9 @@ input[type="file"] {
     text-align: center;
     background-color: #4CAF50;
     color: white;
+}
+
+.align-inner-div-to-center-of-outer-div {
+  width: 50%;
+  margin: 0 auto;
 }
