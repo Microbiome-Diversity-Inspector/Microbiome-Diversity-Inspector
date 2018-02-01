@@ -7,7 +7,20 @@ let bodyParser = require('body-parser');
 let XMLHttpRequest = require('xmlhttprequest').XMLHttpRequest;
 let app = express();
 
-let countOfA, countOfT, countOfG, countOfC, first, last, size, fileName;
+
+// Global variables used by the server.
+let countOfA,
+		countOfT,
+		countOfG,
+		countOfC,
+		first,
+		last,
+		size,
+		fileName,
+		sequenceLineNumberOfStartOfBlock;	// Line number in the 4-lined sequence(in case of FASTQ file) 
+																			// or 2-lined sequence(in case of FASTA file) of the starting
+																			// character in the current block. Note that the first line of
+																			// the sequence has a value of 1.
 
 app.use(express.static(path.join(__dirname, '')));
 app.use(bodyParser.json()); // for parsing application/json
@@ -21,54 +34,27 @@ app.get('/', function( req, res ) {
 
 // TODO: Comply with REST standards. POST calls are meant to alter the system whereas none
 // of the POST request is altering the system due to the intentional "lack" of database in
-// this project.
+// this project (more famously - 'M' in MVC architecture).
 app.post('/analyze', function(req, res) {
 	countOfA = 0, countOfT = 0, countOfG = 0, countOfC = 0, first = 0, last = 499, size = 500;
+	sequenceLineNumberOfStartOfBlock = 1;
 	fileName = path.join(__dirname, req.body.name);
 	res.send('Posting done.');
 });
 
 
+// The algorithm divides the input file into small blocks(as determined by the variables - first, last 
+// and size which are defined globally). This is done to provide support for counting the bases in 
+// real-time. To identify which line of the 4-lined sequence(in case of FASTQ file) or 2-lined sequence
+// (in case of FASTA file) contain the bases, this block is classified into four cases according to the
+// number of newline characters('\n') found in between the current block. At the smallest level, there
+// can be four such cases, i.e. - the current block having 0, 1, 2, 3 newline characters. After this, 
+// the further cases can be divided in multiples of 3 and the remainder left, for example - 
+// if a block contains 5 newline characters, then we can say that it is equivalent to 1 whole sequence
+// (having 3 newline characters) and 2 additional newline characters.   
 app.get('/analyze', function(req, res) {
 	let stat = fs.statSync(fileName);
 	if (first > stat.size) {
-			 var countObj = {
-					 countOfA: countOfA,
-					 countOfT: countOfT,
-					 countOfG: countOfG,
-					 countOfC: countOfC,
-			 };
-			 res.send({
-				 statusCode: 'x',			// 'x' denotes that this is the last response.
-				 countObj: countObj,
-			 });
-			 console.log('Finished analyzing - ' + fileName);
-	} else {
-		if (last > stat.size) {
-			last = stat.size - 1;
-		}
-		let readStream = fs.createReadStream(fileName, {start: first, end: last});
-		readStream.on('data', function(data) {
-			for (let i=0; i<data.toString().length; i++) {
-				// TODO: Exclude unneccessary characters taken into calculations.
-				switch (data.toString()[i]) {
-				case 'A':
-					countOfA++;
-					break;
-				case 'T':
-					countOfT++;
-					break;
-				case 'G':
-					countOfG++;
-					break;
-				case 'C':
-					countOfC++;
-					break;
-				}
-			}
-		});
-		first += size;
-		last += size;
 		var countObj = {
 			countOfA: countOfA,
 			countOfT: countOfT,
@@ -76,8 +62,52 @@ app.get('/analyze', function(req, res) {
 			countOfC: countOfC,
 		};
 		res.send({
-			statusCode: 'o',			// 'o' denotes that this is not the last response.
-			countObj: countObj,
+			statusCode: 'x',			// 'x' denotes that this is the last response.
+		  countObj: countObj,
+		});
+		console.log('Finished analyzing - ' + fileName);
+	} else {
+		if (last > stat.size) {
+			last = stat.size - 1;
+		}
+		let numberOfLinesInASequence = isFileHavingCorrectFormat(fileName, '.fastq') ? 4 : 2;
+		let currentSubBlockFirst = 0;		// Refers to the first index of the current sub-block in the current 
+																		// block (here - 'data' as mentioned below).
+		let sequenceLineNumberOfStartOfSubBlock = sequenceLineNumberOfStartOfBlock;
+		let sequenceLineNumberOfCurrentLine = sequenceLineNumberOfStartOfBlock;
+		let readStream = fs.createReadStream(fileName, {start: first, end: last});
+		readStream.on('data', function(data) {
+			for (let i=0; i<data.toString().length; i++) {	
+				if (data.toString()[i] === '\n') {
+					if (sequenceLineNumberOfCurrentLine === numberOfLinesInASequence) {
+						countBasesInGivenSubBlock(
+								currentSubBlockFirst, i, data.toString(), sequenceLineNumberOfStartOfSubBlock);
+						sequenceLineNumberOfStartOfSubBlock = 1;
+						currentSubBlockFirst = i + 1;
+					}
+					sequenceLineNumberOfCurrentLine++;
+					if (sequenceLineNumberOfCurrentLine === numberOfLinesInASequence + 1) {
+						sequenceLineNumberOfCurrentLine = 1;
+					}
+				}	
+			}
+			countBasesInGivenSubBlock(
+					currentSubBlockFirst, data.toString().length, data.toString(), sequenceLineNumberOfStartOfSubBlock);
+		});
+		readStream.on('end', function() {
+			first += size;
+			last += size;
+			sequenceLineNumberOfStartOfBlock = sequenceLineNumberOfCurrentLine;
+			var countObj = {
+				countOfA: countOfA,
+				countOfT: countOfT,
+				countOfG: countOfG,
+				countOfC: countOfC,
+			};
+			res.send({
+				statusCode: 'o',			// 'o' denotes that this is not the last response.
+				countObj: countObj,
+			});
 		});
 	}
 });
@@ -95,7 +125,7 @@ app.post('/convert-to-fasta', function(req, res) {
 	// The below code assumes that the file uploaded is a proper FASTQ file
 	// following the rules as mentioned in - https://en.wikipedia.org/wiki/FASTQ_format
 	readStream.on('data', function(data) {
-		for (let i=0; i<data.toString().length; i++) {
+		for (let i=0; i<data.toString().length; i++) {			
 			// This is the first line of the sequence.
 			if (i === 0
 						|| (data.toString()[i-1] === '\n' && data.toString()[i] === '@'
@@ -140,6 +170,10 @@ app.post('/convert-to-fasta', function(req, res) {
 	});
 	readStream.on('end', function() {
 		console.log('Finished converting - ' + req.body.name + ' to its FASTA equivalent.');
+		console.log('\ncountOfA - ' +  countOfA);
+		console.log('\ncountOfT - ' +  countOfT);
+		console.log('\ncountOfG - ' +  countOfG);
+		console.log('\ncountOfC - ' +  countOfC);
 		res.send(fastaContent);
 	});
 });
@@ -337,9 +371,13 @@ app.get('/compute-alpha-diversity', function( req, res ) {
 
 
 /**
- * A private function to map a given decimal quality to Sanger-styled quality
+ * A function to map a given decimal quality to Sanger-styled quality
  * using the formula - chr(Q+33) as mentioned in -
  * http://biopython.org/DIST/docs/api/Bio.SeqIO.QualityIO-module.html
+ *
+ * @function
+ * @param {string} input The decimal quality input string to be converted to 
+ *											 a Sanger-styled quality.
  */
 function convertDecimalQualityInStringFormatToSangerStyledQuality(input) {
 	let qualityInDecimalFormat = parseInt(input, 10);
@@ -348,10 +386,127 @@ function convertDecimalQualityInStringFormatToSangerStyledQuality(input) {
 
 
 /**
- * A private function to find if the given organism is a non-host(non-human) species.
+ * A function to find if the given organism is a non-host(non-human) species.
+ *
+ * @function
+ * @param {string} organism The organism to check for whether it is a non-human species.
  */
 function isNonHostSpecies(organism) {
 	return organism.rank === 'species' && organism.name !== 'Homo sapiens';
+}
+
+
+/**
+ * A function to compute the counts of A, T, G and C in the given range.
+ *
+ * @function
+ * @param {number} start The starting index of this range.
+ * @param {number} end The ending index of this range.
+ * @param {data} data The data in which the computation is to be performed.
+ */
+function countBasesInGivenRange(start, end, data) {
+	for (let i=start; i<end; i++) {
+		if (data[i] === 'A') {
+			countOfA++;
+		} else if (data[i] === 'T') {
+			countOfT++;
+		} else if (data[i] === 'G') {
+			countOfG++;
+		} else if (data[i] === 'C') {
+			countOfC++;
+		}
+	}
+}
+
+
+/**
+ * A function to get the index of the given - N'th newline in the given
+ * data present in between [start, end] (both inclusive).
+ *
+ * @function
+ * @param {number} start The starting index of this range.
+ * @param {number} end The ending index of this range.
+ * @param {data} data The data in which the computation is to be performed.
+ * @param {number} N The nth newline of which the index has to be determined. 
+ */
+function getNthNewLinePos(start, end, data, N) {
+	let numberOfNewLinesEncounteredYet = 0;
+	for (let i=start; i<end; i++) {
+		if (data[i] === '\n') {
+			numberOfNewLinesEncounteredYet++;
+			if (numberOfNewLinesEncounteredYet === N) {
+				return i;
+			}
+		}
+	}
+}
+
+
+/**
+ * A function to determine whether a file with the given filename has the given
+ * file format.
+ *
+ * @function
+ * @param {string} fileName The name of the file.
+ * @param {string} expectedFileFormat The file format to check against with.
+ * @return {boolean} 
+ */
+function isFileHavingCorrectFormat(fileName, expectedFileFormat) {
+	return (fileName.length < expectedFileFormat.length) ?
+		false : fileName.substring(fileName.length-expectedFileFormat.length) === expectedFileFormat;
+}
+
+
+/**
+ * A function to count A, T, G and C in the given sub-block between the given starting(inclusive) 
+ * and ending(exclusive) index.
+ *
+ * @function
+ * @param {number} start The starting index of the given sub-block.
+ * @param {number} end The ending index of the given sub-block.
+ * @param {string} subBlock The given sub-block.
+ * @param {number} sequenceLineNumberOfStartCharacter The line number in the 4-sequenced 
+ *																										read(for FASTQ file) and 2-sequenced
+ *																										read(for FASTA file) where the character
+ *                                                    at index - 'start' in the given sub-block
+ *																										is present.
+ */
+function countBasesInGivenSubBlock(start, end, subBlock, sequenceLineNumberOfStartCharacter) {
+	let numberOfNewLines = 0;
+	for (let i=start; i<end; i++) {
+		if (subBlock[i] === '\n') {
+			numberOfNewLines++;
+		}
+	}
+	if (numberOfNewLines === 0 && sequenceLineNumberOfStartCharacter === 2) {
+		countBasesInGivenRange(start, end, subBlock);
+	} else if (numberOfNewLines === 1) {
+		if (sequenceLineNumberOfStartCharacter === 1) {
+			countBasesInGivenRange(getNthNewLinePos(start, end, subBlock, 1) + 1, end, subBlock);
+		} else if (sequenceLineNumberOfStartCharacter === 2) {
+			// A FASTA file control will never reach this scope.
+			countBasesInGivenRange(start, getNthNewLinePos(start, end, subBlock, 1), subBlock);
+		}
+	} else if (numberOfNewLines === 2) {
+		// A FASTA file control will never reach this scope.
+		if (sequenceLineNumberOfStartCharacter === 1) {
+			countBasesInGivenRange(
+					getNthNewLinePos(start, end, subBlock, 1) + 1,
+					getNthNewLinePos(start, end, subBlock, 2),
+					subBlock);
+		} else if (sequenceLineNumberOfStartCharacter === 2) {
+			countBasesInGivenRange(start, getNthNewLinePos(start, end, subBlock, 1), subBlock);
+		}
+	} else if (numberOfNewLines === 3) {
+		// A FASTA file control will never reach this scope.
+		// At this point it is guarantedd that the value of 'sequenceLineNumberOfStartCharacter'
+		// would be 1 since a sub-block as received as a parameter in this function cannot have 
+		// more than 4 newlines.
+		countBasesInGivenRange(
+				getNthNewLinePos(start, end, subBlock, 1) + 1,
+				getNthNewLinePos(start, end, subBlock, 2),
+				subBlock);		
+	}
 }
 
 
