@@ -10,11 +10,11 @@ The tool can be used as a web application or as well as a standalone desktop app
 
 ### *Using the Web Version*
 
-Download the repository - [Microbiome-Diversity-Inspector](https://github.com/gbelwariar/Microbiome-Diversity-Inspector). Following this, download all the node modules as mentioned [here](https://www.npmjs.com/package/npm-install-all). Bring up the server using the command - `node server.js` and then open - `http://localhost:8080/` in a browser.  
+Download the repository - [Microbiome-Diversity-Inspector](https://github.com/gbelwariar/Microbiome-Diversity-Inspector). Following this, download all the node modules as mentioned [here](https://www.npmjs.com/package/npm-install-all). Bring up the server using the command - `$ node server.js` and then open - `http://localhost:8080/` in a browser.  
 
 ### *Using the Desktop/Standalone Version* 
 
-Download the repository - [Microbiome-Diversity-Inspector](https://github.com/gbelwariar/Microbiome-Diversity-Inspector). Following this, download all the node modules as mentioned [here](https://www.npmjs.com/package/npm-install-all). Then, install [Nativefier](https://github.com/jiahaog/nativefier) which is built on the top of [Electron](https://electronjs.org) using the command - `npm install nativefier -g` followed by `nativefier --name "Microbiome Diversity Inspector" "http://localhost:8080"`. This will install the desktop application inside the directory from where the aforementioned commands where executed. To run the application, bring up the server using the command - `node server.js` and then launch the installed desktop application.
+Download the repository - [Microbiome-Diversity-Inspector](https://github.com/gbelwariar/Microbiome-Diversity-Inspector). Following this, download all the node modules as mentioned [here](https://www.npmjs.com/package/npm-install-all). Then, install [Nativefier](https://github.com/jiahaog/nativefier) which is built on the top of [Electron](https://electronjs.org) using the command - `$ npm install nativefier -g` followed by `$ nativefier --name "Microbiome Diversity Inspector" "http://localhost:8080"`. This will install the desktop application inside the directory from where the aforementioned commands where executed. To run the application, bring up the server using the command - `$ node server.js` and then launch the installed desktop application.
 
 #### Notes - 
 
