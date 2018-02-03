@@ -24,7 +24,7 @@ body {
 
 .heading-message {
 	font-weight: bold;
-   font-size: 30px;
+  font-size: 30px;
 }
 
 .align-text-center {
@@ -101,42 +101,42 @@ body {
 */
 
 input[type=text], input[type=password], select {
-    width: 200px;
-    padding: 12px 20px;
-    margin: 8px 0;
-    display: inline-block;
-    border: 1px solid #ccc;
-    border-radius: 4px;
-    box-sizing: border-box;
+	width: 200px;
+	padding: 12px 20px;
+	margin: 8px 0;
+	display: inline-block;
+	border: 1px solid #ccc;
+	border-radius: 4px;
+	box-sizing: border-box;
 }
 
 #samples input[type=text] {
-    width: 115px;
+	width: 115px;
 }
 
 input[type="checkbox"] {
-    position: relative;
-    width: 20px;
-    height: 20px;
+	position: relative;
+	width: 20px;
+	height: 20px;
 }
 
 input[type="file"] {
-    display: none;
+	display: none;
 }
 
 .button {
-		font-family: 'Raleway',sans-serif;
-		font-weight: 600;
-		border: 2px solid #3368FF;
-		border-radius: 15px;
-		display: inline-block;
-		padding: 12px 12px;
-		cursor: pointer;
-		color: #000000;
-		background-color: #663366;
-		transition: all 0.5s;
-		cursor: pointer;
-		margin: 5px;
+	font-family: 'Raleway',sans-serif;
+	font-weight: 600;
+	border: 2px solid #3368FF;
+	border-radius: 15px;
+	display: inline-block;
+	padding: 12px 12px;
+	cursor: pointer;
+	color: #000000;
+	background-color: #663366;
+	transition: all 0.5s;
+	cursor: pointer;
+	margin: 5px;
 }
 
 .button span {
@@ -189,39 +189,39 @@ input[type="file"] {
 }
 
 .tooltip .tooltiptext {
-    visibility: hidden;
-    width: 200px;
-    background-color: #FF6347;
-    color: black;
-    text-align: center;
-    padding: 5px 0;
-    border-radius: 6px;
-		font-weight: bold;
+	visibility: hidden;
+	width: 200px;
+	background-color: #FF6347;
+	color: black;
+	text-align: center;
+	padding: 5px 0;
+	border-radius: 6px;
+	font-weight: bold;
 }
 
 .tooltip:hover .tooltiptext {
-    visibility: visible;
+	visibility: visible;
 }
 
 .tooltip .tooltiptext {
-    opacity: 0;
-    transition: opacity 1s;
+	opacity: 0;
+	transition: opacity 1s;
 }
 
 .tooltip:hover .tooltiptext {
-    opacity: 1;
+	opacity: 1;
 }
 
 #samples {
-    font-family: "Trebuchet MS", Arial, Helvetica, sans-serif;
-    border-collapse: collapse;
-    width: 100%;
+	font-family: "Trebuchet MS", Arial, Helvetica, sans-serif;
+	border-collapse: collapse;
+	width: 100%;
 }
 
 #samples td, #samples th {
-    border: 1px solid #ddd;
-    padding: 8px;
-		color: black;
+	border: 1px solid #ddd;
+	padding: 8px;
+	color: black;
 }
 
 #samples tr:nth-child(even){background-color: #f2f2f2;}
@@ -231,11 +231,11 @@ input[type="file"] {
 #samples tr:hover {background-color: #ddd;}
 
 #samples th {
-    padding-top: 12px;
-    padding-bottom: 12px;
-    text-align: center;
-    background-color: #4CAF50;
-    color: white;
+	padding-top: 12px;
+	padding-bottom: 12px;
+	text-align: center;
+	background-color: #4CAF50;
+	color: white;
 }
 
 .align-inner-div-to-center-of-outer-div {
