@@ -34,6 +34,8 @@ Download the repository - [Microbiome-Diversity-Inspector](https://github.com/gb
 + AngularJS (1.x)
 + Node.js
 + Express
++ [Mocha](https://mochajs.org/) (For integration testing server-side code)
++ [SuperTest](https://github.com/visionmedia/supertest) (Used with Mocha for integration testing)
 + [nodemon](https://nodemon.io/) (For development purpose)
 + [Browsersync](https://browsersync.io/) (For development purpose)
 + [ESLint](https://eslint.org/) (For development purpose)
