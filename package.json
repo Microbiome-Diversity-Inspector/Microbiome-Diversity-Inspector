@@ -18,7 +18,7 @@
     "start": "nodemon server.js",
     "lint": "eslint --fix --cache client.js server.js",
     "dev": "browser-sync start --proxy localhost:8080 --files '*.css, *.html, *.js'",
-		"test": "mocha"
+    "test": "mocha --watch server-test.js"
   },
   "keywords": [],
   "author": "",
