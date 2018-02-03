@@ -32,7 +32,8 @@
 											ng-show='metaSubForm.city.$error.required'>
 										Please select a city.
 								</span>
-						</div>    
+						</div> 
+						<hr>
 						<div class='vertical-separator-from-top-10'>
 								<label>
 										<span class='font-size-20'>SRR Accession Number</span>
@@ -48,6 +49,7 @@
 				</div>
 		 </form>
 		</div>
+		<hr>
 		<div class='align-text-center vertical-separator-from-top-50'>
 			<span>
 				<label for="fileInputAnalyze" class="button hover-effect font-size-20">Select a file</label>
@@ -55,13 +57,14 @@
 			</span>
 			<h3 class='align-text-center open-sans-sans-serif-text'>Entropy Analysis</h3>
 		</div>
+		<hr>
 		<div class='vertical-separator-from-top-50' ng-show='myCtrl.showAnalysis'>
 			<div class='align-text-center italic-font-size-25' ng-if='!myCtrl.showEntropy'>Analyzing {{myCtrl.fileName}} ...</div>
 			<div class='align-text-center boxed bold-font-size-30' ng-if='myCtrl.showEntropy'>Entropy(Approx) = {{myCtrl.entropy | number : 4}}</div>
 			<div class='vertical-separator-from-top-50'>
 				<div id="chartContainer" style="height: 300px; width: 100%;"></div>
 			</div>
-		</div>			
+		</div>
 		<div class='align-text-center vertical-separator-from-top-50'>
 			<span>
 				<label for="fileInputConvertToFasta" class="button hover-effect">Select a FASTQ file</label>
@@ -72,6 +75,7 @@
 				Converting <span class='orange-text'>{{myCtrl.fileName}}</span> ...
 			</div>
 		</div>
+		<hr>
 		<div class='align-text-center vertical-separator-from-top-50'>
 			<div>
 				<span>
@@ -90,6 +94,7 @@
 				Converting <span class='light-green-text'>{{myCtrl.fileName}}</span> ...
 			</div>
 		</div>
+		<hr>
 		<div class='align-text-center card card-size-300 tooltip' expandable-card>
 			<span class="tooltiptext">See <a href='https://docs.google.com/document/d/e/2PACX-1vQHX_-TCCtYtODA4xQgCnc5GtjeOP8sy08JE5spjB1usOiGmyPsriQoRr2U4IsJfFC1rJiFIlJYS-Za/pub' target='_blank'>this</a> to learn about API Key</span>
 			<form name='alphaDiversityForm'>
