@@ -2,13 +2,13 @@
 
 # What is Microbiome Diversity Inspector?
 
-Microbiome Diversity Inspector is a one-stop scalable tool for visual analysis of large microbiome data running completely from the comfort of your browser(although a destop-standalone version is also available!). The server application runs on all major OS like - Windows, macOS and Linux systems and the client runs in every modern browser (Chrome is preferable though).
+Microbiome Diversity Inspector is a one-stop scalable tool for visual analysis of large microbiome data running completely from the comfort of your browser(although a desktop-standalone version is also available!). The server application runs on all major OS like - Windows, macOS and Linux systems and the client runs in every modern browser (Chrome is preferable though).
 This project is being done as a part of "Major Project" course in 7th Semester and 8th Semester under [Prof. Malay Bhattacharyya](http://www.iiests.ac.in/index.php/it-malay-bhattacharyya-about). Find more details [here](https://docs.google.com/presentation/d/1319g9zOQpjt3MVGcQxWaKRCSVT_WgVh2ykTLYEK-eUc/edit?usp=sharing).
 
 # Who is this for?
 
 Although tools/servers like [MG-Rast](http://metagenomics.anl.gov/) or [One Codex](https://www.onecodex.com/
-) do an extremely impressive job of analysing the microbiome data, they do not provide some crucial out of the box features like - performing real-time analysis of entropy of huge microbiome data, converting big FASTQ files to their FASTA counterpart and vice versa, computing alpha-diversity of samples. This tool is for all microbiome-enthusiasts who want the convenience of the aformentioned services at one place at a scalable and fast performance!
+) do an extremely impressive job of analyzing the microbiome data, they do not provide some crucial out-of-the-box features like - performing real-time analysis of entropy of huge microbiome data, converting big FASTQ files to their FASTA counterpart and vice versa, computing alpha-diversity of samples. Often times, it is seen that these tools become very limited in use by restricting the users to upload upto a certain limit of data only. This tool is for all microbiome-enthusiasts who want the convenience and scalability of the aformentioned services at one place without any such restrictions on a real-time basis!
 
 # How to use/install the tool?
 
