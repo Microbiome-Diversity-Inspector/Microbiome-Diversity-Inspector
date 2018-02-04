@@ -53,6 +53,8 @@ app.post('/analyze', function(req, res) {
 // if a block contains 5 newline characters, then we can say that it is equivalent to 1 whole sequence
 // (having 3 newline characters) and 2 additional newline characters.   
 app.get('/analyze', function(req, res) {
+	// TODO: Maybe add a try-catch block to fix -
+  // https://github.com/gbelwariar/Microbiome-Diversity-Inspector/issues/73
 	let stat = fs.statSync(fileName);
 	if (first > stat.size) {
 		var countObj = {
@@ -115,6 +117,8 @@ app.get('/analyze', function(req, res) {
 
 app.post('/convert-to-fasta', function(req, res) {
 	let fastqFileName = path.join(__dirname, req.body.name);
+	// TODO: Maybe add a try-catch block to fix -
+  // https://github.com/gbelwariar/Microbiome-Diversity-Inspector/issues/73	
 	let readStream = fs.createReadStream(fastqFileName);
 	// The line limit in FASTA format as mentioned in - https://en.wikipedia.org/wiki/FASTA_format
 	let FASTA_LINE_LIMIT = 60;
@@ -189,6 +193,8 @@ app.post('/convert-to-fastq', function(req, res) {
 	let currentReadName = '';
 	let currentBase = '';
 	let readNameToBaseMap = {};
+	// TODO: Maybe add a try-catch block to fix -
+  // https://github.com/gbelwariar/Microbiome-Diversity-Inspector/issues/73	
 	let fastaReadStream = fs.createReadStream(fastaFileName);
 	fastaReadStream.on('data', function(data) {
 		for (let i=0; i<data.toString().length; i++) {
@@ -236,6 +242,8 @@ app.post('/convert-to-fastq', function(req, res) {
 	let currentSangerStyledQualities = '';
 	let currentDecimalQualityInStringFormat = '';
 	let readNameToSangerStyledQualityMap = {};
+	// TODO: Maybe add a try-catch block to fix -
+  // https://github.com/gbelwariar/Microbiome-Diversity-Inspector/issues/73	
 	let qualReadStream = fs.createReadStream(qualFileName);
 	qualReadStream.on('data', function(data) {
 		for (let i=0; i<data.toString().length; i++) {
