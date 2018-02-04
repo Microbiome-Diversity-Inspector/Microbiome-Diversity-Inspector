@@ -34,7 +34,7 @@ describe('Integration Tests', function() {
 			function(done) {
 				request(server)
 					.post('/analyze')
-					.send({name: 'test-fastq.fastq'})
+					.send({name: 'fastq-test-file.fastq'})
 					.end(function(err, res) {
 						done();
 						request(server)
