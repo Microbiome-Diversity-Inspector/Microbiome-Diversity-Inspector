@@ -340,16 +340,16 @@ MyController.prototype.downloadMetaSubData = function() {
  * Shows all the samples uploaded by the user having the input API Key.
  */
 MyController.prototype.showSamples = function() {
-	// TODO: Replace 'XMLHttpRequest' with Angular's '$http' service.
-	let request = new XMLHttpRequest();
-	request.open('GET', 'https://app.onecodex.com/api/v1/samples', true);
-	request.setRequestHeader('Authorization', 'Basic ' + btoa(removeLeadingAndTrailingWhitespaces(this.apiKey) + ':'));
-	request.onload = (function() {
-		let response = JSON.parse(request.responseText);
-		if (request.status === 401) {
-			alert('Wrong credentials!');
-		} else {
-			this.samples = JSON.parse(request.responseText);
+	this.httpService_.get(
+		'https://app.onecodex.com/api/v1/samples',
+		{
+			headers: {
+				'Content-Type': 'application/json',
+				'Authorization': 'Basic ' + btoa(removeLeadingAndTrailingWhitespaces(this.apiKey) + ':')
+			}
+		})
+		.then((function(response) {
+		 	this.samples = response.data;
 			for (let i=0; i<this.samples.length; i++) {
 				this.samples[i].alphaDiversity = '_';
 				this.samples[i].alphaDiversityComputationStatus = {
@@ -359,9 +359,10 @@ MyController.prototype.showSamples = function() {
 			}
 			this.shouldShowSamples = true;
 			this.scope_.$digest();
-		}
-	}).bind(this);
-	request.send();
+		}).bind(this), function(error) {
+			alert('Wrong credentials!');
+		})
+		.catch(function() {});	
 };
 
 
