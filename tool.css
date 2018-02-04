@@ -80,11 +80,14 @@ body {
 
 .open-sans-sans-serif-text {
 	font-family: 'Open Sans', sans-serif;
-	border-bottom: 1px dotted #000;
 }
 
 .invalidation-message {
   color: #f44336;
+}
+
+.width-50-percent {
+	width: 50%;
 }
 
 /* 
@@ -98,6 +101,8 @@ body {
 			6) https://www.w3schools.com/css/css_form.asp
 			7) https://stackoverflow.com/a/114549/5928129 
 			8) https://stackoverflow.com/a/17451132/5928129
+			9) https://codepad.co/snippet/AYXI3hjg
+			10) https://codepen.io/dodozhang21/pen/siKtp
 */
 
 input[type=text], input[type=password], select {
@@ -239,11 +244,71 @@ input[type="file"] {
 }
 
 .align-inner-div-to-center-of-outer-div {
-  width: 50%;
   margin: 0 auto;
 }
 
 .inner-scroller {
   overflow: scroll;
   height: 400px;
+}
+
+.down-arrow{
+	position: relative;
+	bottom: 45%;
+}
+
+.bounce {
+	-moz-animation: bounce 3s infinite;
+	-webkit-animation: bounce 3s infinite;
+	animation: bounce 3s infinite;
+}
+
+@-moz-keyframes bounce {
+  0%, 20%, 50%, 80%, 100% {
+    -moz-transform: translateY(0);
+    transform: translateY(0);
+  }
+  40% {
+    -moz-transform: translateY(-30px);
+    transform: translateY(-30px);
+  }
+  60% {
+    -moz-transform: translateY(-15px);
+    transform: translateY(-15px);
+  }
+}
+@-webkit-keyframes bounce {
+  0%, 20%, 50%, 80%, 100% {
+    -webkit-transform: translateY(0);
+    transform: translateY(0);
+  }
+  40% {
+    -webkit-transform: translateY(-30px);
+    transform: translateY(-30px);
+  }
+  60% {
+    -webkit-transform: translateY(-15px);
+    transform: translateY(-15px);
+  }
+}
+
+@keyframes bounce {
+  0%, 20%, 50%, 80%, 100% {
+    -moz-transform: translateY(0);
+    -ms-transform: translateY(0);
+    -webkit-transform: translateY(0);
+    transform: translateY(0);
+  }
+  40% {
+    -moz-transform: translateY(-30px);
+    -ms-transform: translateY(-30px);
+    -webkit-transform: translateY(-30px);
+    transform: translateY(-30px);
+  }
+  60% {
+    -moz-transform: translateY(-15px);
+    -ms-transform: translateY(-15px);
+    -webkit-transform: translateY(-15px);
+    transform: translateY(-15px);
+  }
 }
