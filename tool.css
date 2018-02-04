@@ -18,6 +18,16 @@ body {
 	display: table;
 }
 
+.blue-horizontal-rule {
+  height: 10px;
+  box-shadow: inset 0 9px 9px -3px rgba(11, 99, 184, 0.8);
+  -webkit-border-radius: 5px;
+  -moz-border-radius: 5px;
+  -ms-border-radius: 5px;
+  -o-border-radius: 5px;
+  border-radius: 5px;
+}
+
 .card-size-300 {
 	width: 300px;
 }
