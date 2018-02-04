@@ -437,9 +437,9 @@ angular
 				elem.on('change', function() {
 					scope.myCtrl.reset_();
 					let fileName = elem[0].files[0].name;
-					scope.myCtrl.fileName = fileName;
 					switch (elem[0].id) {
 						case 'fileInputAnalyze':
+							scope.myCtrl.fileName = fileName;
 							if (isFileHavingCorrectFormat(fileName, '.fastq') === false &&
 														isFileHavingCorrectFormat(fileName, '.fasta') === false) {
 								alert('Please upload a FASTQ/FASTA file');
@@ -458,6 +458,7 @@ angular
 								.catch(function() {});
 							break;
 						case 'fileInputConvertToFasta':
+							scope.myCtrl.fileName = fileName;
 							scope.$apply();
 							if (isFileHavingCorrectFormat(fileName, '.fastq') === false) {
 								alert('Please upload a FASTQ file');
@@ -485,6 +486,7 @@ angular
 							scope.myCtrl.fastaFileName = fileName;
 							if (scope.myCtrl.qualFileName !== undefined) {
 								// Keep this code in sync with - case 'qualFileUploader'.
+								scope.myCtrl.fileName = scope.myCtrl.fastaFileName;
 								scope.myCtrl.startConversionToFastq = true;
 								scope.$apply();
 								$http.post(
@@ -511,6 +513,7 @@ angular
 							scope.myCtrl.qualFileName = fileName;
 							if (scope.myCtrl.fastaFileName !== undefined) {
 								// Keep this code in sync with - case 'fastaFileUploader'.
+								scope.myCtrl.fileName = scope.myCtrl.fastaFileName;
 								scope.myCtrl.startConversionToFastq = true;
 								scope.$apply();
 								$http.post(
