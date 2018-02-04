@@ -30,11 +30,11 @@ describe('Integration Tests', function() {
 					});
 			});	
 			
-		it('should analyze the \'uploaded\' file block by block',
+		it('should analyze the \'uploaded\' file and send back the updated counts after each successive requests',
 			function(done) {
 				request(server)
 					.post('/analyze')
-					.send({name: 'test.fastq'})
+					.send({name: 'test-fastq.fastq'})
 					.end(function(err, res) {
 						done();
 						request(server)
