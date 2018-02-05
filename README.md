@@ -8,7 +8,7 @@ This project is being done as a part of "Major Project" course in 7th Semester a
 # Who is this for?
 
 Although tools/servers like [MG-Rast](http://metagenomics.anl.gov/) or [One Codex](https://www.onecodex.com/
-) do an extremely impressive job of analyzing the microbiome data, they do not provide some crucial out-of-the-box features like - performing real-time analysis of entropy of huge microbiome data, converting big FASTQ files to their FASTA counterpart and vice versa, computing alpha-diversity of samples. Often times, it is seen that these tools become very limited in use by restricting the users to upload upto a certain limit of data only. This tool is for all microbiome-enthusiasts who want the convenience and scalability of the aformentioned services at one place without any such restrictions on a real-time basis!
+) do an extremely impressive job of analyzing the microbiome data, they do not provide some crucial out-of-the-box features like - performing real-time analysis of entropy of huge microbiome data, converting big FASTQ files to their FASTA counterpart and vice versa, computing alpha-diversity of samples. Often, it is seen that these tools become very limited in use by restricting the users to upload up to a certain limit of data only. This tool is for all microbiome-enthusiasts who want the convenience and scalability of the aforementioned services at one place without any such restrictions on a real-time basis!
 
 # How to use/install the tool?
 
