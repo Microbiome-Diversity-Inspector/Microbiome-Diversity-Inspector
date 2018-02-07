@@ -236,13 +236,11 @@ MyController.prototype.process_ = function(fileName) {
 
 
 /**
- * Reset the variables in the tool to provide ability to the users to
- * start another task by halting an already-running task.
+ * Reset all the variables of the 'Entropy Analysis' service.
  *
  * @private
  */
-MyController.prototype.reset_ = function() {
-	// Variables required for analyzing the entropy starts here.
+MyController.prototype.resetEntropyAnalysisVariables_ = function() {
 	this.countOfA = 0;
 	this.countOfT = 0;
 	this.countOfG = 0;
@@ -257,13 +255,35 @@ MyController.prototype.reset_ = function() {
 			}).bind(this));		
 	}
 	this.intervalPromises_ = [];
-	// Variables required for analyzing the entropy ends here.
+}
 
-	// Variables required for format conversion starts here.
+
+/**
+ * Reset all the variables of the 'FASTQ to FASTA Conversion' service.
+ *
+ * @private
+ */
+MyController.prototype.resetFastqToFastaConversionVariables_ = function() {
 	this.startConversionToFasta = false;
-	this.startConversionToFastq = false;
-	// Variables required for format conversion ends here.
+}
 
+
+/**
+ * Reset all the variables of the 'FASTA to FASTQ Conversion' service.
+ *
+ * @private
+ */
+MyController.prototype.resetFastaToFastqConversionVariables_ = function() {
+	this.startConversionToFastq = false;
+}
+
+
+/**
+ * Reset all the variables of the 'Compute Alpha-diversity' service.
+ *
+ * @private
+ */
+MyController.prototype.resetAlphaDiversityComputationVariables_ = function() {
 	// Variables required for alpha-diversity related computation starts here.
 	this.shouldShowSamples = false;
 	// Contains the final mean and standard-deviation and is of the format -
@@ -272,7 +292,21 @@ MyController.prototype.reset_ = function() {
 		mean: '_',
 		standardDeviation: '_',
 	};
+}
+
+
+/**
+ * Reset all the variables of the platform.
+ *
+ * @private
+ */
+MyController.prototype.reset_ = function() {
+	this.resetEntropyAnalysisVariables_();
+	this.resetFastaToFastqConversionVariables_();
+	this.resetFastqToFastaConversionVariables_();
+	this.resetAlphaDiversityComputationVariables_();
 };
+
 
 /**
  * @typedef {Object} MeanAndStandardDeviation
@@ -443,10 +477,10 @@ angular
 		return {
 			link: function(scope, elem, attr, ctrl) {
 				elem.on('change', function() {
-					scope.myCtrl.reset_();
 					let fileName = elem[0].files[0].name;
 					switch (elem[0].id) {
 						case 'fileInputAnalyze':
+							scope.myCtrl.resetEntropyAnalysisVariables_();
 							scope.myCtrl.fileName = fileName;
 							if (isFileHavingCorrectFormat(fileName, '.fastq') === false &&
 														isFileHavingCorrectFormat(fileName, '.fasta') === false) {
@@ -465,6 +499,7 @@ angular
 								.catch(function() {});
 							break;
 						case 'fileInputConvertToFasta':
+							scope.myCtrl.resetFastqToFastaConversionVariables_();
 							scope.myCtrl.fileName = fileName;
 							scope.$apply();
 							if (isFileHavingCorrectFormat(fileName, '.fastq') === false) {
@@ -485,6 +520,7 @@ angular
 								.catch(function() {});
 							break;
 						case 'fastaFileUploader':
+							scope.myCtrl.resetFastaToFastqConversionVariables_();
 							scope.$apply();
 							if (isFileHavingCorrectFormat(fileName, '.fasta') === false) {
 								alert('Please upload a FASTA file');
@@ -512,6 +548,7 @@ angular
 							}
 							break;
 						case 'qualFileUploader':
+							scope.myCtrl.resetFastaToFastqConversionVariables_();
 							scope.$apply();
 							if (isFileHavingCorrectFormat(fileName, '.qual') === false) {
 								alert('Please upload a QUAL file');
