@@ -77,6 +77,27 @@ Following the aforementioned common instructions, install [Nativefier](https://g
 
 + [One Codex RESTful APIs](https://docs.onecodex.com/) - Powers the computation of alpha-diversity.
 
+# Screenshots Of The Platform - 
+
+1) <ins>Utility for downloading the MetaSUB data</ins> :
+![download](https://user-images.githubusercontent.com/17107752/35901707-0422b738-0bfe-11e8-8ba9-58769ad7edca.PNG)  
+
+
+2) <ins>Showing the real-time entropy analysis</ins> :
+![entropy_analysis](https://user-images.githubusercontent.com/17107752/35901947-514fb758-0bff-11e8-99e0-4fbedfc9179c.PNG)  
+
+
+3) <ins>Conversion of a FASTQ file to FASTA in action</ins> :
+![conversion1](https://user-images.githubusercontent.com/17107752/35901986-7f54aa3c-0bff-11e8-9b1b-131e139bb571.PNG)    
+
+
+4) <ins>Conversion of a FASTA file to FASTQ in action</ins> :
+![conversion2](https://user-images.githubusercontent.com/17107752/35902010-9c3579c4-0bff-11e8-8a28-c26baf1a96c6.PNG)  
+
+
+5) <ins>Computation of alpha-diversity</ins> :
+![alpha-diversity](https://user-images.githubusercontent.com/17107752/35902033-b1753a4a-0bff-11e8-9f7e-171f9a048fe5.PNG)  
+
 # Known Issues/Limitations - 
 
 + The server will not send AJAX requests to One Codex's exposed URL endpoints if there is a proxy connection enabled in the browser. Since the desktop application is an [Electron](https://electronjs.org) wrapper over the web application, hence this limitation also holds for the desktop application as well.
