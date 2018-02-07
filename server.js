@@ -174,10 +174,6 @@ app.post('/convert-to-fasta', function(req, res) {
 	});
 	readStream.on('end', function() {
 		console.log('Finished converting - ' + req.body.name + ' to its FASTA equivalent.');
-		console.log('\ncountOfA - ' +  countOfA);
-		console.log('\ncountOfT - ' +  countOfT);
-		console.log('\ncountOfG - ' +  countOfG);
-		console.log('\ncountOfC - ' +  countOfC);
 		res.send(fastaContent);
 	});
 });

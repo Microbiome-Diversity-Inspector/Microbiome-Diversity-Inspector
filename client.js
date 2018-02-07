@@ -412,8 +412,8 @@ MyController.prototype.computeAlphaDiversity = function(sample) {
 		let query = 'apiKey=' + removeLeadingAndTrailingWhitespaces(this.apiKey) + '&' + 'sampleId=' +
 									sample.primary_classification.$ref.substring(24) +
 									'&' + 'orderOfDiversity=' + (+removeLeadingAndTrailingWhitespaces(sample.orderOfDiversity));
-			// Carry out the time-consuming computations in the server-side to
-			// avoid freezing of the browser/destop application.
+		// Carry out the time-consuming computations in the server-side to
+		// avoid freezing of the browser/desktop application.
 		let url = 'http://localhost:8080/compute-alpha-diversity?' + query;
 		this.httpService_.get(url)
 			.then((function(response) {
