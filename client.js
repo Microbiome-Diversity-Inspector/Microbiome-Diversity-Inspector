@@ -140,7 +140,6 @@ MyController.prototype.refreshEntropyGraph_ = function() {
 			return;
 		}
 		count = count || 1;
-		// debugger;
 		for (let j = 0; j < count; j++) {
 			dps.push({
 				x: xVal,
@@ -154,9 +153,9 @@ MyController.prototype.refreshEntropyGraph_ = function() {
 		chart.render();
 	}).bind(this);
 	updateGraph(dataLength);
-	setInterval(function() {
+	this.intervalPromises_.push(this.intervalService_(function() {
 		updateGraph();
-	}, updateInterval);
+	}, updateInterval));
 };
 
 
@@ -208,8 +207,7 @@ MyController.prototype.process_ = function(fileName) {
 	// cause a little variation in the actual counts of the nucleotide bases but since
 	// we are mainly concern with the variation in the entropy of the contiguous blocks,
 	// so this little error can be ignored.	
-	this.intervalPromise_ =
-			this.intervalService_((function() {
+	this.intervalPromises_.push(this.intervalService_((function() {
 				this.httpService_
 						.get('http://localhost:8080/analyze')
 						.then((function(response) {
@@ -228,10 +226,13 @@ MyController.prototype.process_ = function(fileName) {
 								this.showEntropy = true;
 								this.entropy =
 													this.getEntropy_(this.countOfA, this.countOfT, this.countOfG, this.countOfC);
-								this.intervalService_.cancel(this.intervalPromise_);
+								angular.forEach(
+										this.intervalPromises_, (function(intervalPromise) {
+											this.intervalService_.cancel(intervalPromise);
+										}).bind(this));													
 							}
 					}).bind(this), function(error) {});		
-			}).bind(this), 10);
+			}).bind(this), 10));
 };
 
 
@@ -250,6 +251,13 @@ MyController.prototype.reset_ = function() {
 	this.showAnalysis = false;
 	this.showEntropy = false;
 	this.entropyOfCurrentWindow = 0;
+	if (this.intervalPromises_ !== undefined) {
+		angular.forEach(
+			this.intervalPromises_, (function(intervalPromise) {
+				this.intervalService_.cancel(intervalPromise); 
+			}).bind(this));		
+	}
+	this.intervalPromises_ = [];
 	// Variables required for analyzing the entropy ends here.
 
 	// Variables required for format conversion starts here.
@@ -448,7 +456,6 @@ angular
 							}
 							scope.myCtrl.showAnalysis = true;
 							scope.$apply();	// Placing scope.$apply() to update the view even if removing it works fine.
-							$interval.cancel(scope.myCtrl.intervalPromise_);
 							$http.post(
 								'http://localhost:8080/analyze',
 								{name: fileName},
