@@ -221,7 +221,6 @@ MyController.prototype.process_ = function(fileName) {
 							this.countOfT = response.data.countObj.countOfT;
 							this.countOfG = response.data.countObj.countOfG;
 							this.countOfC = response.data.countObj.countOfC;
-							isPromiseFulfilled = true;
 							if (response.data.statusCode === 'x') {
 								this.showEntropy = true;
 								this.entropy =
@@ -537,9 +536,10 @@ angular
 										alert('File downloaded at the browser\'s default download path.');
 									}, function(error) {})
 									.catch(function() {});
-						}
-						break;
+							}
+							break;
 					}
+					elem.val(null);
 				});
 			},
 		};
