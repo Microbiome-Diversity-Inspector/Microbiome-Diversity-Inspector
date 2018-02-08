@@ -2,7 +2,7 @@
 
 # Aim of our project
 
-+ Presently, a lot of massive and groundbreaking initiatives are being undertaken to analyse microbiome data from diverse environments around the world in order to discover interesting secrets present in the world of microbiome. Microbiome Diversity Inspector can be used to highlight about the diversity of microbiome community in various materials found over different regions. The inclusion of other new algorithms in this platform can lead to interesting discoveries which may prove very beneficial to mankind.
+Presently, a lot of massive and groundbreaking initiatives are being undertaken to analyse microbiome data from diverse environments around the world in order to discover interesting secrets present in the world of microbiome. Microbiome Diversity Inspector can be used to highlight about the diversity of microbiome community in various materials found over different regions. The inclusion of other new algorithms in this platform can lead to interesting discoveries which may prove very beneficial to mankind.
 
 # What is Microbiome Diversity Inspector?
 
