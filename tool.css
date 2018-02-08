@@ -32,6 +32,10 @@ body {
 	width: 300px;
 }
 
+.FileColor {
+	color: orange;
+}
+
 .heading-message {
 	font-weight: bold;
   font-size: 30px;
