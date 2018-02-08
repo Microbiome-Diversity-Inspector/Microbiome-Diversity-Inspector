@@ -102,6 +102,10 @@ Following the aforementioned common instructions, install [Nativefier](https://g
 
 + The server will not send AJAX requests to One Codex's exposed URL endpoints if there is a proxy connection enabled in the browser. Since the desktop application is an [Electron](https://electronjs.org) wrapper over the web application, hence this limitation also holds for the desktop application as well.
 
+# Aim of the Project
+
++ The current paper reports that there are many more information that can be discovered from a microbiome sample. Microbiome Diversity Inspector can be used to highlight about the diversity of microbiome community in various materials found over different regions. The inclusion of other new algorithms in this platform can lead to interesting discoveries which may prove very beneficial to mankind
+
 # Contributors
 
 <!-- ALL-CONTRIBUTORS-LIST:START - Do not remove or modify this section -->
