@@ -60,7 +60,7 @@
 			<h3 class='align-text-center open-sans-sans-serif-text'>Entropy Analysis</h3>
 		</div>
 		<div class='vertical-separator-from-top-50' ng-show='myCtrl.showAnalysis'>
-			<div class='align-text-center italic-font-size-25' ng-if='!myCtrl.showEntropy'>Analyzing {{myCtrl.fileName}} ...</div>
+			<div class='align-text-center italic-font-size-25 FileColor' ng-if='!myCtrl.showEntropy'>Analyzing {{myCtrl.fileName}} ...</div>
 			<div class='align-text-center boxed bold-font-size-30' ng-if='myCtrl.showEntropy'>Overall Entropy(Approx) = {{myCtrl.entropy | number : 4}}</div>
 			<div class='vertical-separator-from-top-50'>
 				<div id="chartContainer" style="height: 300px; width: 100%;"></div>
