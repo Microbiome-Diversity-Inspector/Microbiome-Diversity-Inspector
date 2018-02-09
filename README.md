@@ -56,7 +56,7 @@ Following the aforementioned common instructions, install [Nativefier](https://g
 
 ### Notes - 
 
-+ The platform provides various file-processing options like - converting a FASTQ file to a FASTA file and vice versa, analyze entropy of a file containing metagenomic data in real-time. Since such files could be of huge size, thus there is always a possibilty of the server being choked to death. Hence in order to process the files in real-time, the platform requires all such input files to be present in the same directory in which `server.js` is present. Thus, a good rule of thumb is to download the files to be processed in the same directory, therefore eliminating the need to move the downloaded file from one directory to another.
++ The platform provides various file-processing options like - converting a FASTQ file to a FASTA file and vice versa, analyze entropy of a file containing metagenomic data in real-time. Since such files could be of huge size, thus there is always a possibilty of the server being choked to death. Hence in order to process the files in real-time, the platform requires all such input files to be present inside the directory - `Microbiome-Diversity-Inspector`. Keeping this in mind, the platform automatically downloads all the output files inside the directory - `Microbiome-Diversity-Inspector`, so that the user need not bother about migrating the output files from a different directory to the `Microbiome-Diversity-Inspector` directory for further analysis of those files. 
 
 + Some features of this platform, like- computation of alpha-diversity and downloading the MetaSub data requires an active internet connection for proper functioning.
 
