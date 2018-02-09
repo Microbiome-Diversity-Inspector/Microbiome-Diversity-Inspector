@@ -6,7 +6,7 @@ Presently, a lot of massive and groundbreaking initiatives are being undertaken 
 
 # What is Microbiome Diversity Inspector?
 
-Microbiome Diversity Inspector is a one-stop scalable platform for visual analysis of large microbiome data running completely from the comfort of your browser(although a desktop-standalone version is also available!). The server application runs on all major OS like - Windows, macOS and Linux systems and the client runs in every modern browser (Chrome is preferable though).
+Microbiome Diversity Inspector is a one-stop scalable platform for visual analysis of large microbiome data running completely from the comfort of your browser(although a desktop-standalone version is also available!). The server application runs on all major OS like - Windows, macOS and Linux systems and the client runs in every modern browser.
 This project is being done as a part of "Major Project" course in 7th Semester and 8th Semester under [Prof. Malay Bhattacharyya](http://www.iiests.ac.in/index.php/it-malay-bhattacharyya-about).
 
 # Who is this for?
