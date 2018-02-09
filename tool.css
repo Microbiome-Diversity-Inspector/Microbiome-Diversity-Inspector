@@ -113,6 +113,7 @@ body {
 			8) https://stackoverflow.com/a/17451132/5928129
 			9) https://codepad.co/snippet/AYXI3hjg
 			10) https://codepen.io/dodozhang21/pen/siKtp
+			11) https://www.w3schools.com/howto/howto_css_loader.asp
 */
 
 input[type=text], input[type=password], select {
@@ -321,4 +322,26 @@ input[type="file"] {
     -webkit-transform: translateY(-15px);
     transform: translateY(-15px);
   }
+}
+
+.loader {
+  border: 16px solid #f3f3f3;
+  border-radius: 50%;
+  border-top: 16px solid #3498db;
+  width: 50px;
+  height: 50px;
+  margin: auto;
+  -webkit-animation: spin 2s linear infinite; /* Safari */
+  animation: spin 2s linear infinite;
+}
+
+/* Safari */
+@-webkit-keyframes spin {
+  0% { -webkit-transform: rotate(0deg); }
+  100% { -webkit-transform: rotate(360deg); }
+}
+
+@keyframes spin {
+  0% { transform: rotate(0deg); }
+  100% { transform: rotate(360deg); }
 }
