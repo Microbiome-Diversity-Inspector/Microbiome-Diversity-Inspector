@@ -61,25 +61,6 @@ function isFileHavingCorrectFormat(fileName, expectedFileFormat) {
 
 
 /**
- *	A function to download a file with name - 'fileName' having text - 'text'.
- *  See - https://stackoverflow.com/a/18197341/5928129 for more.
- *
- * @function
- * @param {string} fileName The name of the file.
- * @param {string} text The content of the file.
- */
-function download(filename, text) {
-	let elem = document.createElement('a');
-	elem.setAttribute('href', 'data:text/plain;charset=utf-8,' + encodeURIComponent(text));
-	elem.setAttribute('download', filename);
-	elem.style.display = 'none';
-	document.body.appendChild(elem);
-	elem.click();
-	document.body.removeChild(elem);
-}
-
-
-/**
  * A function to remove leading and trailing white-spaces from the given 
  * input string.
  *
@@ -196,6 +177,7 @@ MyController.prototype.getEntropy_ = function(countOfA, countOfT, countOfG, coun
  */
 MyController.prototype.process_ = function(fileName) {
 	this.refreshEntropyGraph_();
+	let entropyAnalysisUrl = 'http://localhost:8080/analyze?fileName=' + fileName;
 	// Note that we must have a delay, no matter whether we choose synchronous 
 	// calling or asynchronous calling to fetch the server-side API, since we 
 	// are plotting the entropies after these delays on a dynamic line-chart.
@@ -209,28 +191,47 @@ MyController.prototype.process_ = function(fileName) {
 	// so this little error can be ignored.	
 	this.intervalPromises_.push(this.intervalService_((function() {
 				this.httpService_
-						.get('http://localhost:8080/analyze')
+						.get(entropyAnalysisUrl)		
 						.then((function(response) {
-							this.entropyOfCurrentWindow =
-												this.getEntropy_(
-													response.data.countObj.countOfA - this.countOfA,
-													response.data.countObj.countOfT - this.countOfT,
-													response.data.countObj.countOfG - this.countOfG,
-													response.data.countObj.countOfC - this.countOfC);
-							this.countOfA = response.data.countObj.countOfA;
-							this.countOfT = response.data.countObj.countOfT;
-							this.countOfG = response.data.countObj.countOfG;
-							this.countOfC = response.data.countObj.countOfC;
-							if (response.data.statusCode === 'x') {
-								this.showEntropy = true;
-								this.entropy =
-													this.getEntropy_(this.countOfA, this.countOfT, this.countOfG, this.countOfC);
+							if (response.data.statusCode === 'e') {
+								this.showAnalysis = false;
 								angular.forEach(
 										this.intervalPromises_, (function(intervalPromise) {
 											this.intervalService_.cancel(intervalPromise);
-										}).bind(this));													
-							}
-					}).bind(this), function(error) {});		
+										}).bind(this));	
+								alert('Sorry, unable to convert the uploaded file!\n' + 
+											'Please check if the uploaded file is inside the directory - \'Microbiome-Diversity-Inspector\'');
+							}	else {
+								this.entropyOfCurrentWindow =
+													this.getEntropy_(
+														response.data.countObj.countOfA - this.countOfA,
+														response.data.countObj.countOfT - this.countOfT,
+														response.data.countObj.countOfG - this.countOfG,
+														response.data.countObj.countOfC - this.countOfC);
+								this.countOfA = response.data.countObj.countOfA;
+								this.countOfT = response.data.countObj.countOfT;
+								this.countOfG = response.data.countObj.countOfG;
+								this.countOfC = response.data.countObj.countOfC;
+								if (response.data.statusCode === 'x') {
+									this.showEntropy = true;
+									this.entropy =
+														this.getEntropy_(this.countOfA, this.countOfT, this.countOfG, this.countOfC);
+									angular.forEach(
+											this.intervalPromises_, (function(intervalPromise) {
+												this.intervalService_.cancel(intervalPromise);
+											}).bind(this));													
+								}								
+							}	
+					}).bind(this), function(error) {
+						this.showAnalysis = false;
+						angular.forEach(
+								this.intervalPromises_, (function(intervalPromise) {
+									this.intervalService_.cancel(intervalPromise);
+								}).bind(this));						
+						// Don't alert the user about internal server error, since this alert
+						// would also get fired once the user reloads the page after initiation
+						// of entropy analysis.
+					});		
 			}).bind(this), 10));
 };
 
@@ -384,7 +385,8 @@ MyController.prototype.showSamples = function() {
 	this.httpService_.get(
 		'https://app.onecodex.com/api/v1/samples',
 		{
-			headers: {
+			headers:
+			{
 				'Content-Type': 'application/json',
 				'Authorization': 'Basic ' + btoa(removeLeadingAndTrailingWhitespaces(this.apiKey) + ':')
 			}
@@ -455,8 +457,8 @@ MyController.prototype.computeAlphaDiversity = function(sample) {
 									'&' + 'orderOfDiversity=' + (+removeLeadingAndTrailingWhitespaces(sample.orderOfDiversity));
 		// Carry out the time-consuming computations in the server-side to
 		// avoid freezing of the browser/desktop application.
-		let url = 'http://localhost:8080/compute-alpha-diversity?' + query;
-		this.httpService_.get(url)
+		let alphaDiversityComputationUrl = 'http://localhost:8080/compute-alpha-diversity?' + query;
+		this.httpService_.get(alphaDiversityComputationUrl)
 			.then((function(response) {
 				if (response.data === 'x') {
 					alert('Sorry, internal server error!');
@@ -465,7 +467,12 @@ MyController.prototype.computeAlphaDiversity = function(sample) {
 					sample.alphaDiversity = response.data;
 					this.computeMeanAndStandardDeviationOfSelectedSamples_();
 				}
-			}).bind(this), function(error) {});
+			}).bind(this), function(error) {
+				// Alert the user since even after a page refresh, unlike as in entropy
+				// analysis, this error will not be fired due to the asynchronous nature
+				// of this operation.
+				alert('Internal server error!');
+			});
 	}
 };
 
@@ -490,12 +497,16 @@ angular
 							scope.myCtrl.showAnalysis = true;
 							scope.$apply();	// Placing scope.$apply() to update the view even if removing it works fine.
 							$http.post(
-								'http://localhost:8080/analyze',
-								{name: fileName},
+								'http://localhost:8080/refresh-analyze',
+								{},
 								{headers: {'Content-Type': 'application/json', 'Authorization': 'Basic '}})
 								.then(function() {
 									scope.myCtrl.process_(fileName);
-								}, function(error) {})
+								}, function(error) {
+									// Don't alert the user about internal server error here, since this alert
+									// would also get fired once the user reloads the page after initiation
+									// of entropy analysis.								
+								})
 								.catch(function() {});
 							break;
 						case 'fileInputConvertToFasta':
@@ -510,13 +521,23 @@ angular
 							scope.$apply();
 							$http.post(
 								'http://localhost:8080/convert-to-fasta',
-								{name: fileName},
+								{fileName: fileName},
 								{headers: {'Content-Type': 'application/json', 'Authorization': 'Basic '}})
 								.then(function(response) {
-									download(fileName.substring(0, fileName.length-6) + '.fasta', response.data);
 									scope.myCtrl.startConversionToFasta = false;
-									alert('File downloaded at the browser\'s default download path.');
-								}, function(error) {})
+									if (response.data === true) {
+										alert('File downloaded! Please check the uploaded file\'s directory.');										
+									} else {
+										alert('Sorry, unable to convert the uploaded file!\n' + 
+													'Please check if the uploaded file is inside the directory - \'Microbiome-Diversity-Inspector\'');
+									}
+								}, function(error) {
+									scope.myCtrl.startConversionToFasta = false;
+									// Alert the user since even after a page refresh, unlike as in entropy
+									// analysis, this error will not be fired due to the asynchronous nature
+									// of this operation.
+									alert('Internal server error!');									
+								})
 								.catch(function() {});
 							break;
 						case 'fastaFileUploader':
@@ -540,10 +561,20 @@ angular
 									},
 									{headers: {'Content-Type': 'application/json', 'Authorization': 'Basic '}})
 									.then(function(response) {
-										download(scope.myCtrl.fastaFileName.substring(0, scope.myCtrl.fastaFileName.length-6) + '.fastq', response.data);
 										scope.myCtrl.startConversionToFastq = false;
-										alert('File downloaded at the browser\'s default download path.');
-									}, function(error) {})
+										if (response.data === true) {
+											alert('File downloaded! Please check the uploaded file\'s directory.');										
+										} else {
+											alert('Sorry, unable to convert the uploaded file!\n' + 
+														'Please check if the uploaded file is inside the directory - \'Microbiome-Diversity-Inspector\'');
+										}
+									}, function(error) {
+										scope.myCtrl.startConversionToFastq = false;
+										// Alert the user since even after a page refresh, unlike as in entropy
+										// analysis, this error will not be fired due to the asynchronous nature
+										// of this operation.
+										alert('Internal server error!');										
+									})
 									.catch(function() {});
 							}
 							break;
@@ -568,10 +599,20 @@ angular
 									},
 									{headers: {'Content-Type': 'application/json', 'Authorization': 'Basic '}})
 									.then(function(response) {
-										download(scope.myCtrl.fastaFileName.substring(0, scope.myCtrl.fastaFileName.length-6) + '.fastq', response.data);
 										scope.myCtrl.startConversionToFastq = false;
-										alert('File downloaded at the browser\'s default download path.');
-									}, function(error) {})
+										if (response.data === true) {
+											alert('File downloaded! Please check the uploaded file\'s directory.');										
+										} else {
+											alert('Sorry, unable to convert the uploaded file!\n' + 
+														'Please check if the uploaded file is inside the directory - \'Microbiome-Diversity-Inspector\'');
+										}										
+									}, function(error) {
+										scope.myCtrl.startConversionToFastq = false;
+										// Alert the user since even after a page refresh, unlike as in entropy
+										// analysis, this error will not be fired due to the asynchronous nature
+										// of this operation.
+										alert('Internal server error!');
+									})
 									.catch(function() {});
 							}
 							break;
