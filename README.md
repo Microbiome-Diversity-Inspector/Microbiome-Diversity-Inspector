@@ -81,9 +81,26 @@ Following the aforementioned common instructions, install [Nativefier](https://g
 
 + [One Codex RESTful APIs](https://docs.onecodex.com/) - Powers the computation of alpha-diversity.
 
+# Screenshots Of The Platform - 
+
+1) <ins>Utility for downloading the MetaSUB data</ins> :
+![download](https://user-images.githubusercontent.com/17107752/36058579-2b79ca26-0e4a-11e8-92a9-d055dc3d2482.PNG)
+
+
+2) <ins>Showing the real-time entropy analysis</ins> :
+![entropy_analysis](https://user-images.githubusercontent.com/17107752/36058581-38d1a4c8-0e4a-11e8-8987-82567f059198.PNG)
+
+
+3) <ins>Conversion of a FASTQ file to FASTA in action</ins> :
+![conversion1](https://user-images.githubusercontent.com/17107752/36058583-4d1c1e7c-0e4a-11e8-8308-b51b23f3c5a2.PNG)
+
+
+4) <ins>Conversion of a FASTA file to FASTQ in action</ins> :
+![conversion2](https://user-images.githubusercontent.com/17107752/36058587-57e37832-0e4a-11e8-843b-22cfe1059899.PNG)
+
 
 5) <ins>Computation of alpha-diversity</ins> :
-![alpha-diversity](https://user-images.githubusercontent.com/17107752/35902033-b1753a4a-0bff-11e8-9f7e-171f9a048fe5.PNG)  
+![alpha-diversity](https://user-images.githubusercontent.com/17107752/36058589-6368fb32-0e4a-11e8-8500-52d852746912.PNG)
 
 # Known Issues/Limitations - 
 
