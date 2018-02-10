@@ -515,9 +515,8 @@ function countBasesInGivenSubBlock(start, end, subBlock, sequenceLineNumberOfSta
 
 
 let server = app.listen(8080, function() {
-	let host = server.address().address;
 	let port = server.address().port;
-	console.log('Example app listening at http://%s:%s', host, port);
+	console.log('\'Microbiome Diversity Inspector\' application is running at http://localhost:%s', port);
 });
 
 
