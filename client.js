@@ -4,6 +4,7 @@ function MyController($scope, $document, $http, $interval) {
 	this.apiKey;
 	this.samples;
 	this.selectedSamples;
+	
 	this.$onInit = (function() {
 		this.cities = [
 			{
@@ -195,10 +196,7 @@ MyController.prototype.process_ = function(fileName) {
 						.then((function(response) {
 							if (response.data.statusCode === 'e') {
 								this.showAnalysis = false;
-								angular.forEach(
-										this.intervalPromises_, (function(intervalPromise) {
-											this.intervalService_.cancel(intervalPromise);
-										}).bind(this));	
+								this.cancelAllIntervalPromises_();
 								alert('Sorry, unable to convert the uploaded file!\n' + 
 											'Please check if the uploaded file is inside the directory - \'Microbiome-Diversity-Inspector\'');
 							}	else {
@@ -216,23 +214,30 @@ MyController.prototype.process_ = function(fileName) {
 									this.showEntropy = true;
 									this.entropy =
 														this.getEntropy_(this.countOfA, this.countOfT, this.countOfG, this.countOfC);
-									angular.forEach(
-											this.intervalPromises_, (function(intervalPromise) {
-												this.intervalService_.cancel(intervalPromise);
-											}).bind(this));													
+									this.cancelAllIntervalPromises_();								
 								}								
 							}	
 					}).bind(this), function(error) {
 						this.showAnalysis = false;
-						angular.forEach(
-								this.intervalPromises_, (function(intervalPromise) {
-									this.intervalService_.cancel(intervalPromise);
-								}).bind(this));						
+						this.cancelAllIntervalPromises_();
 						// Don't alert the user about internal server error, since this alert
 						// would also get fired once the user reloads the page after initiation
 						// of entropy analysis.
 					});		
 			}).bind(this), 10));
+};
+
+
+/**
+ * Cancels all the interval promises.
+ *
+ * @private
+ */
+MyController.prototype.cancelAllIntervalPromises_ = function() {
+	angular.forEach(
+		this.intervalPromises_, (function(intervalPromise) {
+			this.intervalService_.cancel(intervalPromise); 
+		}).bind(this));			
 };
 
 
@@ -249,12 +254,7 @@ MyController.prototype.resetEntropyAnalysisVariables_ = function() {
 	this.showAnalysis = false;
 	this.showEntropy = false;
 	this.entropyOfCurrentWindow = 0;
-	if (this.intervalPromises_ !== undefined) {
-		angular.forEach(
-			this.intervalPromises_, (function(intervalPromise) {
-				this.intervalService_.cancel(intervalPromise); 
-			}).bind(this));		
-	}
+	this.cancelAllIntervalPromises_();
 	this.intervalPromises_ = [];
 }
 
