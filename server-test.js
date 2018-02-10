@@ -30,15 +30,15 @@ describe('Integration Tests', function() {
 					});
 			});	
 			
-		it('should analyze the \'uploaded\' file and send back the updated counts after each successive requests',
+		it('should analyze the \'uploaded\' and send back the updated counts after each successive requests',
 			function(done) {
 				request(server)
-					.post('/analyze')
-					.send({name: 'fastq-test-file.fastq'})
+					.post('/refresh-analyze')
+					.send({})
 					.end(function(err, res) {
 						done();
 						request(server)
-							.get('/analyze')
+							.get('/analyze?fileName=fastq-test-file.fastq')
 							.end(function(err, res) {
 								let expectedBody = {
 									statusCode: 'o',
@@ -49,11 +49,12 @@ describe('Integration Tests', function() {
 										countOfC: 49
 									}
 								};
+								assert.equal(res.statusCode, 200);
 								// Asserting the counts in the first request.
 								assert.deepEqual(res.body, expectedBody);
 								done();
 								request(server)
-									.get('/analyze')
+									.get('/analyze?fileName=fastq-test-file.fastq')
 									.end(function(err, res) {
 										let expectedBody = {
 											statusCode: 'o',
@@ -64,11 +65,12 @@ describe('Integration Tests', function() {
 												countOfC: 87
 											}											
 										};
+										assert.equal(res.statusCode, 200);
 										// Asserting the counts in the second request.
 										assert.deepEqual(res.body, expectedBody);
 										done();
 										request(server)
-											.get('/analyze')
+											.get('/analyze?fileName=fastq-test-file.fastq')
 											.end(function(err, res) {
 												let expectedBody = {
 													statusCode: 'o',
@@ -79,11 +81,12 @@ describe('Integration Tests', function() {
 														countOfC: 102
 													}
 												};
+												assert.equal(res.statusCode, 200);
 												// Asserting the counts in the third request.
 												assert.deepEqual(res.body, expectedBody);	
 												done();
 												request(server)
-													.get('/analyze')
+													.get('/analyze?fileName=fastq-test-file.fastq')
 													.end(function(err, res) {
 														let expectedBody = {
 															statusCode: 'x',
@@ -94,6 +97,7 @@ describe('Integration Tests', function() {
 																countOfC: 102
 															}
 														};
+														assert.equal(res.statusCode, 200);
 														// Asserting the counts in the final connection-closing 
 														// request.
 														assert.deepEqual(res.body, expectedBody);	
