@@ -1,4 +1,4 @@
-function MyController($scope, $document, $http, $interval) {
+function MyController($scope, $document, $http, $interval, $timeout) {
 	this.selectedCityUrlPrefix;
 	this.accessionNumber;
 	this.apiKey;
@@ -21,6 +21,7 @@ function MyController($scope, $document, $http, $interval) {
 			}];
 		this.scope_ = $scope;
 		this.intervalService_ = $interval;
+		this.timeoutService_ = $timeout;
 		this.httpService_ = $http;
 		this.document_ = $document;
 		this.fastaFileName;		// Setting on controller to share the file name with QUAL file uploader.
@@ -135,9 +136,9 @@ MyController.prototype.refreshEntropyGraph_ = function() {
 		chart.render();
 	}).bind(this);
 	updateGraph(dataLength);
-	this.intervalPromises_.push(this.intervalService_(function() {
+	this.dynamicGraphIntervalPromise = this.intervalService_(function() {
 		updateGraph();
-	}, updateInterval));
+	}, updateInterval);
 };
 
 
@@ -186,58 +187,63 @@ MyController.prototype.process_ = function(fileName) {
 	// the combination of asynchronous and synchronous calls ($http and a synchronous 
 	// delay method, e.g. - https://stackoverflow.com/a/38839049/5928129) results in 
 	// performance degradation. Hence it is preferred to use only asynchronous blocking
-	// calls (as used below - $http and $interval). Note that using $interval may 
-	// cause a little variation in the actual counts of the nucleotide bases but since
-	// we are mainly concern with the variation in the entropy of the contiguous blocks,
-	// so this little error can be ignored.	
-	this.intervalPromises_.push(this.intervalService_((function() {
-				this.httpService_
-						.get(entropyAnalysisUrl)		
-						.then((function(response) {
-							if (response.data.statusCode === 'e') {
-								this.showAnalysis = false;
-								this.cancelAllIntervalPromises_();
-								alert('Sorry, unable to convert the uploaded file!\n' + 
-											'Please check if the uploaded file is inside the directory - \'Microbiome-Diversity-Inspector\'');
-							}	else {
-								this.entropyOfCurrentWindow =
-													this.getEntropy_(
-														response.data.countObj.countOfA - this.countOfA,
-														response.data.countObj.countOfT - this.countOfT,
-														response.data.countObj.countOfG - this.countOfG,
-														response.data.countObj.countOfC - this.countOfC);
-								this.countOfA = response.data.countObj.countOfA;
-								this.countOfT = response.data.countObj.countOfT;
-								this.countOfG = response.data.countObj.countOfG;
-								this.countOfC = response.data.countObj.countOfC;
-								if (response.data.statusCode === 'x') {
-									this.showEntropy = true;
-									this.entropy =
-														this.getEntropy_(this.countOfA, this.countOfT, this.countOfG, this.countOfC);
-									this.cancelAllIntervalPromises_();								
-								}								
-							}	
-					}).bind(this), function(error) {
+	// calls (as used below - $http and $timeout).
+	let computeEntropy = function() {
+		this.httpService_
+				.get(entropyAnalysisUrl)		
+				.then((function(response) {
+					if (response.data.statusCode === 'e') {
 						this.showAnalysis = false;
-						this.cancelAllIntervalPromises_();
-						// Don't alert the user about internal server error, since this alert
-						// would also get fired once the user reloads the page after initiation
-						// of entropy analysis.
-					});		
-			}).bind(this), 10));
+						this.cancelAllTimerPromises_();
+						alert('Sorry, unable to convert the uploaded file!\n' + 
+									'Please check if the uploaded file is inside the directory - \'Microbiome-Diversity-Inspector\'');
+					}	else {
+						this.entropyOfCurrentWindow =
+											this.getEntropy_(
+											  // Subtract the current cumulative counts with the previous
+												// cumulative counts to get the counts in the current block.
+												response.data.countObj.countOfA - this.countOfA,	
+												response.data.countObj.countOfT - this.countOfT,
+												response.data.countObj.countOfG - this.countOfG,
+												response.data.countObj.countOfC - this.countOfC);
+						this.countOfA = response.data.countObj.countOfA;
+						this.countOfT = response.data.countObj.countOfT;
+						this.countOfG = response.data.countObj.countOfG;
+						this.countOfC = response.data.countObj.countOfC;
+						if (response.data.statusCode === 'x') {							
+							this.showEntropy = true;
+							this.entropy =
+									this.getEntropy_(this.countOfA, this.countOfT, this.countOfG, this.countOfC);
+							this.cancelAllTimerPromises_();								
+						}	else {							
+							this.timeoutService_(computeEntropy.bind(this), 10);
+						}
+					}	
+				}).bind(this), (function(error) {
+					this.showAnalysis = false;
+					this.cancelAllTimerPromises_();
+					// Don't alert the user about internal server error, since this alert
+					// would also get fired once the user reloads the page after initiation
+					// of entropy analysis.
+				}).bind(this))
+				.catch(function() {});
+	};
+	this.computeEntropyTimeoutPromise = this.timeoutService_(computeEntropy.bind(this), 10);
 };
 
 
 /**
- * Cancels all the interval promises.
+ * Cancels all the timer-based (here - $timeout and $interval) promises.
  *
  * @private
  */
-MyController.prototype.cancelAllIntervalPromises_ = function() {
-	angular.forEach(
-		this.intervalPromises_, (function(intervalPromise) {
-			this.intervalService_.cancel(intervalPromise); 
-		}).bind(this));			
+MyController.prototype.cancelAllTimerPromises_ = function() {
+	if (this.dynamicGraphIntervalPromise !== null) {
+		this.intervalService_.cancel(this.dynamicGraphIntervalPromise);		
+	} 
+	if (this.computeEntropyTimeoutPromise !== null) {
+		this.timeoutService_.cancel(this.computeEntropyTimeoutPromise);		
+	}
 };
 
 
@@ -254,8 +260,9 @@ MyController.prototype.resetEntropyAnalysisVariables_ = function() {
 	this.showAnalysis = false;
 	this.showEntropy = false;
 	this.entropyOfCurrentWindow = 0;
-	this.cancelAllIntervalPromises_();
-	this.intervalPromises_ = [];
+	this.cancelAllTimerPromises_();
+	this.dynamicGraphIntervalPromise = null;
+	this.computeEntropyTimeoutPromise = null;
 }
 
 
@@ -479,8 +486,8 @@ MyController.prototype.computeAlphaDiversity = function(sample) {
 
 angular
 	.module('myApp', [])
-	.controller('MyController', ['$scope', '$document', '$http', '$interval', MyController])
-	.directive('filePicker', function($http, $interval) {
+	.controller('MyController', ['$scope', '$document', '$http', '$interval', '$timeout', MyController])
+	.directive('filePicker', function($http) {
 		return {
 			link: function(scope, elem, attr, ctrl) {
 				elem.on('change', function() {
