@@ -16,11 +16,11 @@ let countOfA,
 		first,
 		last,
 		size,
-		fileName,
 		sequenceLineNumberOfStartOfBlock;	// Line number in the 4-lined sequence(in case of FASTQ file) 
 																			// or 2-lined sequence(in case of FASTA file) of the starting
 																			// character in the current block. Note that the first line of
 																			// the sequence has a value of 1.
+																			
 
 app.use(express.static(path.join(__dirname, '')));
 app.use(bodyParser.json()); // for parsing application/json
@@ -35,11 +35,17 @@ app.get('/', function( req, res ) {
 // TODO: Comply with REST standards. POST calls are meant to alter the system whereas none
 // of the POST request is altering the system due to the intentional "lack" of database in
 // this project (more famously - 'M' in MVC architecture).
-app.post('/analyze', function(req, res) {
-	countOfA = 0, countOfT = 0, countOfG = 0, countOfC = 0, first = 0, last = 499, size = 500;
+app.post('/refresh-analyze', function(req, res) {
+	// Initialize(refresh) the entropy analysis variables.
+	countOfA = 0,
+	countOfT = 0,
+	countOfG = 0,
+	countOfC = 0,
+	first = 0,
+	last = 499,
+	size = 500,
 	sequenceLineNumberOfStartOfBlock = 1;
-	fileName = path.join(__dirname, req.body.name);
-	res.send('Posting done.');
+	res.send(true);
 });
 
 
@@ -53,73 +59,78 @@ app.post('/analyze', function(req, res) {
 // if a block contains 5 newline characters, then we can say that it is equivalent to 1 whole sequence
 // (having 3 newline characters) and 2 additional newline characters.   
 app.get('/analyze', function(req, res) {
-	// TODO: Maybe add a try-catch block to fix -
-  // https://github.com/gbelwariar/Microbiome-Diversity-Inspector/issues/73
-	let stat = fs.statSync(fileName);
-	if (first > stat.size) {
-		var countObj = {
-			countOfA: countOfA,
-			countOfT: countOfT,
-			countOfG: countOfG,
-			countOfC: countOfC,
-		};
-		res.send({
-			statusCode: 'x',			// 'x' denotes that this is the last response.
-		  countObj: countObj,
-		});
-		console.log('Finished analyzing - ' + fileName);
-	} else {
-		if (last > stat.size) {
-			last = stat.size - 1;
-		}
-		let numberOfLinesInASequence = isFileHavingCorrectFormat(fileName, '.fastq') ? 4 : 2;
-		let currentSubBlockFirst = 0;		// Refers to the first index of the current sub-block in the current 
-																		// block (here - 'data' as mentioned below).
-		let sequenceLineNumberOfStartOfSubBlock = sequenceLineNumberOfStartOfBlock;
-		let sequenceLineNumberOfCurrentLine = sequenceLineNumberOfStartOfBlock;
-		let readStream = fs.createReadStream(fileName, {start: first, end: last});
-		readStream.on('data', function(data) {
-			for (let i=0; i<data.toString().length; i++) {	
-				if (data.toString()[i] === '\n') {
-					if (sequenceLineNumberOfCurrentLine === numberOfLinesInASequence) {
-						countBasesInGivenSubBlock(
-								currentSubBlockFirst, i, data.toString(), sequenceLineNumberOfStartOfSubBlock);
-						sequenceLineNumberOfStartOfSubBlock = 1;
-						currentSubBlockFirst = i + 1;
+	let fileName = path.join(__dirname, req.query.fileName);
+	let stat = fs.stat(fileName, function(err, stat) {
+		if (err === null) {
+			if (first > stat.size) {
+				var countObj = {
+					countOfA: countOfA,
+					countOfT: countOfT,
+					countOfG: countOfG,
+					countOfC: countOfC,
+				};
+				res.send({
+					statusCode: 'x',			// 'x' denotes that this is the last response.
+					countObj: countObj,
+				});
+				console.log('Finished analyzing - ' + req.query.fileName);
+			} else {
+				if (last > stat.size) {
+					last = stat.size - 1;
+				}
+				let numberOfLinesInASequence = isFileHavingCorrectFormat(fileName, '.fastq') ? 4 : 2;
+				let currentSubBlockFirst = 0;		// Refers to the first index of the current sub-block in the current 
+																				// block (here - 'data' as mentioned below).
+				let sequenceLineNumberOfStartOfSubBlock = sequenceLineNumberOfStartOfBlock;
+				let sequenceLineNumberOfCurrentLine = sequenceLineNumberOfStartOfBlock;
+				let readStream = fs.createReadStream(fileName, {start: first, end: last});
+				readStream.on('data', function(data) {
+					for (let i=0; i<data.toString().length; i++) {	
+						if (data.toString()[i] === '\n') {
+							if (sequenceLineNumberOfCurrentLine === numberOfLinesInASequence) {
+								countBasesInGivenSubBlock(
+										currentSubBlockFirst, i, data.toString(), sequenceLineNumberOfStartOfSubBlock);
+								sequenceLineNumberOfStartOfSubBlock = 1;
+								currentSubBlockFirst = i + 1;
+							}
+							sequenceLineNumberOfCurrentLine++;
+							if (sequenceLineNumberOfCurrentLine === numberOfLinesInASequence + 1) {
+								sequenceLineNumberOfCurrentLine = 1;
+							}
+						}	
 					}
-					sequenceLineNumberOfCurrentLine++;
-					if (sequenceLineNumberOfCurrentLine === numberOfLinesInASequence + 1) {
-						sequenceLineNumberOfCurrentLine = 1;
-					}
-				}	
-			}
-			countBasesInGivenSubBlock(
-					currentSubBlockFirst, data.toString().length, data.toString(), sequenceLineNumberOfStartOfSubBlock);
-		});
-		readStream.on('end', function() {
-			first += size;
-			last += size;
-			sequenceLineNumberOfStartOfBlock = sequenceLineNumberOfCurrentLine;
-			var countObj = {
-				countOfA: countOfA,
-				countOfT: countOfT,
-				countOfG: countOfG,
-				countOfC: countOfC,
-			};
+					countBasesInGivenSubBlock(
+							currentSubBlockFirst, data.toString().length, data.toString(), sequenceLineNumberOfStartOfSubBlock);
+				});
+				readStream.on('end', function() {
+					first += size;
+					last += size;
+					sequenceLineNumberOfStartOfBlock = sequenceLineNumberOfCurrentLine;
+					var countObj = {
+						countOfA: countOfA,
+						countOfT: countOfT,
+						countOfG: countOfG,
+						countOfC: countOfC,
+					};
+					res.send({
+						statusCode: 'o',			// 'o' denotes that this is not the last response.
+						countObj: countObj,
+					});
+				});		
+			}			
+		} else {
+			console.log(req.query.fileName + ' not found in this directory.');
 			res.send({
-				statusCode: 'o',			// 'o' denotes that this is not the last response.
-				countObj: countObj,
+				statusCode: 'e'				// 'e' denotes a server-side error, most possibly due to the non 
+															// existence of the uploaded file in this directory.
 			});
-		});
-	}
+		}
+	});		
 });
 
 
 app.post('/convert-to-fasta', function(req, res) {
-	let fastqFileName = path.join(__dirname, req.body.name);
-	// TODO: Maybe add a try-catch block to fix -
-  // https://github.com/gbelwariar/Microbiome-Diversity-Inspector/issues/73	
-	let readStream = fs.createReadStream(fastqFileName);
+	let fastqFileName = path.join(__dirname, req.body.fileName);
 	// The line limit in FASTA format as mentioned in - https://en.wikipedia.org/wiki/FASTA_format
 	let FASTA_LINE_LIMIT = 60;
 	let currentCharacterCount = 1;
@@ -128,58 +139,71 @@ app.post('/convert-to-fasta', function(req, res) {
 	let isSecondLineOfSequence = false;
 	// The below code assumes that the file uploaded is a proper FASTQ file
 	// following the rules as mentioned in - https://en.wikipedia.org/wiki/FASTQ_format
-	readStream.on('data', function(data) {
-		for (let i=0; i<data.toString().length; i++) {			
-			// This is the first line of the sequence.
-			if (i === 0
-						|| (data.toString()[i-1] === '\n' && data.toString()[i] === '@'
-								&& isFirstLineOfSequence === false)) {
-				fastaContent += '>';
-				isSecondLineOfSequence = false;
-				isFirstLineOfSequence = true;
-			} else if (i !== 0 && data.toString()[i-1] !== '\n' && isFirstLineOfSequence === true) {
+	fs.readFile(fastqFileName, function(err, data) {
+		if (err) {
+			console.log('Error in reading the uploaded FASTQ file.');
+			res.send(false);
+		} else {
+			for (let i=0; i<data.toString().length; i++) {			
 				// This is the first line of the sequence.
-				if (data.toString()[i] !== '\r') {
-					// Extra check to exclude the carriage return as in Windows(unlike Unix-systems)
-					// based-system '\n' is accompanied with a '\r'.
-					// See - https://stackoverflow.com/a/1761086/5928129 for more.
-					fastaContent += data.toString()[i];
-				}
-				isSecondLineOfSequence = false;
-				isFirstLineOfSequence = true;
-			} else if ((i !== 0 && data.toString()[i-1] === '\n' && isFirstLineOfSequence === true)
-										|| (i !== 0 && data.toString()[i-1] !== '\n'
-												&& isSecondLineOfSequence === true)) {
-				// This is the second line of the sequence in which the nucelotide data is present.
-				if (i !== 0 && data.toString()[i-1] === '\n' && isFirstLineOfSequence === true) {
-					// Reset the character count counter.
-					currentCharacterCount = 1;
-				}
-				isFirstLineOfSequence = false;
-				isSecondLineOfSequence = true;
-				if (currentCharacterCount < FASTA_LINE_LIMIT && data.toString()[i] !== '\r') {
-					fastaContent += data.toString()[i];
-					currentCharacterCount++;
-				} else if (currentCharacterCount === FASTA_LINE_LIMIT && data.toString()[i] !== '\r') {
-					currentCharacterCount = 1;
-					fastaContent += data.toString()[i];
-					fastaContent += '\n';
-				}
-			} else {
-				// Neither the first line of the sequence nor the second line.
-				isFirstLineOfSequence = false;
-				isSecondLineOfSequence = false;
+				if (i === 0
+							|| (data.toString()[i-1] === '\n' && data.toString()[i] === '@'
+									&& isFirstLineOfSequence === false)) {
+					fastaContent += '>';
+					isSecondLineOfSequence = false;
+					isFirstLineOfSequence = true;
+				} else if (i !== 0 && data.toString()[i-1] !== '\n' && isFirstLineOfSequence === true) {
+					// This is the first line of the sequence.
+					if (data.toString()[i] !== '\r') {
+						// Extra check to exclude the carriage return as in Windows(unlike Unix-systems)
+						// based-system '\n' is accompanied with a '\r'.
+						// See - https://stackoverflow.com/a/1761086/5928129 for more.
+						fastaContent += data.toString()[i];
+					}
+					isSecondLineOfSequence = false;
+					isFirstLineOfSequence = true;
+				} else if ((i !== 0 && data.toString()[i-1] === '\n' && isFirstLineOfSequence === true)
+											|| (i !== 0 && data.toString()[i-1] !== '\n'
+													&& isSecondLineOfSequence === true)) {
+					// This is the second line of the sequence in which the nucelotide data is present.
+					if (i !== 0 && data.toString()[i-1] === '\n' && isFirstLineOfSequence === true) {
+						// Reset the character count counter.
+						currentCharacterCount = 1;
+					}
+					isFirstLineOfSequence = false;
+					isSecondLineOfSequence = true;
+					if (currentCharacterCount < FASTA_LINE_LIMIT && data.toString()[i] !== '\r') {
+						fastaContent += data.toString()[i];
+						currentCharacterCount++;
+					} else if (currentCharacterCount === FASTA_LINE_LIMIT && data.toString()[i] !== '\r') {
+						currentCharacterCount = 1;
+						fastaContent += data.toString()[i];
+						fastaContent += '\n';
+					}
+				} else {
+					// Neither the first line of the sequence nor the second line.
+					isFirstLineOfSequence = false;
+					isSecondLineOfSequence = false;
+				}					
 			}
+			fs.writeFile(
+					req.body.fileName.substring(0, req.body.fileName.length-6) + '.fasta',
+					fastaContent,
+					function(err) {
+						if (err) {
+							console.log('Error in writing to the output FASTA file.');
+							res.send(false);							
+						} else {
+							console.log('Finished converting - ' + req.body.fileName + ' to its FASTA equivalent.');
+							res.send(true);
+						}
+					});			
 		}
-	});
-	readStream.on('end', function() {
-		console.log('Finished converting - ' + req.body.name + ' to its FASTA equivalent.');
-		res.send(fastaContent);
 	});
 });
 
 
-app.post('/convert-to-fastq', function(req, res) {
+app.post('/convert-to-fastq', function(req, res) {	
 	let fastaFileName = path.join(__dirname, req.body.fastaFileName);
 	let qualFileName = path.join(__dirname, req.body.qualFileName);
 	// Parse the FASTA file.
@@ -189,135 +213,144 @@ app.post('/convert-to-fastq', function(req, res) {
 	let currentReadName = '';
 	let currentBase = '';
 	let readNameToBaseMap = {};
-	// TODO: Maybe add a try-catch block to fix -
-  // https://github.com/gbelwariar/Microbiome-Diversity-Inspector/issues/73	
-	let fastaReadStream = fs.createReadStream(fastaFileName);
-	fastaReadStream.on('data', function(data) {
-		for (let i=0; i<data.toString().length; i++) {
-			// This is the first line of the sequence.
-			if (i === 0
-						|| (data.toString()[i-1] === '\n' && data.toString()[i] === '>'
-								&& isFirstLineOfSequence === false)) {
-				if (currentReadName !== '') {
-					readNameToBaseMap[currentReadName] = currentBase;
-				}
-				isFirstLineOfSequence = true;
-				currentReadName = '';
-			} else if (i !== 0 && data.toString()[i-1] !== '\n' && isFirstLineOfSequence === true) {
+	fs.readFile(fastaFileName, function(err, data) {
+		if (err) {
+			console.log('Error in reading the uploaded FASTA file.');
+			res.send(false);			
+		} else {
+			for (let i=0; i<data.toString().length; i++) {	
 				// This is the first line of the sequence.
-				if (data.toString()[i] !== '\n' && data.toString()[i] !== '\r') {
-					currentReadName += data.toString()[i];
-				}
-				isFirstLineOfSequence = true;
-			} else if ((i !== 0 && data.toString()[i-1] === '\n' && isFirstLineOfSequence === true)
-										|| isFirstLineOfSequence === false) {
-				// This is the second and the last line of the sequence in which the nucelotide
-				// data is present.
-				if (i !== 0 && data.toString()[i-1] === '\n' && isFirstLineOfSequence === true) {
-					// Reset the current base.
-					currentBase = '';
-				}
-				isFirstLineOfSequence = false;
-				if (data.toString()[i] !== '\n' && data.toString()[i] !== '\r') {
-					currentBase += data.toString()[i];
-				}
-			}
-		}
-	});
-	fastaReadStream.on('end', function() {
-		if (currentReadName !== '') {
-			readNameToBaseMap[currentReadName] = currentBase;
-		}
-	});
-
-	// Parse the QUAL file.
-	isFirstLineOfSequence = true;
-	currentReadName = '';
-	// See - http://biopython.org/DIST/docs/api/Bio.SeqIO.QualityIO-module.html to know more about
-	// Sanger-styled qualities.
-	let currentSangerStyledQualities = '';
-	let currentDecimalQualityInStringFormat = '';
-	let readNameToSangerStyledQualityMap = {};
-	// TODO: Maybe add a try-catch block to fix -
-  // https://github.com/gbelwariar/Microbiome-Diversity-Inspector/issues/73	
-	let qualReadStream = fs.createReadStream(qualFileName);
-	qualReadStream.on('data', function(data) {
-		for (let i=0; i<data.toString().length; i++) {
-			// This is the first line of the sequence.
-			if (i === 0
-						|| (data.toString()[i-1] === '\n' && data.toString()[i] === '>'
-								&& isFirstLineOfSequence === false)) {
-				if (currentReadName !== '') {
-					readNameToSangerStyledQualityMap[currentReadName] = currentSangerStyledQualities;
-				}
-				isFirstLineOfSequence = true;
-				currentReadName = '';
-			} else if (i !== 0 && data.toString()[i-1] !== '\n' && isFirstLineOfSequence === true) {
-				// This is the first line of the sequence.
-				if (data.toString()[i] !== '\n' && data.toString()[i] !== '\r') {
-					currentReadName += data.toString()[i];
-				}
-				isFirstLineOfSequence = true;
-			} else if ((i !== 0 && data.toString()[i-1] === '\n' && isFirstLineOfSequence === true)
-										|| isFirstLineOfSequence === false) {
-				// This is the second and the last line of the sequence in which the nucelotide data is present.
-				if (i !== 0 && data.toString()[i-1] === '\n' && isFirstLineOfSequence === true) {
-					// Reset the current Sanger-styled quality.
-					currentSangerStyledQualities = '';
-					currentDecimalQualityInStringFormat = '';
-				}
-				isFirstLineOfSequence = false;
-				if (data.toString()[i] !== ' ' && data.toString()[i] !== '\n' && data.toString()[i] !== '\r') {
-					currentDecimalQualityInStringFormat += data.toString()[i];
-				} else if (data.toString()[i] === ' ' || data.toString()[i] === '\n'
-										|| data.toString()[i] === '\r') {
-					// Don't add the condition to check again '\r' since in Windows it will
-					// just lead to computing the Sanger-styled quality twice of the same
-					// number as '\r' and '\n' always occurs in pair in Windows.
-					// See this for more - https://stackoverflow.com/a/1761086/5928129.
-					// The second condition in the above OR statement is there to separate
-					// two quality numbers separated just by a newline.
-					if (currentDecimalQualityInStringFormat !== '') {
-						// The above 'if-guard' is to prevent the conversion of an empty decimal
-						// quality into its Sanger-styled counterpart if it has already been
-						// reset to empty on an encounter of a previous ' ' character.
-						currentSangerStyledQualities =
-									currentSangerStyledQualities +
-									convertDecimalQualityInStringFormatToSangerStyledQuality(currentDecimalQualityInStringFormat);
-						currentDecimalQualityInStringFormat = '';
+				if (i === 0
+							|| (data.toString()[i-1] === '\n' && data.toString()[i] === '>'
+									&& isFirstLineOfSequence === false)) {
+					if (currentReadName !== '') {
+						readNameToBaseMap[currentReadName] = currentBase;
+					}
+					isFirstLineOfSequence = true;
+					currentReadName = '';
+				} else if (i !== 0 && data.toString()[i-1] !== '\n' && isFirstLineOfSequence === true) {
+					// This is the first line of the sequence.
+					if (data.toString()[i] !== '\n' && data.toString()[i] !== '\r') {
+						currentReadName += data.toString()[i];
+					}
+					isFirstLineOfSequence = true;
+				} else if ((i !== 0 && data.toString()[i-1] === '\n' && isFirstLineOfSequence === true)
+											|| isFirstLineOfSequence === false) {
+					// This is the second and the last line of the sequence in which the nucelotide
+					// data is present.
+					if (i !== 0 && data.toString()[i-1] === '\n' && isFirstLineOfSequence === true) {
+						// Reset the current base.
+						currentBase = '';
+					}
+					isFirstLineOfSequence = false;
+					if (data.toString()[i] !== '\n' && data.toString()[i] !== '\r') {
+						currentBase += data.toString()[i];
 					}
 				}
+			}		
+			if (currentReadName !== '') {
+				readNameToBaseMap[currentReadName] = currentBase;
 			}
+			// Parse the QUAL file.
+			isFirstLineOfSequence = true;
+			currentReadName = '';
+			// See - http://biopython.org/DIST/docs/api/Bio.SeqIO.QualityIO-module.html to know more about
+			// Sanger-styled qualities.
+			let currentSangerStyledQualities = '';
+			let currentDecimalQualityInStringFormat = '';
+			let readNameToSangerStyledQualityMap = {};
+			fs.readFile(qualFileName, function(err, data) {
+				if (err) {			
+					console.log('Error in reading the uploaded QUAL file.');
+					res.send(false);
+				} else {
+					for (let i=0; i<data.toString().length; i++) {
+						// This is the first line of the sequence.
+						if (i === 0
+									|| (data.toString()[i-1] === '\n' && data.toString()[i] === '>'
+											&& isFirstLineOfSequence === false)) {
+							if (currentReadName !== '') {
+								readNameToSangerStyledQualityMap[currentReadName] = currentSangerStyledQualities;
+							}
+							isFirstLineOfSequence = true;
+							currentReadName = '';
+						} else if (i !== 0 && data.toString()[i-1] !== '\n' && isFirstLineOfSequence === true) {
+							// This is the first line of the sequence.
+							if (data.toString()[i] !== '\n' && data.toString()[i] !== '\r') {
+								currentReadName += data.toString()[i];
+							}
+							isFirstLineOfSequence = true;
+						} else if ((i !== 0 && data.toString()[i-1] === '\n' && isFirstLineOfSequence === true)
+													|| isFirstLineOfSequence === false) {
+							// This is the second and the last line of the sequence in which the nucelotide data is present.
+							if (i !== 0 && data.toString()[i-1] === '\n' && isFirstLineOfSequence === true) {
+								// Reset the current Sanger-styled quality.
+								currentSangerStyledQualities = '';
+								currentDecimalQualityInStringFormat = '';
+							}
+							isFirstLineOfSequence = false;
+							if (data.toString()[i] !== ' ' && data.toString()[i] !== '\n' && data.toString()[i] !== '\r') {
+								currentDecimalQualityInStringFormat += data.toString()[i];
+							} else if (data.toString()[i] === ' ' || data.toString()[i] === '\n'
+													|| data.toString()[i] === '\r') {
+								// Don't add the condition to check again '\r' since in Windows it will
+								// just lead to computing the Sanger-styled quality twice of the same
+								// number as '\r' and '\n' always occurs in pair in Windows.
+								// See this for more - https://stackoverflow.com/a/1761086/5928129.
+								// The second condition in the above OR statement is there to separate
+								// two quality numbers separated just by a newline.
+								if (currentDecimalQualityInStringFormat !== '') {
+									// The above 'if-guard' is to prevent the conversion of an empty decimal
+									// quality into its Sanger-styled counterpart if it has already been
+									// reset to empty on an encounter of a previous ' ' character.
+									currentSangerStyledQualities =
+												currentSangerStyledQualities +
+												convertDecimalQualityInStringFormatToSangerStyledQuality(currentDecimalQualityInStringFormat);
+									currentDecimalQualityInStringFormat = '';
+								}
+							}
+						}
+					}					
+					if (currentReadName !== '') {
+						if (currentDecimalQualityInStringFormat != '') {
+							currentSangerStyledQualities =
+										currentSangerStyledQualities +
+										convertDecimalQualityInStringFormatToSangerStyledQuality(currentDecimalQualityInStringFormat);
+						}
+						readNameToSangerStyledQualityMap[currentReadName] = currentSangerStyledQualities;
+					}
+					let fastqContent = '';
+					for (let key in readNameToBaseMap) {
+						if (readNameToBaseMap.hasOwnProperty(key)) {
+							fastqContent += '@';
+							fastqContent += key;
+							// We don't add a '\r' before adding '\n' since just adding a '\n' is compatible
+							// with both Windows and Unix-based systems whereas in Unix a '\r' does not signify anything.
+							// See - https://stackoverflow.com/a/1761086/5928129 for more.
+							fastqContent += '\n';
+							fastqContent += readNameToBaseMap[key];
+							fastqContent += '\n';
+							fastqContent += '+';
+							fastqContent += '\n';
+							fastqContent += readNameToSangerStyledQualityMap[key];
+							fastqContent += '\n';
+						}
+					}
+					fs.writeFile(
+							req.body.fastaFileName.substring(0, req.body.fastaFileName.length-6) + '.fastq',
+							fastqContent,
+							function(err) {
+								if (err) {
+									console.log('Error in writing to the output FASTQ file.');
+									res.send(false);
+								} else {
+									console.log('Finished converting - ' + req.body.fastaFileName + ' to its FASTQ equivalent.');
+									res.send(true);
+								}
+							});							
+				}
+			});	
 		}
-	});
-	qualReadStream.on('end', function() {
-		if (currentReadName !== '') {
-			if (currentDecimalQualityInStringFormat != '') {
-				currentSangerStyledQualities =
-							currentSangerStyledQualities +
-							convertDecimalQualityInStringFormatToSangerStyledQuality(currentDecimalQualityInStringFormat);
-			}
-			readNameToSangerStyledQualityMap[currentReadName] = currentSangerStyledQualities;
-		}
-		let fastqContent = '';
-		for (let key in readNameToBaseMap) {
-			if (readNameToBaseMap.hasOwnProperty(key)) {
-				fastqContent += '@';
-				fastqContent += key;
-				// We don't add a '\r' before adding '\n' since just adding a '\n' is compatible
-				// with both Windows and Unix-based systems whereas in Unix a '\r' does not signify anything.
-				// See - https://stackoverflow.com/a/1761086/5928129 for more.
-				fastqContent += '\n';
-				fastqContent += readNameToBaseMap[key];
-				fastqContent += '\n';
-				fastqContent += '+';
-				fastqContent += '\n';
-				fastqContent += readNameToSangerStyledQualityMap[key];
-				fastqContent += '\n';
-			}
-		}
-		console.log('Finished converting - ' + req.body.fastaFileName + ' to its FASTA equivalent.');
-		res.send(fastqContent);
 	});
 });
 
@@ -515,8 +548,9 @@ function countBasesInGivenSubBlock(start, end, subBlock, sequenceLineNumberOfSta
 
 
 let server = app.listen(8080, function() {
-	let port = server.address().port;
-	console.log('\'Microbiome Diversity Inspector\' application is running at http://localhost:%s', port);
+	console.log(
+			'\'Microbiome Diversity Inspector\' now running at http://localhost:%s',
+			server.address().port);
 });
 
 
