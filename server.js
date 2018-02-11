@@ -8,20 +8,6 @@ let XMLHttpRequest = require('xmlhttprequest').XMLHttpRequest;
 let app = express();
 
 
-// Global variables used by the server.
-let countOfA,
-		countOfT,
-		countOfG,
-		countOfC,
-		first,
-		last,
-		size,
-		sequenceLineNumberOfStartOfBlock;	// Line number in the 4-lined sequence(in case of FASTQ file) 
-																			// or 2-lined sequence(in case of FASTA file) of the starting
-																			// character in the current block. Note that the first line of
-																			// the sequence has a value of 1.
-																			
-
 app.use(express.static(path.join(__dirname, '')));
 app.use(bodyParser.json()); // for parsing application/json
 app.use(bodyParser.urlencoded({extended: true})); // for parsing application/x-www-form-urlencoded
@@ -32,43 +18,38 @@ app.get('/', function( req, res ) {
 });
 
 
-// TODO: Comply with REST standards. POST calls are meant to alter the system whereas none
-// of the POST request is altering the system due to the intentional "lack" of database in
-// this project (more famously - 'M' in MVC architecture).
-app.post('/refresh-analyze', function(req, res) {
-	// Initialize(refresh) the entropy analysis variables.
-	countOfA = 0,
-	countOfT = 0,
-	countOfG = 0,
-	countOfC = 0,
-	first = 0,
-	last = 499,
-	size = 500,
-	sequenceLineNumberOfStartOfBlock = 1;
-	res.send(true);
-});
-
-
-// The algorithm divides the input file into small blocks(as determined by the variables - first, last 
-// and size which are defined globally). This is done to provide support for counting the bases in 
-// real-time. To identify which line of the 4-lined sequence(in case of FASTQ file) or 2-lined sequence
-// (in case of FASTA file) contain the bases, this block is classified into four cases according to the
-// number of newline characters('\n') found in between the current block. At the smallest level, there
-// can be four such cases, i.e. - the current block having 0, 1, 2, 3 newline characters. After this, 
-// the further cases can be divided in multiples of 3 and the remainder left, for example - 
-// if a block contains 5 newline characters, then we can say that it is equivalent to 1 whole sequence
-// (having 3 newline characters) and 2 additional newline characters.   
+// The algorithm divides the input file into small blocks(as determined by the variables - first,
+// last and size which are defined globally). This is done to provide support for counting the
+// bases in real-time. To identify which line of the 4-lined sequence(in case of FASTQ file) or
+// 2-lined sequence(in case of FASTA file) contain the bases, this block is classified into four
+// cases according to the number of newline characters('\n') found in between the current block.
+// At the smallest level, there can be four such cases, i.e. - the current block having 0, 1, 2, 3
+// newline characters. After this, the further cases can be divided in multiples of 3 and the
+// remainder left, for example - if a block contains 5 newline characters, then we can say that it
+// is equivalent to 1 whole sequence(having 3 newline characters) and 2 additional newline
+// characters.   
 app.get('/analyze', function(req, res) {
 	let fileName = path.join(__dirname, req.query.fileName);
 	let stat = fs.stat(fileName, function(err, stat) {
 		if (err === null) {
+			let first = (req.query.first === undefined) ? 0 : (+req.query.first),
+					last = (req.query.last === undefined) ? 499 : (+req.query.last),
+					size = 500,
+					// Line number in the 4-lined sequence(in case of FASTQ
+					// file) or 2-lined sequence(in case of FASTA file) of 
+					// the starting character in the current block. Note that
+					// the first line of the sequence has a value of 1.
+					sequenceLineNumberOfStartOfBlock =
+							(req.query.sequenceLineNumberOfStartOfBlock === undefined) ?
+									1 : (+req.query.sequenceLineNumberOfStartOfBlock),
+					// 'countObj' holds the count of A, T, G and C in the current block.
+					countObj = {
+						countOfA: 0,
+						countOfT: 0,
+						countOfG: 0,
+						countOfC: 0,
+					};
 			if (first > stat.size) {
-				var countObj = {
-					countOfA: countOfA,
-					countOfT: countOfT,
-					countOfG: countOfG,
-					countOfC: countOfC,
-				};
 				res.send({
 					statusCode: 'x',			// 'x' denotes that this is the last response.
 					countObj: countObj,
@@ -79,8 +60,8 @@ app.get('/analyze', function(req, res) {
 					last = stat.size - 1;
 				}
 				let numberOfLinesInASequence = isFileHavingCorrectFormat(fileName, '.fastq') ? 4 : 2;
-				let currentSubBlockFirst = 0;		// Refers to the first index of the current sub-block in the current 
-																				// block (here - 'data' as mentioned below).
+				let currentSubBlockFirst = 0;		// Refers to the first index of the current sub-block in
+																				// the current block (here - 'data' as mentioned below).
 				let sequenceLineNumberOfStartOfSubBlock = sequenceLineNumberOfStartOfBlock;
 				let sequenceLineNumberOfCurrentLine = sequenceLineNumberOfStartOfBlock;
 				let readStream = fs.createReadStream(fileName, {start: first, end: last});
@@ -89,7 +70,11 @@ app.get('/analyze', function(req, res) {
 						if (data.toString()[i] === '\n') {
 							if (sequenceLineNumberOfCurrentLine === numberOfLinesInASequence) {
 								countBasesInGivenSubBlock(
-										currentSubBlockFirst, i, data.toString(), sequenceLineNumberOfStartOfSubBlock);
+										currentSubBlockFirst,
+										i,
+										data.toString(),
+										sequenceLineNumberOfStartOfSubBlock,
+										countObj);
 								sequenceLineNumberOfStartOfSubBlock = 1;
 								currentSubBlockFirst = i + 1;
 							}
@@ -100,21 +85,22 @@ app.get('/analyze', function(req, res) {
 						}	
 					}
 					countBasesInGivenSubBlock(
-							currentSubBlockFirst, data.toString().length, data.toString(), sequenceLineNumberOfStartOfSubBlock);
+							currentSubBlockFirst,
+							data.toString().length,
+							data.toString(),
+							sequenceLineNumberOfStartOfSubBlock,
+							countObj);
 				});
 				readStream.on('end', function() {
 					first += size;
 					last += size;
 					sequenceLineNumberOfStartOfBlock = sequenceLineNumberOfCurrentLine;
-					var countObj = {
-						countOfA: countOfA,
-						countOfT: countOfT,
-						countOfG: countOfG,
-						countOfC: countOfC,
-					};
 					res.send({
 						statusCode: 'o',			// 'o' denotes that this is not the last response.
 						countObj: countObj,
+						nextUrl: 'http://localhost:8080/analyze?fileName=' + req.query.fileName + 
+										 '&' + 'first=' + first + '&' + 'last=' + last + '&' +
+										 'sequenceLineNumberOfStartOfBlock=' + sequenceLineNumberOfStartOfBlock
 					});
 				});		
 			}			
@@ -194,7 +180,8 @@ app.post('/convert-to-fasta', function(req, res) {
 							console.log('Error in writing to the output FASTA file.');
 							res.send(false);							
 						} else {
-							console.log('Finished converting - ' + req.body.fileName + ' to its FASTA equivalent.');
+							console.log(
+									'Finished converting - ' + req.body.fileName + ' to its FASTA equivalent.');
 							res.send(true);
 						}
 					});			
@@ -254,8 +241,8 @@ app.post('/convert-to-fastq', function(req, res) {
 			// Parse the QUAL file.
 			isFirstLineOfSequence = true;
 			currentReadName = '';
-			// See - http://biopython.org/DIST/docs/api/Bio.SeqIO.QualityIO-module.html to know more about
-			// Sanger-styled qualities.
+			// See - http://biopython.org/DIST/docs/api/Bio.SeqIO.QualityIO-module.html to know more
+			// about Sanger-styled qualities.
 			let currentSangerStyledQualities = '';
 			let currentDecimalQualityInStringFormat = '';
 			let readNameToSangerStyledQualityMap = {};
@@ -274,22 +261,26 @@ app.post('/convert-to-fastq', function(req, res) {
 							}
 							isFirstLineOfSequence = true;
 							currentReadName = '';
-						} else if (i !== 0 && data.toString()[i-1] !== '\n' && isFirstLineOfSequence === true) {
+						} else if (i !== 0 && data.toString()[i-1] !== '\n' &&
+												isFirstLineOfSequence === true) {
 							// This is the first line of the sequence.
 							if (data.toString()[i] !== '\n' && data.toString()[i] !== '\r') {
 								currentReadName += data.toString()[i];
 							}
 							isFirstLineOfSequence = true;
-						} else if ((i !== 0 && data.toString()[i-1] === '\n' && isFirstLineOfSequence === true)
-													|| isFirstLineOfSequence === false) {
-							// This is the second and the last line of the sequence in which the nucelotide data is present.
+						} else if ((i !== 0 && data.toString()[i-1] === '\n' &&
+												isFirstLineOfSequence === true) || 
+												isFirstLineOfSequence === false) {
+							// This is the second and the last line of the sequence in which the nucelotide data
+							// is present.
 							if (i !== 0 && data.toString()[i-1] === '\n' && isFirstLineOfSequence === true) {
 								// Reset the current Sanger-styled quality.
 								currentSangerStyledQualities = '';
 								currentDecimalQualityInStringFormat = '';
 							}
 							isFirstLineOfSequence = false;
-							if (data.toString()[i] !== ' ' && data.toString()[i] !== '\n' && data.toString()[i] !== '\r') {
+							if (data.toString()[i] !== ' ' && data.toString()[i] !== '\n' &&
+									data.toString()[i] !== '\r') {
 								currentDecimalQualityInStringFormat += data.toString()[i];
 							} else if (data.toString()[i] === ' ' || data.toString()[i] === '\n'
 													|| data.toString()[i] === '\r') {
@@ -305,7 +296,8 @@ app.post('/convert-to-fastq', function(req, res) {
 									// reset to empty on an encounter of a previous ' ' character.
 									currentSangerStyledQualities =
 												currentSangerStyledQualities +
-												convertDecimalQualityInStringFormatToSangerStyledQuality(currentDecimalQualityInStringFormat);
+												convertDecimalQualityInStringFormatToSangerStyledQuality(
+														currentDecimalQualityInStringFormat);
 									currentDecimalQualityInStringFormat = '';
 								}
 							}
@@ -315,7 +307,8 @@ app.post('/convert-to-fastq', function(req, res) {
 						if (currentDecimalQualityInStringFormat != '') {
 							currentSangerStyledQualities =
 										currentSangerStyledQualities +
-										convertDecimalQualityInStringFormatToSangerStyledQuality(currentDecimalQualityInStringFormat);
+										convertDecimalQualityInStringFormatToSangerStyledQuality(
+												currentDecimalQualityInStringFormat);
 						}
 						readNameToSangerStyledQualityMap[currentReadName] = currentSangerStyledQualities;
 					}
@@ -325,8 +318,8 @@ app.post('/convert-to-fastq', function(req, res) {
 							fastqContent += '@';
 							fastqContent += key;
 							// We don't add a '\r' before adding '\n' since just adding a '\n' is compatible
-							// with both Windows and Unix-based systems whereas in Unix a '\r' does not signify anything.
-							// See - https://stackoverflow.com/a/1761086/5928129 for more.
+							// with both Windows and Unix-based systems whereas in Unix a '\r' does not signify
+							// anything. See - https://stackoverflow.com/a/1761086/5928129 for more.
 							fastqContent += '\n';
 							fastqContent += readNameToBaseMap[key];
 							fastqContent += '\n';
@@ -344,7 +337,8 @@ app.post('/convert-to-fastq', function(req, res) {
 									console.log('Error in writing to the output FASTQ file.');
 									res.send(false);
 								} else {
-									console.log('Finished converting - ' + req.body.fastaFileName + ' to its FASTQ equivalent.');
+									console.log('Finished converting - ' + req.body.fastaFileName +
+															' to its FASTQ equivalent.');
 									res.send(true);
 								}
 							});							
@@ -382,12 +376,14 @@ app.get('/compute-alpha-diversity', function( req, res ) {
 			}
 			let alphaDiversity;
 			// If order of diversity is 1, then delegate to Shannon's index to compute
-			// alpha-diversity as mentioned here - https://en.wikipedia.org/wiki/Diversity_index#Shannon_index
+			// alpha-diversity as mentioned here - 
+			// https://en.wikipedia.org/wiki/Diversity_index#Shannon_index
 			if (q === 1) {
 				alphaDiversity = 0;
 				for (let i=0; i<organisms.length; i++) {
 					if (isNonHostSpecies(organisms[i]) === true) {
-						alphaDiversity -= (organisms[i].readcount === 0 ? 0 : (organisms[i].readcount/m) * Math.log(organisms[i].readcount/m));
+						alphaDiversity -= (organisms[i].readcount === 0 ?
+								0 : (organisms[i].readcount/m) * Math.log(organisms[i].readcount/m));
 					}
 				}
 			} else {
@@ -440,17 +436,22 @@ function isNonHostSpecies(organism) {
  * @param {number} start The starting index of this range.
  * @param {number} end The ending index of this range.
  * @param {data} data The data in which the computation is to be performed.
+ * @param {Object} countObj Object to store the counts of A, T, G and C.
+ * @param {number} countObj.countOfA The count of Adenine.
+ * @param {number} countObj.countOfT The count of Thymine.
+ * @param {number} countObj.countOfG The count of Guanine.
+ * @param {number} countObj.countOfC The count of Cytosine.
  */
-function countBasesInGivenRange(start, end, data) {
+function countBasesInGivenRange(start, end, data, countObj) {
 	for (let i=start; i<end; i++) {
 		if (data[i] === 'A') {
-			countOfA++;
+			countObj.countOfA++;
 		} else if (data[i] === 'T') {
-			countOfT++;
+			countObj.countOfT++;
 		} else if (data[i] === 'G') {
-			countOfG++;
+			countObj.countOfG++;
 		} else if (data[i] === 'C') {
-			countOfC++;
+			countObj.countOfC++;
 		}
 	}
 }
@@ -507,8 +508,14 @@ function isFileHavingCorrectFormat(fileName, expectedFileFormat) {
  *																										read(for FASTA file) where the character
  *                                                    at index - 'start' in the given sub-block
  *																										is present.
+ * @param {Object} countObj Object to store the counts of A, T, G and C.
+ * @param {number} countObj.countOfA The count of Adenine.
+ * @param {number} countObj.countOfT The count of Thymine.
+ * @param {number} countObj.countOfG The count of Guanine.
+ * @param {number} countObj.countOfC The count of Cytosine.
  */
-function countBasesInGivenSubBlock(start, end, subBlock, sequenceLineNumberOfStartCharacter) {
+function countBasesInGivenSubBlock(
+		start, end, subBlock, sequenceLineNumberOfStartCharacter, countObj) {
 	let numberOfNewLines = 0;
 	for (let i=start; i<end; i++) {
 		if (subBlock[i] === '\n') {
@@ -516,13 +523,15 @@ function countBasesInGivenSubBlock(start, end, subBlock, sequenceLineNumberOfSta
 		}
 	}
 	if (numberOfNewLines === 0 && sequenceLineNumberOfStartCharacter === 2) {
-		countBasesInGivenRange(start, end, subBlock);
+		countBasesInGivenRange(start, end, subBlock, countObj);
 	} else if (numberOfNewLines === 1) {
 		if (sequenceLineNumberOfStartCharacter === 1) {
-			countBasesInGivenRange(getNthNewLinePos(start, end, subBlock, 1) + 1, end, subBlock);
+			countBasesInGivenRange(
+					getNthNewLinePos(start, end, subBlock, 1) + 1, end, subBlock, countObj);
 		} else if (sequenceLineNumberOfStartCharacter === 2) {
 			// A FASTA file control will never reach this scope.
-			countBasesInGivenRange(start, getNthNewLinePos(start, end, subBlock, 1), subBlock);
+			countBasesInGivenRange(
+					start, getNthNewLinePos(start, end, subBlock, 1), subBlock, countObj);
 		}
 	} else if (numberOfNewLines === 2) {
 		// A FASTA file control will never reach this scope.
@@ -530,9 +539,11 @@ function countBasesInGivenSubBlock(start, end, subBlock, sequenceLineNumberOfSta
 			countBasesInGivenRange(
 					getNthNewLinePos(start, end, subBlock, 1) + 1,
 					getNthNewLinePos(start, end, subBlock, 2),
-					subBlock);
+					subBlock,
+					countObj);
 		} else if (sequenceLineNumberOfStartCharacter === 2) {
-			countBasesInGivenRange(start, getNthNewLinePos(start, end, subBlock, 1), subBlock);
+			countBasesInGivenRange(
+					start, getNthNewLinePos(start, end, subBlock, 1), subBlock, countObj);
 		}
 	} else if (numberOfNewLines === 3) {
 		// A FASTA file control will never reach this scope.
@@ -542,7 +553,8 @@ function countBasesInGivenSubBlock(start, end, subBlock, sequenceLineNumberOfSta
 		countBasesInGivenRange(
 				getNthNewLinePos(start, end, subBlock, 1) + 1,
 				getNthNewLinePos(start, end, subBlock, 2),
-				subBlock);		
+				subBlock,
+				countObj);		
 	}
 }
 

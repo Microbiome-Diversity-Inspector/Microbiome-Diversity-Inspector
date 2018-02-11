@@ -196,26 +196,27 @@ MyController.prototype.process_ = function(fileName) {
 						this.showAnalysis = false;
 						this.cancelAllTimerPromises_();
 						alert('Sorry, unable to convert the uploaded file!\n' + 
-									'Please check if the uploaded file is inside the directory - \'Microbiome-Diversity-Inspector\'');
+									'Please check if the uploaded file is inside the directory - ' + 
+									'\'Microbiome-Diversity-Inspector\'');
 					}	else {
 						this.entropyOfCurrentWindow =
-											this.getEntropy_(
-											  // Subtract the current cumulative counts with the previous
-												// cumulative counts to get the counts in the current block.
-												response.data.countObj.countOfA - this.countOfA,	
-												response.data.countObj.countOfT - this.countOfT,
-												response.data.countObj.countOfG - this.countOfG,
-												response.data.countObj.countOfC - this.countOfC);
-						this.countOfA = response.data.countObj.countOfA;
-						this.countOfT = response.data.countObj.countOfT;
-						this.countOfG = response.data.countObj.countOfG;
-						this.countOfC = response.data.countObj.countOfC;
+								this.getEntropy_(
+									response.data.countObj.countOfA,	
+									response.data.countObj.countOfT,
+									response.data.countObj.countOfG,
+									response.data.countObj.countOfC);
+						this.countOfA += response.data.countObj.countOfA;
+						this.countOfT += response.data.countObj.countOfT;
+						this.countOfG += response.data.countObj.countOfG;
+						this.countOfC += response.data.countObj.countOfC;
 						if (response.data.statusCode === 'x') {							
 							this.showEntropy = true;
 							this.entropy =
-									this.getEntropy_(this.countOfA, this.countOfT, this.countOfG, this.countOfC);
+									this.getEntropy_(this.countOfA, this.countOfT, this.countOfG, this.countOfC);	
 							this.cancelAllTimerPromises_();								
-						}	else {							
+						}	else {
+							// At this point, 'statusCode' is 'o', and thus process it further.							
+							entropyAnalysisUrl = response.data.nextUrl;
 							this.timeoutService_(computeEntropy.bind(this), 10);
 						}
 					}	
@@ -315,12 +316,6 @@ MyController.prototype.reset_ = function() {
 	this.resetAlphaDiversityComputationVariables_();
 };
 
-
-/**
- * @typedef {Object} MeanAndStandardDeviation
- * @property {string} mean The mean.
- * @property {string} standardDeviation The standard deviation.
- */
 
 /**
  * Computes the mean and standard deviation (calculated using Bessel's correction as
@@ -503,18 +498,7 @@ angular
 							}
 							scope.myCtrl.showAnalysis = true;
 							scope.$apply();	// Placing scope.$apply() to update the view even if removing it works fine.
-							$http.post(
-								'http://localhost:8080/refresh-analyze',
-								{},
-								{headers: {'Content-Type': 'application/json', 'Authorization': 'Basic '}})
-								.then(function() {
-									scope.myCtrl.process_(fileName);
-								}, function(error) {
-									// Don't alert the user about internal server error here, since this alert
-									// would also get fired once the user reloads the page after initiation
-									// of entropy analysis.								
-								})
-								.catch(function() {});
+							scope.myCtrl.process_(fileName);
 							break;
 						case 'fileInputConvertToFasta':
 							scope.myCtrl.resetFastqToFastaConversionVariables_();
