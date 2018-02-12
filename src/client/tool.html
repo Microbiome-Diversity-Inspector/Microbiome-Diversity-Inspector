@@ -1,0 +1,187 @@
+<!DOCTYPE html>
+<html>
+  <head>
+		<meta name="viewport" content="width=device-width, initial-scale=1">
+		<script src='angular.js'></script>
+		<script src="canvas.js"></script>
+		<script src='client.js'></script>
+		<title>Microbiome Diversity Inspector - A tool for visual analysis of microbiome data</title>
+		<link rel='shortcut icon' type="image/x-icon" href='favicon.ico'>
+		<link rel='stylesheet' type="text/css" href='tool.css'>
+  </head>
+  <body ng-app='myApp' ng-controller='MyController as myCtrl'>
+		<!--TODO: Separate each of the below tempates into its own directive/components following the principles
+			of modularity and separation of concerns.-->
+		<div class='heading-message align-text-center main-title'>Microbiome Diversity Inspector</div>
+		<div class='heading-message align-text-center title-description'>A platform for visual analysis of microbiome data</div>
+		<div class='align-text-center card card-size-300'>
+			<form name='metaSubForm'>
+				<h3 class='open-sans-sans-serif-text'>Download MetaSUB data</h3>
+				<div>
+						<div class='align-inner-div-to-center-of-outer-div width-50-percent align-text-left' ng-repeat='city in myCtrl.cities'>
+								<label>
+										<input name='city' type='radio'
+													 value='{{city.urlPrefix}}'
+													 ng-model='myCtrl.selectedCityUrlPrefix'
+													 ng-required='true'>
+										<span class='font-size-20'>{{city.name}}</span>
+								</label>
+						</div>
+						<div ng-show='!metaSubForm.$submitted'>
+								<span class='invalidation-message font-size-20'
+											ng-show='metaSubForm.city.$error.required'>
+										Please select a city.
+								</span>
+						</div> 
+						<div class='vertical-separator-from-top-10'>
+								<label>
+										<span class='font-size-20'>SRR Accession Number</span>
+										<input name='accessionNumber' type='text' placeholder='Example - SRR1748535'
+												pattern='^\s*SRR\d+\s*$' ng-required='true' ng-model='myCtrl.accessionNumber'>
+								</label>
+						</div>						
+						<div class='vertical-separator-from-top-10'>
+								<button class='submit button' ng-click='metaSubForm.$valid && myCtrl.downloadMetaSubData()'>
+										<span class='font-size-20'>Download</span>
+								</button>
+						</div>						
+				</div>
+		 </form>
+		</div>
+		<hr class="blue-horizontal-rule" />
+		<div class="align-inner-div-to-center-of-outer-div align-text-center down-arrow bounce">
+			<img width="100" height="100" src="data:image/svg+xml;base64,PD94bWwgdmVyc2lvbj0iMS4wIiBlbmNvZGluZz0iVVRGLTgiPz4NCjwhLS0gR2VuZXJhdG9yOiBBZG9iZSBJbGx1c3RyYXRvciAxNi4wLjAsIFNWRyBFeHBvcnQgUGx1Zy1JbiAuIFNWRyBWZXJzaW9uOiA2LjAwIEJ1aWxkIDApICAtLT4NCjwhRE9DVFlQRSBzdmcgUFVCTElDICItLy9XM0MvL0RURCBTVkcgMS4xLy9FTiIgImh0dHA6Ly93d3cudzMub3JnL0dyYXBoaWNzL1NWRy8xLjEvRFREL3N2ZzExLmR0ZCI+DQo8c3ZnIHZlcnNpb249IjEuMSIgaWQ9IkxheWVyXzEiIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyIgeG1sbnM6eGxpbms9Imh0dHA6Ly93d3cudzMub3JnLzE5OTkveGxpbmsiIHg9IjBweCIgeT0iMHB4IiB3aWR0aD0iNTEycHgiIGhlaWdodD0iNTEycHgiIHZpZXdCb3g9IjAgMCA1MTIgNTEyIiBlbmFibGUtYmFja2dyb3VuZD0ibmV3IDAgMCA1MTIgNTEyIiB4bWw6c3BhY2U9InByZXNlcnZlIj4NCjxwYXRoIGZpbGw9IiNGRkZGRkYiIGQ9Ik0yOTMuNzUxLDQ1NS44NjhjLTIwLjE4MSwyMC4xNzktNTMuMTY1LDE5LjkxMy03My42NzMtMC41OTVsMCwwYy0yMC41MDgtMjAuNTA4LTIwLjc3My01My40OTMtMC41OTQtNzMuNjcyICBsMTg5Ljk5OS0xOTBjMjAuMTc4LTIwLjE3OCw1My4xNjQtMTkuOTEzLDczLjY3MiwwLjU5NWwwLDBjMjAuNTA4LDIwLjUwOSwyMC43NzIsNTMuNDkyLDAuNTk1LDczLjY3MUwyOTMuNzUxLDQ1NS44Njh6Ii8+DQo8cGF0aCBmaWxsPSIjRkZGRkZGIiBkPSJNMjIwLjI0OSw0NTUuODY4YzIwLjE4LDIwLjE3OSw1My4xNjQsMTkuOTEzLDczLjY3Mi0wLjU5NWwwLDBjMjAuNTA5LTIwLjUwOCwyMC43NzQtNTMuNDkzLDAuNTk2LTczLjY3MiAgbC0xOTAtMTkwYy0yMC4xNzgtMjAuMTc4LTUzLjE2NC0xOS45MTMtNzMuNjcxLDAuNTk1bDAsMGMtMjAuNTA4LDIwLjUwOS0yMC43NzIsNTMuNDkyLTAuNTk1LDczLjY3MUwyMjAuMjQ5LDQ1NS44Njh6Ii8+DQo8L3N2Zz4=" />
+		</div>			
+		<div class='align-text-center vertical-separator-from-top-50'>
+			<span>
+				<label for="fileInputAnalyze" class="button hover-effect font-size-20">Select a file</label>
+				<input type="file" id="fileInputAnalyze" file-picker/><br>
+			</span>
+			<h3 class='align-text-center open-sans-sans-serif-text'>Entropy Analysis</h3>
+		</div>
+		<div class='vertical-separator-from-top-50' ng-show='myCtrl.showAnalysis'>
+			<div class='align-text-center italic-font-size-25' ng-if='!myCtrl.showEntropy'>
+				<div class="loader"></div>
+				Analyzing <span class='orange-text'>{{myCtrl.fileName}}</span> ...
+			</div>
+			<div class='align-text-center boxed bold-font-size-30' ng-if='myCtrl.showEntropy'>Overall Entropy(Approx) = {{myCtrl.entropy | number : 4}}</div>
+			<div class='vertical-separator-from-top-50'>
+				<div id="chartContainer" style="height: 300px; width: 100%;"></div>
+			</div>
+		</div>	
+		<hr class="blue-horizontal-rule" />
+		<div class='align-text-center vertical-separator-from-top-50'>
+			<span>
+				<label for="fileInputConvertToFasta" class="button hover-effect">Select a FASTQ file</label>
+				<input type="file" id="fileInputConvertToFasta" file-picker/><br>
+			</span>
+			<h3 class='align-text-center open-sans-sans-serif-text'>Convert <span class="orange-text">FASTQ</span> to <span class="light-green-text">FASTA</span><span></h3>
+			<div class='align-text-center italic-font-size-25 open-sans-sans-serif-text' ng-show='myCtrl.startConversionToFasta'>
+				<div class="loader"></div>
+				Converting <span class='orange-text'>{{myCtrl.fileName}}</span> ...
+			</div>
+		</div>
+		<hr class="blue-horizontal-rule" />
+		<div class='align-text-center vertical-separator-from-top-50'>
+			<div>
+				<span>
+					<label for="fastaFileUploader" class="button hover-effect font-size-20">Select a FASTA file</label>
+					<input type="file" id="fastaFileUploader" file-picker/><br>
+				</span>
+			</div>
+			<div class='align-text-center vertical-separator-from-top-10'>
+				<span>
+					<label for="qualFileUploader" class="button hover-effect font-size-20">Select a QUAL file</label>
+					<input type="file" id="qualFileUploader" file-picker/><br>
+				</span>
+			</div>
+			<h3 class='align-text-center open-sans-sans-serif-text'>Convert <span class="light-green-text">FASTA</span> to <span class="orange-text">FASTQ</span><span></h3>
+			<div class='align-text-center italic-font-size-25 open-sans-sans-serif-text' ng-show='myCtrl.startConversionToFastq'>
+				<div class="loader"></div>
+				Converting <span class='light-green-text'>{{myCtrl.fileName}}</span> ...
+			</div>
+		</div>
+		<hr class="blue-horizontal-rule" />
+		<div class='align-text-center card card-size-300 tooltip' expandable-card>
+			<span class="tooltiptext">See <a href='https://docs.google.com/document/d/e/2PACX-1vQHX_-TCCtYtODA4xQgCnc5GtjeOP8sy08JE5spjB1usOiGmyPsriQoRr2U4IsJfFC1rJiFIlJYS-Za/pub' target='_blank'>this</a> to learn about API Key</span>
+			<form name='alphaDiversityForm'>
+				<h3 class='open-sans-sans-serif-text'>Compute α-diversity</h3>
+				<div>    
+					<div class='vertical-separator-from-top-10'>
+							<label>
+									<span class='font-size-20'>One Codex API Key</span>
+									<input id="apiKey" name='apiKey' type='password' placeholder='No spaces allowed' 
+											pattern='^\s*\S+\s*$' ng-required='true' ng-model='myCtrl.apiKey'>
+									<input type="checkbox" ng-click="myCtrl.toggleVisibility()"><span class='font-size-20'>Show</span>
+							</label>
+					</div>				
+					<div class='vertical-separator-from-top-10'>
+							<button class='submit button' ng-click='alphaDiversityForm.$valid && myCtrl.showSamples()'>
+									<span class='font-size-20'>Show samples</span>
+							</button>
+					</div>						
+				</div>
+		 </form>	
+		 <div class='vertical-separator-from-top-20' ng-if='myCtrl.shouldShowSamples'>	 
+			 <div class='open-sans-sans-serif-text font-size-20'>
+			   Mean α-diversity -
+				 <span class='tomato-text'>
+				   {{(myCtrl.resultantMeanAndStandardDeviation.mean == '_') ? '_' : (myCtrl.resultantMeanAndStandardDeviation.mean | number : 2)}}
+				 </span>
+			 </div>
+			 <div class='open-sans-sans-serif-text font-size-20'>
+			   Standard Deviation in α-diversity -
+				 <span class='tomato-text'>
+				   {{(myCtrl.resultantMeanAndStandardDeviation.standardDeviation == '_') ? '_' : (myCtrl.resultantMeanAndStandardDeviation.standardDeviation | number : 2)}}
+				 </span>
+			 </div>
+			 <div class='vertical-separator-from-top-20 inner-scroller'>
+				 <table id="samples">
+					 <caption><span class='font-size-20'>Samples</span></caption>
+					 <tr>
+						 <th>Sample No.</th>
+						 <th>Name</th>
+						 <th>Size</th>
+						 <th>Order of Diversity(q)</th>
+						 <th>Actions</th>
+						 <th>Alpha-diversity</th>
+					 </tr>			
+					 <tr ng-repeat='sample in myCtrl.samples track by $index'>
+						 <td>{{$index+1}}</td>
+						 <td>{{sample.filename}}
+						 <td>
+						   {{(sample.size > 1000000000) ? sample.size/1000000000 : sample.size/1000000 | number : 1}}
+							 {{(sample.size > 1000000000) ? 'GB' : 'MB'}}		 
+						 </td>
+						 <td>
+							 <div class='vertical-separator-from-top-10'>
+									 <input name='orderOfDiversity' type='text' placeholder='Example - 1'
+											pattern='^\s*\d+\s*$' ng-required='true' ng-model='sample.orderOfDiversity'>
+							 </div>							 
+						 </td>
+						 <td>
+							 <button class='submit button' ng-click='myCtrl.computeAlphaDiversity(sample)'>Compute</button>
+							 <!-- Bind the checkbox value to an object - {isIncluded: {value: true/false}} since if it would
+							 have been binded to a primitive, like - {isIncluded: true/false}, then a change in this property 
+							 would not be reflected in the parent(here- the controller). This happens because ng-repeat creates 
+							 new scope for all of its children. -->
+							 <input type="checkbox" ng-model='sample.isIncluded.value' checkbox-mean-and-standard-deviation-trigger>
+						 </td>
+						 <td>
+							<span ng-if='sample.alphaDiversityComputationStatus.started == false'>
+								{{sample.alphaDiversity}}
+							</span>
+							<span ng-if='sample.alphaDiversityComputationStatus.started == true && sample.alphaDiversityComputationStatus.completed == false'>
+								<img height='50' width='50' src='images/ball_loading.GIF'>
+							</span>
+							<span ng-if='sample.alphaDiversityComputationStatus.completed == true'>
+								{{sample.alphaDiversity | number : 2}}
+							</span>						
+						 </td>
+					 </tr>
+				 </table>		
+			 </div>			 
+		</div>		 
+		</div>				
+  </body>
+</html>
