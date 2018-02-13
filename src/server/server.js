@@ -23,7 +23,7 @@ process.on('SIGTERM', killAllForkedProcesses);	// Catch kill.
 
 
 app.get('/', function(req, res) {
-	res.sendFile(path.join(__dirname, '../client/tool.html'));
+	res.sendFile(path.join(__dirname, '../client/index.html'));
 });
 
 
