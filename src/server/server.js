@@ -12,7 +12,6 @@ let express = require('express'),
 let forkedProcesses = [];
 
 app.use(express.static(path.join(__dirname, '../client')));
-app.use(express.static(path.join(__dirname, '../third_party')));
 app.use(bodyParser.json()); // for parsing application/json
 app.use(bodyParser.urlencoded({extended: true})); // for parsing application/x-www-form-urlencoded
 
