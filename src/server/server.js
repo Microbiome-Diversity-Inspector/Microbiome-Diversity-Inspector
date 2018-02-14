@@ -8,7 +8,7 @@ let express = require('express'),
 		app = express();
 
 
-// Module-level global variables by this server module.
+// Module-level global variables of this server module.
 let forkedProcesses = [];
 
 app.use(express.static(path.join(__dirname, '../client')));
@@ -41,7 +41,7 @@ app.get('/analyze', function(req, res) {
 	let pathSegment = '../..';
 	// If the code is ran as a part of an integration test, then use the 
 	// test files' directory path.
-	if (typeof global.it === 'function') {
+	if (process.env.NODE_ENV === 'test') {
 		pathSegment = '../../test/test_files';
 	}
 	let fileName = path.join(__dirname, pathSegment, req.query.fileName);
@@ -74,11 +74,11 @@ app.get('/analyze', function(req, res) {
 				if (last > stat.size) {
 					last = stat.size - 1;
 				}
-				let numberOfLinesInASequence = isFileHavingCorrectFormat(fileName, '.fastq') ? 4 : 2;
-				let currentSubBlockFirst = 0;		// Refers to the first index of the current sub-block in
+				let numberOfLinesInASequence = isFileHavingCorrectFormat(fileName, '.fastq') ? 4 : 2,
+						currentSubBlockFirst = 0,		// Refers to the first index of the current sub-block in
 																				// the current block (here - 'data' as mentioned below).
-				let sequenceLineNumberOfStartOfSubBlock = sequenceLineNumberOfStartOfBlock;
-				let sequenceLineNumberOfCurrentLine = sequenceLineNumberOfStartOfBlock;
+						sequenceLineNumberOfStartOfSubBlock = sequenceLineNumberOfStartOfBlock,
+						sequenceLineNumberOfCurrentLine = sequenceLineNumberOfStartOfBlock;
 				let readStream = fs.createReadStream(fileName, {start: first, end: last});
 				readStream.on('data', function(data) {
 					for (let i=0; i<data.toString().length; i++) {	
@@ -131,7 +131,8 @@ app.get('/analyze', function(req, res) {
 
 
 app.post('/convert-to-fasta', function(req, res) {
-	let forkedProcess = fork(path.join(__dirname, 'forked_processes/fastq-to-fasta-conversion-process.js'));
+	let forkedProcess =
+			fork(path.join(__dirname, 'forked_processes/fastq-to-fasta-conversion-process.js'));
 	forkedProcesses.push(forkedProcess);
 	forkedProcess.on('message', function(response) {
 		res.send(response);
@@ -141,15 +142,15 @@ app.post('/convert-to-fasta', function(req, res) {
 
 
 app.post('/convert-to-fastq', function(req, res) {	
-	let fastaFileName = path.join(__dirname, req.body.fastaFileName);
-	let qualFileName = path.join(__dirname, req.body.qualFileName);
+	let fastaFileName = path.join(__dirname, req.body.fastaFileName),
+			qualFileName = path.join(__dirname, req.body.qualFileName),
 	// Parse the FASTA file.
 	// If 'isFirstLineOfSequence' is set to false then it automatically means that the current
 	// line is the second line of the sequence having the nucelotide sequence.
-	let isFirstLineOfSequence = true;
-	let currentReadName = '';
-	let currentBase = '';
-	let readNameToBaseMap = {};
+			isFirstLineOfSequence = true,
+			currentReadName = '',
+			currentBase = '',
+			readNameToBaseMap = {};
 	fs.readFile(fastaFileName, function(err, data) {
 		if (err) {
 			console.log('Error in reading the uploaded FASTA file.');
@@ -193,9 +194,9 @@ app.post('/convert-to-fastq', function(req, res) {
 			currentReadName = '';
 			// See - http://biopython.org/DIST/docs/api/Bio.SeqIO.QualityIO-module.html to know more
 			// about Sanger-styled qualities.
-			let currentSangerStyledQualities = '';
-			let currentDecimalQualityInStringFormat = '';
-			let readNameToSangerStyledQualityMap = {};
+			let currentSangerStyledQualities = '',
+					currentDecimalQualityInStringFormat = '',
+					readNameToSangerStyledQualityMap = {};
 			fs.readFile(qualFileName, function(err, data) {
 				if (err) {			
 					console.log('Error in reading the uploaded QUAL file.');
@@ -280,7 +281,7 @@ app.post('/convert-to-fastq', function(req, res) {
 						}
 					}
 					fs.writeFile(
-							req.body.fastaFileName.substring(0, req.body.fastaFileName.length-6) + '.fastq',
+							fastaFileName.substring(0, fastaFileName.length-6) + '.fastq',
 							fastqContent,
 							function(err) {
 								if (err) {
@@ -300,8 +301,8 @@ app.post('/convert-to-fastq', function(req, res) {
 
 
 app.get('/compute-alpha-diversity', function( req, res ) {
-	let request = new XMLHttpRequest();
-	let url = 'https://app.onecodex.com/api/v1/analyses/' + req.query.sampleId + '/results';
+	let request = new XMLHttpRequest(),
+			url = 'https://app.onecodex.com/api/v1/analyses/' + req.query.sampleId + '/results';
 	request.open('GET', url, true);
 	request.setRequestHeader(
 		'Authorization', 'Basic ' + Buffer.from(req.query.apiKey + ':').toString('base64'));
@@ -316,9 +317,9 @@ app.get('/compute-alpha-diversity', function( req, res ) {
 			// species - 'i' present in the dataset, where Pi is the ratio of count
 			// of individual of species - i to the total number of species and q is
 			// the order of diversity'.
-			let organisms = response.table;
-			let q = +req.query.orderOfDiversity;	// The order of diversity converted to a number.
-			let m = 0;		// The total number of organism in the dataset.
+			let organisms = response.table,
+					q = +req.query.orderOfDiversity,	// The order of diversity converted to a number.
+					m = 0;		// The total number of organism in the dataset.
 			for (let i=0; i<organisms.length; i++) {
 				if (isNonHostSpecies(organisms[i]) === true) {
 					m += organisms[i].readcount;
