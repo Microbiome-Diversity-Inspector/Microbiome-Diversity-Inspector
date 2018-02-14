@@ -6,7 +6,7 @@ process.on('message', function(req) {
 	let pathSegment = '../../../';
 	// If the code is ran as a part of an integration test, then use the 
 	// test files' directory path.
-	if (typeof global.it === 'function') {
+	if (process.env.NODE_ENV === 'test') {
 		pathSegment = '../../../test/test_files';
 	}
 	let fastqFileName = path.join(__dirname, pathSegment, req.fileName);
@@ -66,7 +66,7 @@ process.on('message', function(req) {
 				}					
 			}
 			fs.writeFile(
-					req.fileName.substring(0, req.fileName.length-6) + '.fasta',
+					fastqFileName.substring(0, fastqFileName.length-6) + '.fasta',
 					fastaContent,
 					function(err) {
 						if (err) {
