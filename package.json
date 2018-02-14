@@ -16,7 +16,7 @@
   },
   "scripts": {
     "start": "nodemon src/server/server.js",
-    "lint": "eslint --fix --cache src/client/client.js src/server/server.js",
+    "lint": "eslint --fix --cache src/client/app/app.js src/server/server.js",
     "dev": "browser-sync start --proxy localhost:8080 --files=\"**/*\"",
 		"test": "mocha --watch --recursive test/server-test.js"
   },
