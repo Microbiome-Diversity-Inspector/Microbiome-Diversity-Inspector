@@ -151,7 +151,7 @@ describe('Integration Tests', function() {
 	
 	describe('for converting FASTQ to FASTA', function() {
 
-		it('should return the correct response if the file does not exists',
+		it('should return false as a response if the file does not exists',
 			function(done) {
 				request(server)
 					.post('/convert-to-fasta')
@@ -177,5 +177,58 @@ describe('Integration Tests', function() {
 						done();
 				});
 		});		
+	});	
+
+	describe('for converting FASTA to FASTQ', function() {
+
+		it('should return false as a response if the FASTA file does not exists',
+			function(done) {
+				request(server)
+					.post('/convert-to-fastq')
+					.send({
+						fastaFileName: 'non-existing-file.fasta',
+						qualFileName: 'qual-test-file.qual'
+					})
+					.end(function(err, res) {
+						assert.equal(res.statusCode, 200);
+						// Asserting the status code in the response body.
+						assert.deepEqual(res.body, false);
+						done();
+				});
+		});		
+
+		it('should return false as a response if the QUAL file does not exists',
+			function(done) {
+				request(server)
+					.post('/convert-to-fastq')
+					.send({
+						fastaFileName: 'fasta-test-file.fasta',
+						qualFileName: 'non-existing-file.qual'
+					})
+					.end(function(err, res) {
+						assert.equal(res.statusCode, 200);
+						// Asserting the status code in the response body.
+						assert.deepEqual(res.body, false);
+						done();
+				});
+		});		
+		
+		it('should convert a FASTQ file to its FASTA equivalent',
+			function(done) {
+				request(server)
+					.post('/convert-to-fastq')
+					.send({
+						fastaFileName: 'fasta-test-file.fasta',
+						qualFileName: 'qual-test-file.qual'
+					})
+					.end(function(err, res) {
+						assert.equal(res.statusCode, 200);
+						// Asserting the status code in the response body.
+						assert.deepEqual(res.body, true);
+						assertFile('fasta-test-file.fastq', 'expected-fasta-to-fastq-test-file.fastq');
+						done();
+				});
+		});	
+		
 	});		
 });
