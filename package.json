@@ -15,10 +15,10 @@
     "supertest": "^3.0.0"
   },
   "scripts": {
-    "start": "nodemon server.js",
-    "lint": "eslint --fix --cache client.js server.js",
-    "dev": "browser-sync start --proxy localhost:8080 --files '*.css, *.html, *.js'",
-    "test": "mocha --watch server-test.js"
+    "start": "nodemon src/server/server.js",
+    "lint": "eslint --fix --cache src/client/client.js src/server/server.js",
+    "dev": "browser-sync start --proxy localhost:8080 --files=\"**/*\"",
+		"test": "mocha --watch --recursive test/server-test.js"
   },
   "keywords": [],
   "author": "",
