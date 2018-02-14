@@ -1,9 +1,46 @@
-let server = require('./../src/server/server.js');
-let request = require('supertest');
-let assert = require('assert');
+let server = require('./../src/server/server.js'),
+		request = require('supertest'),
+		assert = require('assert'),
+		fs = require('fs'),
+		path = require('path');
 
+process.env.NODE_ENV = 'test';
+				
 describe('Integration Tests', function() {
-
+	
+	let removeCharacter = function(input, characterToRemove) {
+		let output = '';
+		for (let i=0; i<input.length; i++) {
+			if (input[i] !== characterToRemove) {
+				output += input[i];
+			}
+		}
+		return output;
+	}
+	
+	let assertFile = function(actualFileName, expectedFileName) {
+	  let actualFileContent,
+				expectedFileContent;
+		try {
+			actualFileContent =
+					removeCharacter(
+							fs.readFileSync(path.join(__dirname, 'test_files', actualFileName)).toString('utf8'),
+							'\r');
+		} catch(e) {
+			console.log('Error in reading the actual file.');
+		};
+		try {
+			expectedFileContent =
+					removeCharacter(
+							fs.readFileSync(
+									path.join(__dirname, 'test_files', expectedFileName)).toString('utf8'),
+							'\r');
+		} catch(e) {
+			console.log('Error in reading the expected file.');
+		};
+		assert.equal(actualFileContent, expectedFileContent);		
+	};
+	
 	after(function (done) {
 		server.close();
 		done();
@@ -20,7 +57,7 @@ describe('Integration Tests', function() {
 	
 	describe('for analyzing entropy', function() {
 
-		it('should analyze the \'uploaded\' and send back the updated counts after each successive requests',
+		it('should return the correct response if the file does not exists',
 			function(done) {
 				request(server)
 					.get('/analyze?fileName=non-existing-file.fastq')
@@ -54,7 +91,6 @@ describe('Integration Tests', function() {
 						assert.equal(res.statusCode, 200);
 						// Asserting the counts in the first request.
 						assert.deepEqual(res.body, expectedBody);
-						done();
 						request(server)
 							.get('/analyze?fileName=fastq-test-file.fastq&first=500&last=999&sequenceLineNumberOfStartOfBlock=1')
 							.end(function(err, res) {
@@ -72,7 +108,6 @@ describe('Integration Tests', function() {
 								assert.equal(res.statusCode, 200);
 								// Asserting the counts in the second request.
 								assert.deepEqual(res.body, expectedBody);
-								done();
 								request(server)
 									.get('/analyze?fileName=fastq-test-file.fastq&first=1000&last=1499&sequenceLineNumberOfStartOfBlock=1')
 									.end(function(err, res) {
@@ -90,7 +125,6 @@ describe('Integration Tests', function() {
 										assert.equal(res.statusCode, 200);
 										// Asserting the counts in the third request.
 										assert.deepEqual(res.body, expectedBody);	
-										done();
 										request(server)
 											.get('/analyze?fileName=fastq-test-file.fastq&first=1500&last=1697&sequenceLineNumberOfStartOfBlock=4')
 											.end(function(err, res) {
@@ -107,10 +141,41 @@ describe('Integration Tests', function() {
 												// Asserting the counts in the final connection-closing 
 												// request.
 												assert.deepEqual(res.body, expectedBody);	
+												done();
 											});												
 									});
 							});
 				});
 		});					
-	});
+	});	
+	
+	describe('for converting FASTQ to FASTA', function() {
+
+		it('should return the correct response if the file does not exists',
+			function(done) {
+				request(server)
+					.post('/convert-to-fasta')
+					.send({fileName: 'non-existing-file.fastq'})
+					.end(function(err, res) {
+						assert.equal(res.statusCode, 200);
+						// Asserting the status code in the response body.
+						assert.deepEqual(res.body, false);
+						done();
+				});
+		});		
+	
+		it('should convert a FASTQ file to its FASTA equivalent',
+			function(done) {
+				request(server)
+					.post('/convert-to-fasta')
+					.send({fileName: 'fastq-test-file.fastq'})
+					.end(function(err, res) {
+						assert.equal(res.statusCode, 200);
+						// Asserting the status code in the response body.
+						assert.deepEqual(res.body, true);
+						assertFile('fastq-test-file.fasta', 'expected-fastq-to-fasta-test-file.fasta');
+						done();
+				});
+		});		
+	});		
 });
