@@ -20,7 +20,7 @@ process.on('message', function(req) {
 	// following the rules as mentioned in - https://en.wikipedia.org/wiki/FASTQ_format
 	fs.readFile(fastqFileName, function(err, data) {
 		if (err) {
-			console.log('Error in reading the uploaded FASTQ file.');
+			logOnlyInNonTestEnvironment('Error in reading the uploaded FASTQ file.');
 			process.send(false);
 		} else {
 			for (let i=0; i<data.toString().length; i++) {			
@@ -70,10 +70,10 @@ process.on('message', function(req) {
 					fastaContent,
 					function(err) {
 						if (err) {
-							console.log('Error in writing to the output FASTA file.');
+							logOnlyInNonTestEnvironment('Error in writing to the output FASTA file.');
 							process.send(false);							
 						} else {
-							console.log(
+							logOnlyInNonTestEnvironment(
 									'Finished converting - ' + req.fileName + ' to its FASTA equivalent.');
 							process.send(true);
 						}
@@ -81,3 +81,15 @@ process.on('message', function(req) {
 		}
 	});
 });
+
+
+/**
+ * A function to log only in non-test environment.
+ *
+ * @function
+ */
+function logOnlyInNonTestEnvironment(logMessage) {
+	if (process.env.NODE_ENV !== 'test') {
+		console.log(logMessage);
+	}	
+}
