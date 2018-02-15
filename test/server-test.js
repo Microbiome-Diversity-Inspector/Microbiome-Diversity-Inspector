@@ -158,7 +158,6 @@ describe('Integration Tests', function() {
 					.send({fileName: 'non-existing-file.fastq'})
 					.end(function(err, res) {
 						assert.equal(res.statusCode, 200);
-						// Asserting the status code in the response body.
 						assert.deepEqual(res.body, false);
 						done();
 				});
@@ -171,7 +170,6 @@ describe('Integration Tests', function() {
 					.send({fileName: 'fastq-test-file.fastq'})
 					.end(function(err, res) {
 						assert.equal(res.statusCode, 200);
-						// Asserting the status code in the response body.
 						assert.deepEqual(res.body, true);
 						assertFile('fastq-test-file.fasta', 'expected-fastq-to-fasta-test-file.fasta');
 						done();
@@ -191,7 +189,6 @@ describe('Integration Tests', function() {
 					})
 					.end(function(err, res) {
 						assert.equal(res.statusCode, 200);
-						// Asserting the status code in the response body.
 						assert.deepEqual(res.body, false);
 						done();
 				});
@@ -207,7 +204,6 @@ describe('Integration Tests', function() {
 					})
 					.end(function(err, res) {
 						assert.equal(res.statusCode, 200);
-						// Asserting the status code in the response body.
 						assert.deepEqual(res.body, false);
 						done();
 				});
@@ -223,12 +219,41 @@ describe('Integration Tests', function() {
 					})
 					.end(function(err, res) {
 						assert.equal(res.statusCode, 200);
-						// Asserting the status code in the response body.
 						assert.deepEqual(res.body, true);
 						assertFile('fasta-test-file.fastq', 'expected-fasta-to-fastq-test-file.fastq');
 						done();
 				});
 		});	
-		
+	});	
+
+	describe('for alpha-diversity computation', function() {
+	  this.timeout(15000);
+	
+		function precisionRound(number, precision) {
+			var factor = Math.pow(10, precision);
+			return Math.round(number * factor) / factor;
+		}	
+	
+		it('should compute the correct value of alpha-diversity if the order of diversity is not equal to 1',
+			function(done) {
+				request(server)
+					.get('/compute-alpha-diversity?apiKey=42b357bd1b5f46f88d3cc157f7919d2d&sampleId=0d25bce4f7a445f0&orderOfDiversity=2')
+					.end(function(err, res) {
+						assert.equal(res.statusCode, 200);
+						assert.equal(precisionRound(+res.text, 8), 6.60598583);
+						done();
+				});
+		});		
+
+		it('should compute the correct value of alpha-diversity if the order of diversity is equal to 1',
+			function(done) {
+				request(server)
+					.get('/compute-alpha-diversity?apiKey=42b357bd1b5f46f88d3cc157f7919d2d&sampleId=0d25bce4f7a445f0&orderOfDiversity=1')
+					.end(function(err, res) {
+						assert.equal(res.statusCode, 200);
+						assert.equal(precisionRound(+res.text, 8), 1.99453478);
+						done();
+				});
+		});	
 	});		
 });

@@ -9,8 +9,6 @@ process.on('message', function(req) {
 	if (process.env.NODE_ENV === 'test') {
 		pathSegment = '../../../test/test_files';
 	}	
-	console.log(req.fastaFileName);
-	console.log(req.qualFileName);
 	let fastaFileName = path.join(__dirname, pathSegment, req.fastaFileName),
 			qualFileName = path.join(__dirname, pathSegment, req.qualFileName),
 	// Parse the FASTA file.
@@ -22,7 +20,7 @@ process.on('message', function(req) {
 			readNameToBaseMap = {};
 	fs.readFile(fastaFileName, function(err, data) {
 		if (err) {
-			console.log('Error in reading the uploaded FASTA file.');
+			logOnlyInNonTestEnvironment('Error in reading the uploaded FASTA file.');
 			process.send(false);			
 		} else {
 			for (let i=0; i<data.toString().length; i++) {	
@@ -68,7 +66,7 @@ process.on('message', function(req) {
 					readNameToSangerStyledQualityMap = {};
 			fs.readFile(qualFileName, function(err, data) {
 				if (err) {			
-					console.log('Error in reading the uploaded QUAL file.');
+					logOnlyInNonTestEnvironment('Error in reading the uploaded QUAL file.');
 					process.send(false);
 				} else {
 					for (let i=0; i<data.toString().length; i++) {
@@ -154,10 +152,10 @@ process.on('message', function(req) {
 							fastqContent,
 							function(err) {
 								if (err) {
-									console.log('Error in writing to the output FASTQ file.');
+									logOnlyInNonTestEnvironment('Error in writing to the output FASTQ file.');
 									process.send(false);
 								} else {
-									console.log('Finished converting - ' + req.fastaFileName +
+									logOnlyInNonTestEnvironment('Finished converting - ' + req.fastaFileName +
 															' to its FASTQ equivalent.');
 									process.send(true);
 								}
@@ -181,4 +179,16 @@ process.on('message', function(req) {
 function convertDecimalQualityInStringFormatToSangerStyledQuality(input) {
 	let qualityInDecimalFormat = parseInt(input, 10);
 	return String.fromCharCode(qualityInDecimalFormat + 33);
+}
+
+
+/**
+ * A function to log only in non-test environment.
+ *
+ * @function
+ */
+function logOnlyInNonTestEnvironment(logMessage) {
+	if (process.env.NODE_ENV !== 'test') {
+		console.log(logMessage);
+	}	
 }
