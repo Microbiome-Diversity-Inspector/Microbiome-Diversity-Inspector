@@ -3,7 +3,6 @@ let express = require('express'),
 		path = require('path'),
 		fs = require('fs'),
 		bodyParser = require('body-parser'),
-		XMLHttpRequest = require('xmlhttprequest').XMLHttpRequest,
 		fork = require('child_process').fork,
 		app = express();
 
@@ -17,7 +16,7 @@ app.use(bodyParser.urlencoded({extended: true})); // for parsing application/x-w
 
 
 process.on('exit', killAllForkedProcesses);			// Catches when this server module exits itself 
-																							// naturally.
+																							  // naturally.
 process.on('SIGINT', killAllForkedProcesses);		// Catch termination of the server by 'Ctrl+C'.
 process.on('SIGTERM', killAllForkedProcesses);	// Catch kill.
 
@@ -69,7 +68,7 @@ app.get('/analyze', function(req, res) {
 					statusCode: 'x',			// 'x' denotes that this is the last response.
 					countObj: countObj,
 				});
-				console.log('Finished analyzing - ' + req.query.fileName);
+				logOnlyInNonTestEnvironment('Finished analyzing - ' + req.query.fileName);
 			} else {
 				if (last > stat.size) {
 					last = stat.size - 1;
@@ -120,7 +119,7 @@ app.get('/analyze', function(req, res) {
 				});		
 			}			
 		} else {
-			console.log(req.query.fileName + ' not found in this directory.');
+			logOnlyInNonTestEnvironment(req.query.fileName + ' not found in this directory.');
 			res.send({
 				statusCode: 'e'				// 'e' denotes a server-side error, most possibly due to the non 
 															// existence of the uploaded file in this directory.
@@ -131,10 +130,12 @@ app.get('/analyze', function(req, res) {
 
 
 app.post('/convert-to-fasta', function(req, res) {
+	logOnlyInNonTestEnvironment('Forking a process to convert FASTQ to FASTA...');
 	let forkedProcess =
 			fork(path.join(__dirname, 'forked_processes/fastq-to-fasta-conversion-process.js'));
 	forkedProcesses.push(forkedProcess);
 	forkedProcess.on('message', function(response) {
+		killAndRemoveForkedProcessFromList(forkedProcess);
 		res.send(response);
 	});
 	forkedProcess.send({fileName: req.body.fileName});
@@ -142,10 +143,12 @@ app.post('/convert-to-fasta', function(req, res) {
 
 
 app.post('/convert-to-fastq', function(req, res) {	
+	logOnlyInNonTestEnvironment('Forking a process to convert FASTA to FASTQ...');
 	let forkedProcess =
 			fork(path.join(__dirname, 'forked_processes/fasta-to-fastq-conversion-process.js'));
 	forkedProcesses.push(forkedProcess);
 	forkedProcess.on('message', function(response) {
+		killAndRemoveForkedProcessFromList(forkedProcess);
 		res.send(response);
 	});
 	forkedProcess.send({
@@ -155,69 +158,21 @@ app.post('/convert-to-fastq', function(req, res) {
 });
 
 
-app.get('/compute-alpha-diversity', function( req, res ) {
-	let request = new XMLHttpRequest(),
-			url = 'https://app.onecodex.com/api/v1/analyses/' + req.query.sampleId + '/results';
-	request.open('GET', url, true);
-	request.setRequestHeader(
-		'Authorization', 'Basic ' + Buffer.from(req.query.apiKey + ':').toString('base64'));
-	request.onload = function() {
-		let response = JSON.parse(request.responseText);
-		if (request.status >= 500) {
-			res.send('X');
-		} else {
-			// Formula used to compute alpha-diversity is as follows -
-			// qD = 1/(sqrt[q-1]{sum{i=1}^{S} Pi^q})
-			// pronounced as - 'inverse of (q-1)th root of summation of Pi for all
-			// species - 'i' present in the dataset, where Pi is the ratio of count
-			// of individual of species - i to the total number of species and q is
-			// the order of diversity'.
-			let organisms = response.table,
-					q = +req.query.orderOfDiversity,	// The order of diversity converted to a number.
-					m = 0;		// The total number of organism in the dataset.
-			for (let i=0; i<organisms.length; i++) {
-				if (isNonHostSpecies(organisms[i]) === true) {
-					m += organisms[i].readcount;
-				}
-			}
-			let alphaDiversity;
-			// If order of diversity is 1, then delegate to Shannon's index to compute
-			// alpha-diversity as mentioned here - 
-			// https://en.wikipedia.org/wiki/Diversity_index#Shannon_index
-			if (q === 1) {
-				alphaDiversity = 0;
-				for (let i=0; i<organisms.length; i++) {
-					if (isNonHostSpecies(organisms[i]) === true) {
-						alphaDiversity -= (organisms[i].readcount === 0 ?
-								0 : (organisms[i].readcount/m) * Math.log(organisms[i].readcount/m));
-					}
-				}
-			} else {
-				let basicSum = 0;
-				for (let i=0; i<organisms.length; i++) {
-					if (isNonHostSpecies(organisms[i]) === true) {
-						basicSum += Math.pow(organisms[i].readcount/m /** Pi */, q);
-					}
-				}
-				alphaDiversity = Math.pow(basicSum, 1-q);
-			}
-			console.log('Alpha-diversity of the file has been computed.');
-			res.send(alphaDiversity.toString());
-		}
-	};
-	request.send();
+app.get('/compute-alpha-diversity', function(req, res) {
+	logOnlyInNonTestEnvironment('Forking a process for computing the alpha-diversity...');
+	let forkedProcess =
+			fork(path.join(__dirname, 'forked_processes/alpha-diversity-computation-process.js'));
+	forkedProcesses.push(forkedProcess);
+	forkedProcess.on('message', function(response) {
+		killAndRemoveForkedProcessFromList(forkedProcess);
+		res.send(response);
+	});
+	forkedProcess.send({
+		sampleId: req.query.sampleId,
+		apiKey: req.query.apiKey,
+		orderOfDiversity: req.query.orderOfDiversity
+	});
 });
-
-
-/**
- * A function to find if the given organism is a non-host(non-human) species.
- *
- * @function
- * @param {string} organism The organism to check for whether it is a non-human species.
- */
-function isNonHostSpecies(organism) {
-	return organism.rank === 'species' && organism.name !== 'Homo sapiens';
-}
 
 
 /**
@@ -356,7 +311,7 @@ function countBasesInGivenSubBlock(
  * @function
  */
 function killAllForkedProcesses() {
-	console.log('Killing ' + forkedProcesses.length + ' forked processes.');
+	logOnlyInNonTestEnvironment('Killing ' + forkedProcesses.length + ' forked processes...');
 	for(let i=0; i<forkedProcesses.length; i++) {
 		forkedProcesses[i].kill();
 	}		
@@ -364,8 +319,32 @@ function killAllForkedProcesses() {
 }
 
 
+/**
+ * A function to kill the given forked processes and remove it from the list of active 
+ * fored processes.
+ *
+ * @function
+ */
+function killAndRemoveForkedProcessFromList(forkedProcess) {
+	forkedProcesses.splice(forkedProcesses.indexOf(forkedProcess), 1);
+	logOnlyInNonTestEnvironment('Killing the forked process...');
+	forkedProcess.kill();
+}
+
+
+/**
+ * A function to log only in non-test environment.
+ *
+ * @function
+ */
+function logOnlyInNonTestEnvironment(logMessage) {
+	if (process.env.NODE_ENV !== 'test') {
+		console.log(logMessage);
+	}	
+}
+
 let server = app.listen(8080, function() {
-	console.log(
+	logOnlyInNonTestEnvironment(
 			'\'Microbiome Diversity Inspector\' now running at http://localhost:%s',
 			server.address().port);
 });
