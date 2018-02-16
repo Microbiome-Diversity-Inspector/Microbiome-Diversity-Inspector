@@ -1,4 +1,4 @@
-function MyController($scope, $document, $http, $interval, $timeout, $window) {
+function MicrobiomeDiversityInspectorCtrl($scope, $document, $http, $interval, $timeout, $window) {
 	this.selectedCityUrlPrefix;
 	this.accessionNumber;
 	this.apiKey;
@@ -92,7 +92,7 @@ function removeLeadingAndTrailingWhitespaces(input) {
  *
  * @private
  */
-MyController.prototype.refreshEntropyGraph_ = function() {
+MicrobiomeDiversityInspectorCtrl.prototype.refreshEntropyGraph_ = function() {
 	let dps = []; // dataPoints
 	let chart = new CanvasJS.Chart('chartContainer', {
 		title: {
@@ -153,21 +153,22 @@ MyController.prototype.refreshEntropyGraph_ = function() {
  * @param {number} countOfC The count of Cytosine base.
  * @return {number}
  */
-MyController.prototype.getEntropy_ = function(countOfA, countOfT, countOfG, countOfC) {
-	let totalCount = countOfA + countOfT + countOfG + countOfC;
-	if (totalCount === 0) {
-		return 0;
-	}
-	let probabilityOfA = countOfA / totalCount;
-	let probabilityOfT = countOfT / totalCount;
-	let probabilityOfG = countOfG / totalCount;
-	let probabilityOfC = countOfC / totalCount;
-	let entropy = -1 * (
-		(probabilityOfA === 0 ? 0 : (probabilityOfA * getLogOfXBase2(probabilityOfA))) +
-											(probabilityOfT === 0 ? 0 : (probabilityOfT * getLogOfXBase2(probabilityOfT))) +
-											(probabilityOfG === 0 ? 0 : (probabilityOfG * getLogOfXBase2(probabilityOfG))) +
-											(probabilityOfC === 0 ? 0 : (probabilityOfC * getLogOfXBase2(probabilityOfC))));
-	return entropy;
+MicrobiomeDiversityInspectorCtrl.prototype.getEntropy_ =
+	function(countOfA, countOfT, countOfG, countOfC) {
+		let totalCount = countOfA + countOfT + countOfG + countOfC;
+		if (totalCount === 0) {
+			return 0;
+		}
+		let probabilityOfA = countOfA / totalCount;
+		let probabilityOfT = countOfT / totalCount;
+		let probabilityOfG = countOfG / totalCount;
+		let probabilityOfC = countOfC / totalCount;
+		let entropy = -1 * (
+			(probabilityOfA === 0 ? 0 : (probabilityOfA * getLogOfXBase2(probabilityOfA))) +
+												(probabilityOfT === 0 ? 0 : (probabilityOfT * getLogOfXBase2(probabilityOfT))) +
+												(probabilityOfG === 0 ? 0 : (probabilityOfG * getLogOfXBase2(probabilityOfG))) +
+												(probabilityOfC === 0 ? 0 : (probabilityOfC * getLogOfXBase2(probabilityOfC))));
+		return entropy;
 };
 
 
@@ -177,7 +178,7 @@ MyController.prototype.getEntropy_ = function(countOfA, countOfT, countOfG, coun
  * @private
  * @param {string} fileName The name of the file to analyze.
  */
-MyController.prototype.process_ = function(fileName) {
+MicrobiomeDiversityInspectorCtrl.prototype.process_ = function(fileName) {
 	this.refreshEntropyGraph_();
 	let entropyAnalysisUrl = 'http://localhost:8080/analyze?fileName=' + fileName;
 	// Note that we must have a delay, no matter whether we choose synchronous 
@@ -238,7 +239,7 @@ MyController.prototype.process_ = function(fileName) {
  *
  * @private
  */
-MyController.prototype.cancelAllTimerPromises_ = function() {
+MicrobiomeDiversityInspectorCtrl.prototype.cancelAllTimerPromises_ = function() {
 	if (this.dynamicGraphIntervalPromise !== null) {
 		this.intervalService_.cancel(this.dynamicGraphIntervalPromise);		
 	} 
@@ -253,7 +254,7 @@ MyController.prototype.cancelAllTimerPromises_ = function() {
  *
  * @private
  */
-MyController.prototype.resetEntropyAnalysisVariables_ = function() {
+MicrobiomeDiversityInspectorCtrl.prototype.resetEntropyAnalysisVariables_ = function() {
 	this.countOfA = 0;
 	this.countOfT = 0;
 	this.countOfG = 0;
@@ -272,7 +273,7 @@ MyController.prototype.resetEntropyAnalysisVariables_ = function() {
  *
  * @private
  */
-MyController.prototype.resetFastqToFastaConversionVariables_ = function() {
+MicrobiomeDiversityInspectorCtrl.prototype.resetFastqToFastaConversionVariables_ = function() {
 	this.startConversionToFasta = false;
 }
 
@@ -282,7 +283,7 @@ MyController.prototype.resetFastqToFastaConversionVariables_ = function() {
  *
  * @private
  */
-MyController.prototype.resetFastaToFastqConversionVariables_ = function() {
+MicrobiomeDiversityInspectorCtrl.prototype.resetFastaToFastqConversionVariables_ = function() {
 	this.startConversionToFastq = false;
 }
 
@@ -292,7 +293,7 @@ MyController.prototype.resetFastaToFastqConversionVariables_ = function() {
  *
  * @private
  */
-MyController.prototype.resetAlphaDiversityComputationVariables_ = function() {
+MicrobiomeDiversityInspectorCtrl.prototype.resetAlphaDiversityComputationVariables_ = function() {
 	// Variables required for alpha-diversity related computation starts here.
 	this.shouldShowSamples = false;
 	// Contains the final mean and standard-deviation and is of the format -
@@ -309,7 +310,7 @@ MyController.prototype.resetAlphaDiversityComputationVariables_ = function() {
  *
  * @private
  */
-MyController.prototype.reset_ = function() {
+MicrobiomeDiversityInspectorCtrl.prototype.reset_ = function() {
 	this.resetEntropyAnalysisVariables_();
 	this.resetFastaToFastqConversionVariables_();
 	this.resetFastqToFastaConversionVariables_();
@@ -324,49 +325,53 @@ MyController.prototype.reset_ = function() {
  *
  * @private
  */
-MyController.prototype.computeMeanAndStandardDeviationOfSelectedSamples_ = function() {
-	this.selectedSamples = [];
-	for (let i=0; i<this.samples.length; i++) {
-		if (this.samples[i].isIncluded && this.samples[i].isIncluded.value === true) {
-			this.selectedSamples.push(this.samples[i]);
+MicrobiomeDiversityInspectorCtrl.prototype.computeMeanAndStandardDeviationOfSelectedSamples_ =
+	function() {
+		this.selectedSamples = [];
+		for (let i=0; i<this.samples.length; i++) {
+			if (this.samples[i].isIncluded && this.samples[i].isIncluded.value === true) {
+				this.selectedSamples.push(this.samples[i]);
+			}
 		}
-	}
-	// This variable is set to true if the alpha diversity of one or more than one selected
-	// sample(s) is/are still getting computed in the server OR if none of the sample is
-	// selected by default. In that case, the user will be shown '_' as the value of the
-	// mean and standard deviation.
-	let invalidComputation = false;
-	if (this.selectedSamples.length === 0) {
-		invalidComputation = true;
-	}
-	let sum = 0;
-	for (let i=0; i<this.selectedSamples.length; i++) {
-		if (this.selectedSamples[i].alphaDiversity === '_') {
+		// This variable is set to true if the alpha diversity of one or more than one selected
+		// sample(s) is/are still getting computed in the server OR if none of the sample is
+		// selected by default. In that case, the user will be shown '_' as the value of the
+		// mean and standard deviation.
+		let invalidComputation = false;
+		if (this.selectedSamples.length === 0) {
 			invalidComputation = true;
-			break;
-		} else {
-			// Convert the alpha diversity from string to number.
-			sum += +this.selectedSamples[i].alphaDiversity;
 		}
-	}
-	if (invalidComputation === false) {
-		let mean = sum/this.selectedSamples.length;
-		let standardDeviationInnerSum = 0;
+		let sum = 0;
 		for (let i=0; i<this.selectedSamples.length; i++) {
-			standardDeviationInnerSum += Math.pow(+this.selectedSamples[i].alphaDiversity - mean, 2);
+			if (this.selectedSamples[i].alphaDiversity === '_') {
+				invalidComputation = true;
+				break;
+			} else {
+				// Convert the alpha diversity from string to number.
+				sum += +this.selectedSamples[i].alphaDiversity;
+			}
 		}
-		let standardDeviation =
-					Math.pow(standardDeviationInnerSum/(this.selectedSamples.length === 1 ? 1 : this.selectedSamples.length - 1), 0.5);
-		this.resultantMeanAndStandardDeviation = {
-			mean: mean.toString(),
-			standardDeviation: standardDeviation.toString(),
-		};
-	} else {
-		this.resultantMeanAndStandardDeviation = {
-			mean: '_',
-			standardDeviation: '_',
-		};
-	}
+		if (invalidComputation === false) {
+			let mean = sum/this.selectedSamples.length;
+			let standardDeviationInnerSum = 0;
+			for (let i=0; i<this.selectedSamples.length; i++) {
+				standardDeviationInnerSum += Math.pow(+this.selectedSamples[i].alphaDiversity - mean, 2);
+			}
+			let standardDeviation =
+						Math.pow(
+								standardDeviationInnerSum/(this.selectedSamples.length === 1 ?
+																						1 : this.selectedSamples.length - 1),
+								0.5);
+			this.resultantMeanAndStandardDeviation = {
+				mean: mean.toString(),
+				standardDeviation: standardDeviation.toString(),
+			};
+		} else {
+			this.resultantMeanAndStandardDeviation = {
+				mean: '_',
+				standardDeviation: '_',
+			};
+		}
 };
 
 
@@ -374,8 +379,9 @@ MyController.prototype.computeMeanAndStandardDeviationOfSelectedSamples_ = funct
  * Sends a HTTP request to download the required Metasub data from
  * http://ala.boku.ac.at/ server.
  */
-MyController.prototype.downloadMetaSubData = function() {
-	alert('Enter the below details to download the required file-\nUsername- \'CAMDA\', Password- \'Pivo\'');
+MicrobiomeDiversityInspectorCtrl.prototype.downloadMetaSubData = function() {
+	alert('Enter the below details to download the required file-\n' +
+				'Username- \'CAMDA\', Password- \'Pivo\'');
 	window.open(
 			this.selectedCityUrlPrefix +
 			removeLeadingAndTrailingWhitespaces(this.accessionNumber) +
@@ -386,7 +392,7 @@ MyController.prototype.downloadMetaSubData = function() {
 /**
  * Shows all the samples uploaded by the user having the input API Key.
  */
-MyController.prototype.showSamples = function() {
+MicrobiomeDiversityInspectorCtrl.prototype.showSamples = function() {
 	this.httpService_.get(
 		'https://app.onecodex.com/api/v1/samples',
 		{
@@ -417,7 +423,7 @@ MyController.prototype.showSamples = function() {
 /**
  *  Toggles the visibility of input API Key.
  */
-MyController.prototype.toggleVisibility = function() {
+MicrobiomeDiversityInspectorCtrl.prototype.toggleVisibility = function() {
 	let inputElem = this.document_[0].getElementById('apiKey');
 	if (inputElem.type === 'password') {
 		inputElem.type = 'text';
@@ -434,19 +440,21 @@ MyController.prototype.toggleVisibility = function() {
  * @param {string} sample.primary_classification  A reference to a Classification for the sample.
  *																								This will typically be the One Codex Database or
  *																								Targeted Loci Database results as appropriate.
- *																							  Note that samples will not have a primary_classification
- *																							  while they are still importing or being uploaded.
+ *																							  Note that samples will not have a
+ * 																								primary_classification while they are still 
+ * 																								importing or being uploaded.
  *                                                It has the following format -
  *																								{$ref: '/api/v1/classifications/SAMPLE_ID'}
  * @param {string} sample.orderOfDiversity Denoted by 'q', it is an important factor in determining
  *																				 the weight assigned to a species.
  * @param {string} sample.alphaDiversity  The alpha diversity of the sample.
- * @param {Object} sample.alphaDiversityComputationStatus  Has two properties - 'started' and 'completeed'
- *																												 denoting whether the computation has started
- *																												 or not and whether the computation is finished
+ * @param {Object} sample.alphaDiversityComputationStatus  Has two properties - 'started' and
+ *																												 'completeed' denoting whether the 
+ *																												 computation has started or not and
+ *																												 whether the computation is finished
  *																												 or not.
  */
-MyController.prototype.computeAlphaDiversity = function(sample) {
+MicrobiomeDiversityInspectorCtrl.prototype.computeAlphaDiversity = function(sample) {
 	// Refresh the alpha-diversity computation status and alpha-diversity.
 	sample.alphaDiversity = '_';
 	sample.alphaDiversityComputationStatus = {
@@ -459,7 +467,8 @@ MyController.prototype.computeAlphaDiversity = function(sample) {
 		sample.alphaDiversityComputationStatus.started = true;
 		let query = 'apiKey=' + removeLeadingAndTrailingWhitespaces(this.apiKey) + '&' + 'sampleId=' +
 									sample.primary_classification.$ref.substring(24) +
-									'&' + 'orderOfDiversity=' + (+removeLeadingAndTrailingWhitespaces(sample.orderOfDiversity));
+									'&' + 'orderOfDiversity=' +
+									(+removeLeadingAndTrailingWhitespaces(sample.orderOfDiversity));
 		// Carry out the time-consuming computations in the server-side to
 		// avoid freezing of the browser/desktop application.
 		let alphaDiversityComputationUrl = 'http://localhost:8080/compute-alpha-diversity?' + query;
@@ -483,8 +492,15 @@ MyController.prototype.computeAlphaDiversity = function(sample) {
 
 
 angular
-	.module('myApp', [])
-	.controller('MyController', ['$scope', '$document', '$http', '$interval', '$timeout', '$window', MyController])
+	.module('microbiomeDiversityInspector', [])
+	.controller('MicrobiomeDiversityInspectorCtrl', [
+			'$scope',
+			'$document',
+			'$http',
+			'$interval',
+			'$timeout',
+			'$window',
+			MicrobiomeDiversityInspectorCtrl])
 	.directive('filePicker', function($http) {
 		return {
 			link: function(scope, elem, attr, ctrl) {
@@ -492,118 +508,124 @@ angular
 					let fileName = elem[0].files[0].name;
 					switch (elem[0].id) {
 						case 'fileInputAnalyze':
-							scope.myCtrl.resetEntropyAnalysisVariables_();
-							scope.myCtrl.fileName = fileName;
+							scope.microbiomeDiversityInspectorCtrl.resetEntropyAnalysisVariables_();
+							scope.microbiomeDiversityInspectorCtrl.fileName = fileName;
 							if (isFileHavingCorrectFormat(fileName, '.fastq') === false &&
 														isFileHavingCorrectFormat(fileName, '.fasta') === false) {
 								alert('Please upload a FASTQ/FASTA file');
 								break;
 							}
-							scope.myCtrl.showAnalysis = true;
-							scope.$apply();	// Placing scope.$apply() to update the view even if removing it works fine.
-							scope.myCtrl.process_(fileName);
+							scope.microbiomeDiversityInspectorCtrl.showAnalysis = true;
+							scope.$apply();	// Placing scope.$apply() to update the view even if removing it
+															// works fine.
+							scope.microbiomeDiversityInspectorCtrl.process_(fileName);
 							break;
 						case 'fileInputConvertToFasta':
-							scope.myCtrl.resetFastqToFastaConversionVariables_();
-							scope.myCtrl.fileName = fileName;
+							scope.microbiomeDiversityInspectorCtrl.resetFastqToFastaConversionVariables_();
+							scope.microbiomeDiversityInspectorCtrl.fileName = fileName;
 							scope.$apply();
 							if (isFileHavingCorrectFormat(fileName, '.fastq') === false) {
 								alert('Please upload a FASTQ file');
 								break;
 							}
-							scope.myCtrl.startConversionToFasta = true;
+							scope.microbiomeDiversityInspectorCtrl.startConversionToFasta = true;
 							scope.$apply();
 							$http.post(
 								'http://localhost:8080/convert-to-fasta',
 								{fileName: fileName},
 								{headers: {'Content-Type': 'application/json', 'Authorization': 'Basic '}})
 								.then(function(response) {
-									scope.myCtrl.startConversionToFasta = false;
+									scope.microbiomeDiversityInspectorCtrl.startConversionToFasta = false;
 									if (response.data === true) {
 										alert('File downloaded! Please check the uploaded file\'s directory.');										
 									} else {
 										alert('Sorry, unable to convert the uploaded file!\n' + 
-													'Please check if the uploaded file is inside the directory - \'Microbiome-Diversity-Inspector\'');
+													'Please check if the uploaded file is inside the directory - ' +
+													'\'Microbiome-Diversity-Inspector\'');
 									}
 								}, function(error) {
-									scope.myCtrl.startConversionToFasta = false;
-									// Don't alert the user, since the user might want to forcefully kill the current conversion
-									// task by refreshing the page.
+									scope.microbiomeDiversityInspectorCtrl.startConversionToFasta = false;
+									// Don't alert the user, since the user might want to forcefully kill the 
+									// current conversion task by refreshing the page.
 								})
 								.catch(function() {});
 							break;
 						case 'fastaFileUploader':
-							scope.myCtrl.resetFastaToFastqConversionVariables_();
+							scope.microbiomeDiversityInspectorCtrl.resetFastaToFastqConversionVariables_();
 							scope.$apply();
 							if (isFileHavingCorrectFormat(fileName, '.fasta') === false) {
 								alert('Please upload a FASTA file');
 								break;
 							}
-							scope.myCtrl.fastaFileName = fileName;
-							if (scope.myCtrl.qualFileName !== undefined) {
+							scope.microbiomeDiversityInspectorCtrl.fastaFileName = fileName;
+							if (scope.microbiomeDiversityInspectorCtrl.qualFileName !== undefined) {
 								// Keep this code in sync with - case 'qualFileUploader'.
-								scope.myCtrl.fileName = scope.myCtrl.fastaFileName;
-								scope.myCtrl.startConversionToFastq = true;
+								scope.microbiomeDiversityInspectorCtrl.fileName =
+										scope.microbiomeDiversityInspectorCtrl.fastaFileName;
+								scope.microbiomeDiversityInspectorCtrl.startConversionToFastq = true;
 								scope.$apply();
 								$http.post(
 									'http://localhost:8080/convert-to-fastq',
 									{
-										fastaFileName: scope.myCtrl.fastaFileName,
-										qualFileName: scope.myCtrl.qualFileName,
+										fastaFileName: scope.microbiomeDiversityInspectorCtrl.fastaFileName,
+										qualFileName: scope.microbiomeDiversityInspectorCtrl.qualFileName,
 									},
 									{headers: {'Content-Type': 'application/json', 'Authorization': 'Basic '}})
 									.then(function(response) {
-										scope.myCtrl.fastaFileName = undefined;
-										scope.myCtrl.qualFileName = undefined;
-										scope.myCtrl.startConversionToFastq = false;
+										scope.microbiomeDiversityInspectorCtrl.fastaFileName = undefined;
+										scope.microbiomeDiversityInspectorCtrl.qualFileName = undefined;
+										scope.microbiomeDiversityInspectorCtrl.startConversionToFastq = false;
 										if (response.data === true) {
 											alert('File downloaded! Please check the uploaded file\'s directory.');										
 										} else {
 											alert('Sorry, unable to convert the uploaded file!\n' + 
-														'Please check if the uploaded file is inside the directory - \'Microbiome-Diversity-Inspector\'');
+														'Please check if the uploaded file is inside the directory - ' +
+														'\'Microbiome-Diversity-Inspector\'');
 										}
 									}, function(error) {
-										scope.myCtrl.startConversionToFastq = false;
-										// Don't alert the user, since the user might want to forcefully kill the current conversion
-										// task by refreshing the page.									
+										scope.microbiomeDiversityInspectorCtrl.startConversionToFastq = false;
+										// Don't alert the user, since the user might want to forcefully kill the
+									  // current conversion task by refreshing the page.									
 									})
 									.catch(function() {});
 							}
 							break;
 						case 'qualFileUploader':
-							scope.myCtrl.resetFastaToFastqConversionVariables_();
+							scope.microbiomeDiversityInspectorCtrl.resetFastaToFastqConversionVariables_();
 							scope.$apply();
 							if (isFileHavingCorrectFormat(fileName, '.qual') === false) {
 								alert('Please upload a QUAL file');
 								break;
 							}
-							scope.myCtrl.qualFileName = fileName;
-							if (scope.myCtrl.fastaFileName !== undefined) {
+							scope.microbiomeDiversityInspectorCtrl.qualFileName = fileName;
+							if (scope.microbiomeDiversityInspectorCtrl.fastaFileName !== undefined) {
 								// Keep this code in sync with - case 'fastaFileUploader'.
-								scope.myCtrl.fileName = scope.myCtrl.fastaFileName;
-								scope.myCtrl.startConversionToFastq = true;
+								scope.microbiomeDiversityInspectorCtrl.fileName =
+										scope.microbiomeDiversityInspectorCtrl.fastaFileName;
+								scope.microbiomeDiversityInspectorCtrl.startConversionToFastq = true;
 								scope.$apply();
 								$http.post(
 									'http://localhost:8080/convert-to-fastq',
 									{
-										fastaFileName: scope.myCtrl.fastaFileName,
-										qualFileName: scope.myCtrl.qualFileName,
+										fastaFileName: scope.microbiomeDiversityInspectorCtrl.fastaFileName,
+										qualFileName: scope.microbiomeDiversityInspectorCtrl.qualFileName,
 									},
 									{headers: {'Content-Type': 'application/json', 'Authorization': 'Basic '}})
 									.then(function(response) {
-										scope.myCtrl.fastaFileName = undefined;
-										scope.myCtrl.qualFileName = undefined;
-										scope.myCtrl.startConversionToFastq = false;
+										scope.microbiomeDiversityInspectorCtrl.fastaFileName = undefined;
+										scope.microbiomeDiversityInspectorCtrl.qualFileName = undefined;
+										scope.microbiomeDiversityInspectorCtrl.startConversionToFastq = false;
 										if (response.data === true) {
 											alert('File downloaded! Please check the uploaded file\'s directory.');										
 										} else {
 											alert('Sorry, unable to convert the uploaded file!\n' + 
-														'Please check if the uploaded file is inside the directory - \'Microbiome-Diversity-Inspector\'');
+														'Please check if the uploaded file is inside the directory - ' +
+														'\'Microbiome-Diversity-Inspector\'');
 										}										
 									}, function(error) {
-										scope.myCtrl.startConversionToFastq = false;
-										// Don't alert the user, since the user might want to forcefully kill the current conversion
-										// task by refreshing the page.
+										scope.microbiomeDiversityInspectorCtrl.startConversionToFastq = false;
+										// Don't alert the user, since the user might want to forcefully kill
+										// the current conversion task by refreshing the page.
 									})
 									.catch(function() {});
 							}
@@ -618,7 +640,7 @@ angular
 		return {
 			link: function(scope, elem, attr, ctrl) {
 				scope.$watch(function() {
-					return scope.myCtrl.shouldShowSamples;
+					return scope.microbiomeDiversityInspectorCtrl.shouldShowSamples;
 				}, function(newVal, oldVal) {
 					if (newVal !== oldVal && newVal === true) {
 						elem.removeClass('card-size-300');
@@ -631,7 +653,7 @@ angular
 		return {
 			link: function(scope, elem, attr, ctrl) {
 				elem.on('change', function() {
-					scope.myCtrl.computeMeanAndStandardDeviationOfSelectedSamples_();
+					scope.microbiomeDiversityInspectorCtrl.computeMeanAndStandardDeviationOfSelectedSamples_();
 					scope.$apply();
 				});
 			},
