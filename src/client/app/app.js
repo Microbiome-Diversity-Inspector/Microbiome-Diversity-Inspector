@@ -553,6 +553,8 @@ angular
 									},
 									{headers: {'Content-Type': 'application/json', 'Authorization': 'Basic '}})
 									.then(function(response) {
+										scope.myCtrl.fastaFileName = undefined;
+										scope.myCtrl.qualFileName = undefined;
 										scope.myCtrl.startConversionToFastq = false;
 										if (response.data === true) {
 											alert('File downloaded! Please check the uploaded file\'s directory.');										
@@ -589,6 +591,8 @@ angular
 									},
 									{headers: {'Content-Type': 'application/json', 'Authorization': 'Basic '}})
 									.then(function(response) {
+										scope.myCtrl.fastaFileName = undefined;
+										scope.myCtrl.qualFileName = undefined;
 										scope.myCtrl.startConversionToFastq = false;
 										if (response.data === true) {
 											alert('File downloaded! Please check the uploaded file\'s directory.');										
