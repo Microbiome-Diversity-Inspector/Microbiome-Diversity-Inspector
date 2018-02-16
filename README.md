@@ -26,7 +26,7 @@ Node.js and npm can be installed from a download link. Go to the [Node installat
 
 ### Installation on macOS or Linux
 
-In order to install everything on a Mac or Linux, we’ll be running commands in Terminal.
+In order to install everything on a Mac or Linux, we’ll be running commands in Terminal. Also if you're using Linux, then you might have to prefix `sudo` in all/some of the commands mentioned below onwards in order to run them with elevated privileges.
 
 We’re going to use [Node Version Manager(nvm)](https://github.com/creationix/nvm) to install Node.js and npm. Type the below command - <br> `curl -o- https://raw.githubusercontent.com/creationix/nvm/v0.33.1/install.sh | bash`
 
