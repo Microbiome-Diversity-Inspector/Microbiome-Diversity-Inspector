@@ -345,7 +345,7 @@ function logOnlyInNonTestEnvironment(logMessage) {
 
 let server = app.listen(8080, function() {
 	logOnlyInNonTestEnvironment(
-			'\'Microbiome Diversity Inspector\' now running at http://localhost:%s',
+			'\'Microbiome Diversity Inspector\' now running at http://localhost:' +
 			server.address().port);
 });
 
