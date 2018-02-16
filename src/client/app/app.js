@@ -376,7 +376,10 @@ MyController.prototype.computeMeanAndStandardDeviationOfSelectedSamples_ = funct
  */
 MyController.prototype.downloadMetaSubData = function() {
 	alert('Enter the below details to download the required file-\nUsername- \'CAMDA\', Password- \'Pivo\'');
-	window.open(this.selectedCityUrlPrefix + removeLeadingAndTrailingWhitespaces(this.accessionNumber) + '.fastq.dsrc');
+	window.open(
+			this.selectedCityUrlPrefix +
+			removeLeadingAndTrailingWhitespaces(this.accessionNumber) +
+			'.fastq.dsrc');
 };
 
 
