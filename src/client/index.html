@@ -65,7 +65,7 @@
 			</span>
 			<h3 class='align-text-center open-sans-sans-serif-text'>Entropy Analysis</h3>
 		</div>
-		<div class='vertical-separator-from-top-50' ng-show='microbiomeDiversityInspectorCtrl.showAnalysis'>
+		<div class='vertical-separator-from-top-50' ng-if='microbiomeDiversityInspectorCtrl.showAnalysis'>
 			<div class='align-text-center italic-font-size-25' ng-if='!microbiomeDiversityInspectorCtrl.showEntropy'>
 				<div class="loader"></div>
 				Analyzing <span class='orange-text'>{{microbiomeDiversityInspectorCtrl.fileName}}</span> ...
@@ -87,7 +87,7 @@
 				Convert <span class="orange-text">FASTQ</span> to <span class="light-green-text">FASTA</span><span>
 			</h3>
 			<div class='align-text-center italic-font-size-25 open-sans-sans-serif-text'
-					ng-show='microbiomeDiversityInspectorCtrl.startConversionToFasta'>
+					ng-if='microbiomeDiversityInspectorCtrl.startConversionToFasta'>
 				<div class="loader"></div>
 				Converting <span class='orange-text'>{{microbiomeDiversityInspectorCtrl.fileName}}</span> ...
 			</div>
@@ -110,7 +110,7 @@
 				Convert <span class="light-green-text">FASTA</span> to <span class="orange-text">FASTQ</span><span>
 			</h3>
 			<div class='align-text-center italic-font-size-25 open-sans-sans-serif-text'
-					ng-show='microbiomeDiversityInspectorCtrl.startConversionToFastq'>
+					ng-if='microbiomeDiversityInspectorCtrl.startConversionToFastq'>
 				<div class="loader"></div>
 				Converting <span class='light-green-text'>{{microbiomeDiversityInspectorCtrl.fileName}}</span> ...
 			</div>
@@ -140,6 +140,7 @@
 					</div>						
 				</div>
 		 </form>	
+		 <div class="loader" ng-if='microbiomeDiversityInspectorCtrl.shouldShowLoaderWhileRetrievingSamples'></div>
 		 <div class='vertical-separator-from-top-20' ng-if='microbiomeDiversityInspectorCtrl.shouldShowSamples'>	 
 			 <div class='open-sans-sans-serif-text font-size-20'>
 			   Mean α-diversity -
@@ -154,7 +155,7 @@
 				 </span>
 			 </div>
 			 <div class='vertical-separator-from-top-20 inner-scroller'>
-				 <table id="samples">
+				 <table class="samples">
 					 <caption><span class='font-size-20'>Samples</span></caption>
 					 <tr>
 						 <th>Sample No.</th>
