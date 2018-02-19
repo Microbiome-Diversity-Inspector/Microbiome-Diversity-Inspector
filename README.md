@@ -67,6 +67,8 @@ Following the aforementioned common instructions, install [Nativefier](https://g
 + [Node.js](https://nodejs.org/en/) - The runtime on which the platform's back-end server runs on.
 + [Express](https://expressjs.com/) - The framework used to develop the back-end.
 + [Mocha](https://mochajs.org/) - The test framework to integration test server-side code.
++ [Jasmine](https://jasmine.github.io/) - The test framework to unit test client-side code.
++ [Karma](https://karma-runner.github.io/2.0/index.html) - The test runner used for running client-side tests.
 + [SuperTest](https://github.com/visionmedia/supertest) - The library used with Mocha to test the back-end server.
 + [nodemon](https://nodemon.io/) - For development purpose, used as an "auto-watch-reload" utility for back-end server.
 + [Browsersync](https://browsersync.io/) - For development purpose, used as an "auto-watch-reload" utility for front-end.
