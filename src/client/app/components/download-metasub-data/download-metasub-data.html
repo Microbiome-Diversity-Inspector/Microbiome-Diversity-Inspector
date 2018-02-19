@@ -1,0 +1,37 @@
+<div class='align-text-center card card-size-300'>
+	<form name='metaSubForm'>
+		<h3 class='open-sans-sans-serif-text'>Download MetaSUB data</h3>
+		<div>
+				<div class='align-inner-div-to-center-of-outer-div width-50-percent align-text-left'
+						ng-repeat='city in downloadMetasubDataCtrl.cities'>
+						<label>
+								<input name='city' type='radio'
+											 value='{{city.urlPrefix}}'
+											 ng-model='downloadMetasubDataCtrl.selectedCityUrlPrefix'
+											 ng-required='true'>
+								<span class='font-size-20'>{{city.name}}</span>
+						</label>
+				</div>
+				<div ng-show='!metaSubForm.$submitted'>
+						<span class='invalidation-message font-size-20'
+									ng-show='metaSubForm.city.$error.required'>
+								Please select a city.
+						</span>
+				</div> 
+				<div class='vertical-separator-from-top-10'>
+						<label>
+								<span class='font-size-20'>SRR Accession Number</span>
+								<input name='accessionNumber' type='text' placeholder='Example - SRR1748535'
+										pattern='^\s*SRR\d+\s*$' ng-required='true'
+										ng-model='downloadMetasubDataCtrl.accessionNumber'>
+						</label>
+				</div>						
+				<div class='vertical-separator-from-top-10'>
+						<button class='submit button'
+								ng-click='metaSubForm.$valid && downloadMetasubDataCtrl.downloadMetaSubData()'>
+								<span class='font-size-20'>Download</span>
+						</button>
+				</div>						
+		</div>
+ </form>
+</div>

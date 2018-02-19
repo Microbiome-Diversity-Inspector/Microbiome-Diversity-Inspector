@@ -1,0 +1,22 @@
+<div class='align-text-center vertical-separator-from-top-50'>
+	<div>
+		<span>
+			<label for="fastaFileUploader" class="button hover-effect font-size-20">Select a FASTA file</label>
+			<input type="file" id="fastaFileUploader" fasta-to-fastq-conversion-file-picker/><br>
+		</span>
+	</div>
+	<div class='align-text-center vertical-separator-from-top-10'>
+		<span>
+			<label for="qualFileUploader" class="button hover-effect font-size-20">Select a QUAL file</label>
+			<input type="file" id="qualFileUploader" fasta-to-fastq-conversion-file-picker/><br>
+		</span>
+	</div>
+	<h3 class='align-text-center open-sans-sans-serif-text'>
+		Convert <span class="light-green-text">FASTA</span> to <span class="orange-text">FASTQ</span><span>
+	</h3>
+	<div class='align-text-center italic-font-size-25 open-sans-sans-serif-text'
+			ng-if='fastaToFastqConversionCtrl.startConversionToFastq'>
+		<div class="loader"></div>
+		Converting <span class='light-green-text'>{{fastaToFastqConversionCtrl.fileName}}</span> ...
+	</div>
+</div>
