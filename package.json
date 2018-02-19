@@ -8,17 +8,25 @@
     "xmlhttprequest": "^1.8.0"
   },
   "devDependencies": {
+    "angular": "^1.6.9",
     "eslint": "^4.16.0",
     "eslint-config-google": "^0.9.1",
+    "jasmine-core": "^2.99.1",
+    "karma": "^2.0.0",
+    "karma-chrome-launcher": "^2.2.0",
+    "karma-firefox-launcher": "^1.1.0",
+    "karma-jasmine": "^1.1.1",
     "mocha": "^5.0.0",
     "nodemon": "^1.14.11",
     "supertest": "^3.0.0"
   },
   "scripts": {
-    "start": "nodemon src/server/server.js",
-    "lint": "eslint --fix --cache src/client/app/app.js src/server/server.js",
+    "start": "node src/server/server.js",
+    "nodemonStart": "nodemon src/server/server.js",
+    "lint": "eslint --fix --cache src/client/client.js src/server/server.js",
     "dev": "browser-sync start --proxy localhost:8080 --files=\"**/*\"",
-		"test": "mocha --watch --recursive test/server-test.js"
+		"clientTest": "karma start",
+    "serverTest": "mocha --watch --recursive test/server/server-test.js"
   },
   "keywords": [],
   "author": "",

@@ -7,7 +7,7 @@ process.on('message', function(req) {
 	// If the code is ran as a part of an integration test, then use the 
 	// test files' directory path.
 	if (process.env.NODE_ENV === 'test') {
-		pathSegment = '../../../test/test_files';
+		pathSegment = '../../../test/server/test_files';
 	}
 	let fastqFileName = path.join(__dirname, pathSegment, req.fileName);
 	// The line limit in FASTA format as mentioned in - https://en.wikipedia.org/wiki/FASTA_format
