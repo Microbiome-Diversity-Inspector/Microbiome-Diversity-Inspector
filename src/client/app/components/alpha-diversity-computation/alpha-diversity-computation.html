@@ -1,0 +1,89 @@
+<div class='align-text-center card card-size-300 tooltip' expandable-card>
+	<span class="tooltiptext">
+		See <a href='https://docs.google.com/document/d/e/2PACX-1vQHX_-TCCtYtODA4xQgCnc5GtjeOP8sy08JE5spjB1usOiGmyPsriQoRr2U4IsJfFC1rJiFIlJYS-Za/pub'
+						target='_blank'>this</a> to learn about API Key
+	</span>
+	<form name='alphaDiversityForm'>
+		<h3 class='open-sans-sans-serif-text'>Compute α-diversity</h3>
+		<div>    
+			<div class='vertical-separator-from-top-10'>
+					<label>
+							<span class='font-size-20'>One Codex API Key</span>
+							<input id="apiKey" name='apiKey' type='password' placeholder='No spaces allowed' 
+									pattern='^\s*\S+\s*$' ng-required='true' ng-model='alphaDiversityComputationCtrl.apiKey'>
+							<input type="checkbox" ng-click="alphaDiversityComputationCtrl.toggleVisibility()">
+								<span class='font-size-20'>Show</span>
+					</label>
+			</div>				
+			<div class='vertical-separator-from-top-10'>
+					<button class='submit button' ng-click='alphaDiversityForm.$valid && alphaDiversityComputationCtrl.showSamples()'>
+							<span class='font-size-20'>Show samples</span>
+					</button>
+			</div>						
+		</div>
+	</form>	
+	<div class="loader" ng-if='alphaDiversityComputationCtrl.shouldShowLoaderWhileRetrievingSamples'></div>			
+	<div class='vertical-separator-from-top-20' ng-if='alphaDiversityComputationCtrl.shouldShowSamples'>	 
+		<div class='open-sans-sans-serif-text font-size-20'>
+			Mean α-diversity -
+			<span class='tomato-text'>
+				{{(alphaDiversityComputationCtrl.resultantMeanAndStandardDeviation.mean == '_') ? '_' : (alphaDiversityComputationCtrl.resultantMeanAndStandardDeviation.mean | number : 2)}}
+			</span>
+		</div>
+		<div class='open-sans-sans-serif-text font-size-20'>
+			Standard Deviation in α-diversity -
+			<span class='tomato-text'>
+				{{(alphaDiversityComputationCtrl.resultantMeanAndStandardDeviation.standardDeviation == '_') ? '_' : (alphaDiversityComputationCtrl.resultantMeanAndStandardDeviation.standardDeviation | number : 2)}}
+			</span>
+		</div>
+		<div class='vertical-separator-from-top-20 inner-scroller'>
+			<table class="samples">
+				<caption><span class='font-size-20'>Samples</span></caption>
+				<tr>
+					<th>Sample No.</th>
+					<th>Name</th>
+					<th>Size</th>
+					<th>Order of Diversity(q)</th>
+					<th>Actions</th>
+					<th>Alpha-diversity</th>
+				</tr>			
+				<tr ng-repeat='sample in alphaDiversityComputationCtrl.samples track by $index'>
+					<td>{{$index+1}}</td>
+					<td>{{sample.filename}}
+					<td>
+						{{(sample.size > 1000000000) ? sample.size/1000000000 : sample.size/1000000 | number : 1}}
+						{{(sample.size > 1000000000) ? 'GB' : 'MB'}}		 
+					</td>
+					<td>
+						<div class='vertical-separator-from-top-10'>
+							<input name='orderOfDiversity' type='text' placeholder='Example - 1'
+									pattern='^\s*\d+\s*$' ng-required='true' ng-model='sample.orderOfDiversity'>
+						</div>							 
+					</td>
+					<td>
+						<button class='submit button' ng-click='alphaDiversityComputationCtrl.computeAlphaDiversity(sample)'>
+							Compute
+						</button>
+						<!-- Bind the checkbox value to an object - {isIncluded: {value: true/false}} since if it would
+						have been binded to a primitive, like - {isIncluded: true/false}, then a change in this property 
+						would not be reflected in the parent(here- the controller). This happens because ng-repeat creates 
+						new scope for all of its children. -->
+						<input type="checkbox" ng-model='sample.isIncluded.value' checkbox-mean-and-standard-deviation-trigger>
+					</td>
+					<td>
+					 <span ng-if='sample.alphaDiversityComputationStatus.started == false'>
+						 {{sample.alphaDiversity}}
+					 </span>
+					 <span ng-if='sample.alphaDiversityComputationStatus.started == true &&
+							 sample.alphaDiversityComputationStatus.completed == false'>
+						 <img height='50' width='50' src='assets/images/ball_loading.GIF'>
+					 </span>
+					 <span ng-if='sample.alphaDiversityComputationStatus.completed == true'>
+						 {{sample.alphaDiversity | number : 2}}
+					 </span>						
+					</td>
+				</tr>
+			</table>		
+		</div>			 
+	</div>		 
+</div>		
