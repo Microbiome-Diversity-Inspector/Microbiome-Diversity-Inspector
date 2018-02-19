@@ -296,6 +296,7 @@ MicrobiomeDiversityInspectorCtrl.prototype.resetFastaToFastqConversionVariables_
 MicrobiomeDiversityInspectorCtrl.prototype.resetAlphaDiversityComputationVariables_ = function() {
 	// Variables required for alpha-diversity related computation starts here.
 	this.shouldShowSamples = false;
+	this.shouldShowLoaderWhileRetrievingSamples = false;
 	// Contains the final mean and standard-deviation and is of the format -
 	// {mean: 'XXX' /**string*/, standardDeviation: 'YYY' /**string*/}
 	this.resultantMeanAndStandardDeviation = {
@@ -393,6 +394,7 @@ MicrobiomeDiversityInspectorCtrl.prototype.downloadMetaSubData = function() {
  * Shows all the samples uploaded by the user having the input API Key.
  */
 MicrobiomeDiversityInspectorCtrl.prototype.showSamples = function() {
+	this.shouldShowLoaderWhileRetrievingSamples = true;
 	this.httpService_.get(
 		'https://app.onecodex.com/api/v1/samples',
 		{
@@ -412,6 +414,7 @@ MicrobiomeDiversityInspectorCtrl.prototype.showSamples = function() {
 				};
 			}
 			this.shouldShowSamples = true;
+			this.shouldShowLoaderWhileRetrievingSamples = false;
 			this.scope_.$digest();
 		}).bind(this), function(error) {
 			alert('Wrong credentials!');
