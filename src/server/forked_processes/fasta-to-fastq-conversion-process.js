@@ -7,7 +7,7 @@ process.on('message', function(req) {
 	// If the code is ran as a part of an integration test, then use the 
 	// test files' directory path.
 	if (process.env.NODE_ENV === 'test') {
-		pathSegment = '../../../test/test_files';
+		pathSegment = '../../../test/server/test_files';
 	}	
 	let fastaFileName = path.join(__dirname, pathSegment, req.fastaFileName),
 			qualFileName = path.join(__dirname, pathSegment, req.qualFileName),
