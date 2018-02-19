@@ -126,7 +126,7 @@ input[type=text], input[type=password], select {
 	box-sizing: border-box;
 }
 
-#samples input[type=text] {
+.samples input[type=text] {
 	width: 115px;
 }
 
@@ -228,25 +228,25 @@ input[type="file"] {
 	opacity: 1;
 }
 
-#samples {
+.samples {
 	font-family: "Trebuchet MS", Arial, Helvetica, sans-serif;
 	border-collapse: collapse;
 	width: 100%;
 }
 
-#samples td, #samples th {
+td, th {
 	border: 1px solid #ddd;
 	padding: 8px;
 	color: black;
 }
 
-#samples tr:nth-child(even){background-color: #f2f2f2;}
+tr:nth-child(even){background-color: #f2f2f2;}
 
-#samples tr:nth-child(odd){background-color: #FFF8DC;}
+tr:nth-child(odd){background-color: #FFF8DC;}
 
-#samples tr:hover {background-color: #ddd;}
+tr:hover {background-color: #ddd;}
 
-#samples th {
+th {
 	padding-top: 12px;
 	padding-bottom: 12px;
 	text-align: center;
