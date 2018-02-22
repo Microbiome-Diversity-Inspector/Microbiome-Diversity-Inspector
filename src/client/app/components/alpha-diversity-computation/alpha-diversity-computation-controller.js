@@ -1,7 +1,6 @@
 function AlphaDiversityComputationCtrl($document, $scope, $http, inputValidationService) {
 	this.apiKey;
 	this.samples;
-	this.selectedSamples;
 	
 	this.$onInit = (function() {
 		this.document_ = $document;
@@ -40,10 +39,10 @@ AlphaDiversityComputationCtrl.prototype.resetAlphaDiversityComputationVariables_
  */
 AlphaDiversityComputationCtrl.prototype.computeMeanAndStandardDeviationOfSelectedSamples_ =
 	function() {
-		this.selectedSamples = [];
+		let selectedSamples = [];
 		for (let i=0; i<this.samples.length; i++) {
 			if (this.samples[i].isIncluded && this.samples[i].isIncluded.value === true) {
-				this.selectedSamples.push(this.samples[i]);
+				selectedSamples.push(this.samples[i]);
 			}
 		}
 		// This variable is set to true if the alpha diversity of one or more than one selected
@@ -51,29 +50,29 @@ AlphaDiversityComputationCtrl.prototype.computeMeanAndStandardDeviationOfSelecte
 		// selected by default. In that case, the user will be shown '_' as the value of the
 		// mean and standard deviation.
 		let invalidComputation = false;
-		if (this.selectedSamples.length === 0) {
+		if (selectedSamples.length === 0) {
 			invalidComputation = true;
 		}
 		let sum = 0;
-		for (let i=0; i<this.selectedSamples.length; i++) {
-			if (this.selectedSamples[i].alphaDiversity === '_') {
+		for (let i=0; i<selectedSamples.length; i++) {
+			if (selectedSamples[i].alphaDiversity === '_') {
 				invalidComputation = true;
 				break;
 			} else {
 				// Convert the alpha diversity from string to number.
-				sum += +this.selectedSamples[i].alphaDiversity;
+				sum += +selectedSamples[i].alphaDiversity;
 			}
 		}
 		if (invalidComputation === false) {
-			let mean = sum/this.selectedSamples.length;
+			let mean = sum/selectedSamples.length;
 			let standardDeviationInnerSum = 0;
-			for (let i=0; i<this.selectedSamples.length; i++) {
-				standardDeviationInnerSum += Math.pow(+this.selectedSamples[i].alphaDiversity - mean, 2);
+			for (let i=0; i<selectedSamples.length; i++) {
+				standardDeviationInnerSum += Math.pow(+selectedSamples[i].alphaDiversity - mean, 2);
 			}
 			let standardDeviation =
 						Math.pow(
-								standardDeviationInnerSum/(this.selectedSamples.length === 1 ?
-																						1 : this.selectedSamples.length - 1),
+								standardDeviationInnerSum/(selectedSamples.length === 1 ?
+																						1 : selectedSamples.length - 1),
 								0.5);
 			this.resultantMeanAndStandardDeviation = {
 				mean: mean.toString(),
@@ -152,7 +151,7 @@ AlphaDiversityComputationCtrl.prototype.toggleVisibility = function() {
  *																				 the weight assigned to a species.
  * @param {string} sample.alphaDiversity  The alpha diversity of the sample.
  * @param {Object} sample.alphaDiversityComputationStatus  Has two properties - 'started' and
- *																												 'completeed' denoting whether the 
+ *																												 'completed' denoting whether the 
  *																												 computation has started or not and
  *																												 whether the computation is finished
  *																												 or not.
