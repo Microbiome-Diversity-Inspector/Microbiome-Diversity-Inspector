@@ -1,10 +1,9 @@
-function AlphaDiversityComputationCtrl($element, $document, $scope, $http, inputValidationService) {
+function AlphaDiversityComputationCtrl($document, $scope, $http, inputValidationService) {
 	this.apiKey;
 	this.samples;
 	this.selectedSamples;
 	
 	this.$onInit = (function() {
-		this.element_ = $element;
 		this.document_ = $document;
 		this.scope_ = $scope;
 		this.httpService_ = $http;
@@ -200,7 +199,6 @@ AlphaDiversityComputationCtrl.prototype.computeAlphaDiversity = function(sample)
 angular
 	.module('microbiomeDiversityInspector')
 	.controller('AlphaDiversityComputationCtrl', [
-			'$element',
 			'$document',
 			'$scope', 
 			'$http',
