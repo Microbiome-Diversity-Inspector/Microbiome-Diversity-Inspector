@@ -53,7 +53,7 @@ describe('AlphaDiversityComputationCtrl', function() {
 			});
 		});
 		
-		it('should show \'_\' if the selected sample\'s alpha-diversity is not computed yet by the server',
+		it('should show \'_\' if one of the selected sample\'s alpha-diversity is not computed yet by the server',
 			function() {
 				ctrl.samples = [
 					createSample(undefined, undefined, '_', undefined, undefined, true),
@@ -65,5 +65,31 @@ describe('AlphaDiversityComputationCtrl', function() {
 					standardDeviation: '_'
 				});
 		});		
+
+		it('should calculate the mean and standard-deviation of the selected samples',
+			function() {
+				var precisionRound = function(number, precision) {
+					var factor = Math.pow(10, precision);
+					return Math.round(number * factor) / factor;
+				};
+				ctrl.samples = [
+					createSample(undefined, undefined, '5', undefined, undefined, true),
+					createSample(undefined, undefined, '53434.5', undefined, undefined, true),
+					createSample(undefined, undefined, '4.9', undefined, undefined, true),
+					createSample(undefined, undefined, '4.85', undefined, undefined, true),
+					createSample(undefined, undefined, '87.45', undefined, undefined, true),
+					createSample(undefined, undefined, '23123312.2313', undefined, undefined, true),
+					createSample(undefined, undefined, '6435.0', undefined, undefined, true)
+				];
+				ctrl.computeMeanAndStandardDeviationOfSelectedSamples_();
+				let actualResultantMeanAndStandardDeviationAfterRoundingOff = {
+					mean: precisionRound(ctrl.resultantMeanAndStandardDeviation.mean, 3).toString(), 
+					standardDeviation: precisionRound(ctrl.resultantMeanAndStandardDeviation.standardDeviation, 3).toString()					
+				};
+				expect(actualResultantMeanAndStandardDeviationAfterRoundingOff).toEqual({
+					mean: '3311897.704',
+					standardDeviation: '8736034.573'
+				});
+		});
 	});
 });
