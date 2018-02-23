@@ -230,7 +230,7 @@ describe('Integration Tests', function() {
 	  this.timeout(15000);
 	
 		function precisionRound(number, precision) {
-			var factor = Math.pow(10, precision);
+			let factor = Math.pow(10, precision);
 			return Math.round(number * factor) / factor;
 		}	
 	
