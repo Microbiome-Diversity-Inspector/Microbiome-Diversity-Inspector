@@ -2,9 +2,9 @@ describe('AlphaDiversityComputationCtrl', function() {
 	
 	beforeEach(angular.mock.module('microbiomeDiversityInspector'));
 	
-	var ctrl;
-	var scope;
-	var createSample = function(
+	let ctrl;
+	let scope;
+	let createSample = function(
 			primaryClassificationRef,
 			orderOfDiversity,
 			alphaDiversity,
@@ -68,8 +68,8 @@ describe('AlphaDiversityComputationCtrl', function() {
 
 		it('should calculate the mean and standard-deviation of the selected samples',
 			function() {
-				var precisionRound = function(number, precision) {
-					var factor = Math.pow(10, precision);
+				let precisionRound = function(number, precision) {
+					let factor = Math.pow(10, precision);
 					return Math.round(number * factor) / factor;
 				};
 				ctrl.samples = [
