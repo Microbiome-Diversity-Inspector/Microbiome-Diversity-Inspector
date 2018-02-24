@@ -9,6 +9,7 @@
   },
   "devDependencies": {
     "angular": "^1.6.9",
+    "angular-mocks": "^1.6.9",
     "eslint": "^4.16.0",
     "eslint-config-google": "^0.9.1",
     "jasmine-core": "^2.99.1",
@@ -25,7 +26,7 @@
     "nodemonStart": "nodemon src/server/server.js",
     "lint": "eslint --fix --cache src/client/client.js src/server/server.js",
     "dev": "browser-sync start --proxy localhost:8080 --files=\"**/*\"",
-		"clientTest": "karma start",
+    "clientTest": "karma start",
     "serverTest": "mocha --watch --recursive test/server/server-test.js"
   },
   "keywords": [],
