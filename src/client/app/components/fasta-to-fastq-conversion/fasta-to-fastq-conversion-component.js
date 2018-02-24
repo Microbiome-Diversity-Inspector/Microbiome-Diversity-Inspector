@@ -5,8 +5,8 @@ angular
 		controllerAs: 'fastaToFastqConversionCtrl',
 		templateUrl: 'app/components/fasta-to-fastq-conversion/fasta-to-fastq-conversion.html'
 	})
-	.directive('fastaToFastqConversionFilePicker', ['$http', 'inputValidationService',
-		function($http, inputValidationService) {
+	.directive('fastaToFastqConversionFilePicker', ['$window', '$http', 'inputValidationService',
+		function($window, $http, inputValidationService) {
 			return {
 				link: function(scope, elem) {
 					elem.on('change', function() {
@@ -16,11 +16,11 @@ angular
 							scope.$apply();
 							if (isFastaFilePicker === true &&
 									inputValidationService.isFileHavingCorrectFormat(fileName, '.fasta') === false) {
-								alert('Please upload a FASTA file');
+								$window.alert('Please upload a FASTA file');
 							}
 							else if (isFastaFilePicker === false &&
 									inputValidationService.isFileHavingCorrectFormat(fileName, '.qual') === false) {
-								alert('Please upload a QUAL file');
+								$window.alert('Please upload a QUAL file');
 							}	else {
 								if (isFastaFilePicker === true) {
 									scope.fastaToFastqConversionCtrl.fastaFileName = fileName;									
@@ -47,9 +47,10 @@ angular
 											scope.fastaToFastqConversionCtrl.qualFileName = undefined;
 											scope.fastaToFastqConversionCtrl.startConversionToFastq = false;
 											if (response.data === true) {
-												alert('File downloaded! Please check the uploaded file\'s directory.');										
+												$window.alert(
+														'File downloaded! Please check the uploaded file\'s directory.');										
 											} else {
-												alert('Sorry, unable to convert the uploaded file!\n' + 
+												$window.alert('Sorry, unable to convert the uploaded file!\n' + 
 															'Please check if the uploaded file is inside the directory - ' +
 															'\'Microbiome-Diversity-Inspector\'');
 											}

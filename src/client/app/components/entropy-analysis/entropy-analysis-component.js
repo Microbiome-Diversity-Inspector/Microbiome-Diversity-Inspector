@@ -5,8 +5,8 @@ angular
 		controllerAs: 'entropyAnalysisCtrl',
 		templateUrl: 'app/components/entropy-analysis/entropy-analysis.html'
 	})
-	.directive('entropyAnalysisFilePicker', ['inputValidationService',
-		function(inputValidationService) {
+	.directive('entropyAnalysisFilePicker', ['$window', 'inputValidationService',
+		function($window, inputValidationService) {
 			return {
 				link: function(scope, elem) {
 					elem.on('change', function() {
@@ -16,7 +16,7 @@ angular
 						if (inputValidationService.isFileHavingCorrectFormat(fileName, '.fastq') === false &&
 										inputValidationService.isFileHavingCorrectFormat(fileName, '.fasta')
 										=== false) {
-							alert('Please upload a FASTQ/FASTA file');
+							$window.alert('Please upload a FASTQ/FASTA file');
 						} else {
 							scope.entropyAnalysisCtrl.showAnalysis = true;
 							scope.$apply();	// Placing scope.$apply() to update the view even if removing it

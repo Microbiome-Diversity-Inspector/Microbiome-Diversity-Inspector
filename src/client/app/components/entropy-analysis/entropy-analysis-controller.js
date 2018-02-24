@@ -1,6 +1,7 @@
-function EntropyAnalysisCtrl($http, $timeout, $interval) {
+function EntropyAnalysisCtrl($window, $http, $timeout, $interval) {
 	
 	this.$onInit = (function() {
+		this.window_ = $window;
 		this.httpService_ = $http;		
 		this.timeoutService_ = $timeout;
 		this.intervalService_ = $interval;
@@ -167,7 +168,7 @@ EntropyAnalysisCtrl.prototype.process_ = function(fileName) {
 					if (response.data.statusCode === 'e') {
 						this.showAnalysis = false;
 						this.cancelAllTimerPromises_();
-						alert('Sorry, unable to convert the uploaded file!\n' + 
+						this.window_.alert('Sorry, unable to convert the uploaded file!\n' + 
 									'Please check if the uploaded file is inside the directory - ' + 
 									'\'Microbiome-Diversity-Inspector\'');
 					}	else {
@@ -207,4 +208,5 @@ EntropyAnalysisCtrl.prototype.process_ = function(fileName) {
 
 angular
 	.module('microbiomeDiversityInspector')
-	.controller('EntropyAnalysisCtrl', ['$http', '$timeout', '$interval', EntropyAnalysisCtrl]);
+	.controller(
+			'EntropyAnalysisCtrl', ['$window', '$http', '$timeout', '$interval', EntropyAnalysisCtrl]);

@@ -1,8 +1,9 @@
-function DownloadMetasubDataCtrl(inputValidationService) {
+function DownloadMetasubDataCtrl($window, inputValidationService) {
 	this.selectedCityUrlPrefix;
 	this.accessionNumber;
 
 	this.$onInit = (function() {
+		this.window_ = $window;
 		this.inputValidationService_ = inputValidationService;
 		this.cities = [
 			{
@@ -26,9 +27,9 @@ function DownloadMetasubDataCtrl(inputValidationService) {
  * http://ala.boku.ac.at/ server.
  */
 DownloadMetasubDataCtrl.prototype.downloadMetaSubData = function() {
-	alert('Enter the below details to download the required file-\n' +
+	this.window_.alert('Enter the below details to download the required file-\n' +
 				'Username- \'CAMDA\', Password- \'Pivo\'');
-	window.open(
+	this.window_.open(
 			this.selectedCityUrlPrefix +
 			this.inputValidationService_.removeLeadingAndTrailingWhitespaces(this.accessionNumber) +
 			'.fastq.dsrc');
@@ -37,4 +38,5 @@ DownloadMetasubDataCtrl.prototype.downloadMetaSubData = function() {
 
 angular
 	.module('microbiomeDiversityInspector')
-	.controller('DownloadMetasubDataCtrl', ['inputValidationService', DownloadMetasubDataCtrl]);
+	.controller(
+			'DownloadMetasubDataCtrl', ['$window', 'inputValidationService', DownloadMetasubDataCtrl]);

@@ -5,8 +5,8 @@ angular
 		controllerAs: 'fastqToFastaConversionCtrl',
 		templateUrl: 'app/components/fastq-to-fasta-conversion/fastq-to-fasta-conversion.html'
 	})
-	.directive('fastqToFastaConversionFilePicker', ['$http', 'inputValidationService',
-		function($http, inputValidationService) {
+	.directive('fastqToFastaConversionFilePicker', ['$window', '$http', 'inputValidationService',
+		function($window, $http, inputValidationService) {
 			return {
 				link: function(scope, elem) {
 					elem.on('change', function() {
@@ -15,7 +15,7 @@ angular
 						scope.fastqToFastaConversionCtrl.fileName = fileName;
 						scope.$apply();
 						if (inputValidationService.isFileHavingCorrectFormat(fileName, '.fastq') === false) {
-							alert('Please upload a FASTQ file');
+							$window.alert('Please upload a FASTQ file');
 						} else {
 							scope.fastqToFastaConversionCtrl.startConversionToFasta = true;
 							scope.$apply();
@@ -26,9 +26,9 @@ angular
 								.then(function(response) {
 									scope.fastqToFastaConversionCtrl.startConversionToFasta = false;
 									if (response.data === true) {
-										alert('File downloaded! Please check the uploaded file\'s directory.');										
+										$window.alert('File downloaded! Please check the uploaded file\'s directory.');										
 									} else {
-										alert('Sorry, unable to convert the uploaded file!\n' + 
+										$window.alert('Sorry, unable to convert the uploaded file!\n' + 
 													'Please check if the uploaded file is inside the directory - ' +
 													'\'Microbiome-Diversity-Inspector\'');
 									}
