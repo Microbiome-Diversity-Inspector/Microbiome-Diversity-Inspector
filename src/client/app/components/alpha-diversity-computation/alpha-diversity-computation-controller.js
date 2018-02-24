@@ -1,8 +1,9 @@
-function AlphaDiversityComputationCtrl($document, $scope, $http, inputValidationService) {
+function AlphaDiversityComputationCtrl($window, $document, $scope, $http, inputValidationService) {
 	this.apiKey;
 	this.samples;
 	
 	this.$onInit = (function() {
+		this.window_ = $window;
 		this.document_ = $document;
 		this.scope_ = $scope;
 		this.httpService_ = $http;
@@ -115,9 +116,9 @@ AlphaDiversityComputationCtrl.prototype.showSamples = function() {
 			this.shouldShowSamples = true;
 			this.shouldShowLoaderWhileRetrievingSamples = false;
 			this.scope_.$digest();
-		}).bind(this), function(error) {
-			alert('Wrong credentials!');
-		})
+		}).bind(this), (function(error) {
+			this.window_.alert('Wrong credentials!');
+		}).bind(this))
 		.catch(function() {});	
 };
 
@@ -164,7 +165,7 @@ AlphaDiversityComputationCtrl.prototype.computeAlphaDiversity = function(sample)
 		completed: false,
 	};
 	if (!sample.orderOfDiversity) {
-		alert('Please specify a valid order of diversity!');
+		this.window_.alert('Please specify a valid order of diversity!');
 	} else {
 		sample.alphaDiversityComputationStatus.started = true;
 		let query = 'apiKey=' +
@@ -179,7 +180,7 @@ AlphaDiversityComputationCtrl.prototype.computeAlphaDiversity = function(sample)
 		this.httpService_.get(alphaDiversityComputationUrl)
 			.then((function(response) {
 				if (response.data === 'x') {
-					alert('Sorry, internal server error!');
+					this.window_.alert('Sorry, internal server error!');
 				} else {
 					sample.alphaDiversityComputationStatus.completed = true;
 					sample.alphaDiversity = response.data;
@@ -189,7 +190,7 @@ AlphaDiversityComputationCtrl.prototype.computeAlphaDiversity = function(sample)
 				// Alert the user since even after a page refresh, unlike as in entropy
 				// analysis, this error will not be fired due to the asynchronous nature
 				// of this operation.
-				alert('Internal server error!');
+				this.window_.alert('Internal server error!');
 			});
 	}
 };
@@ -198,6 +199,7 @@ AlphaDiversityComputationCtrl.prototype.computeAlphaDiversity = function(sample)
 angular
 	.module('microbiomeDiversityInspector')
 	.controller('AlphaDiversityComputationCtrl', [
+			'$window',
 			'$document',
 			'$scope', 
 			'$http',
