@@ -180,7 +180,7 @@ AlphaDiversityComputationCtrl.prototype.computeAlphaDiversity = function(sample)
 		this.httpService_.get(alphaDiversityComputationUrl)
 			.then((function(response) {
 				if (response.data === 'x') {
-					this.window_.alert('Sorry, internal server error!');
+					this.window_.alert('Internal server error!');
 				} else {
 					sample.alphaDiversityComputationStatus.completed = true;
 					sample.alphaDiversity = response.data;
