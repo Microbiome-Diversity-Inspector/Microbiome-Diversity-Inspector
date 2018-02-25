@@ -99,7 +99,7 @@ AlphaDiversityComputationCtrl.prototype.showSamples = function() {
 			headers:
 			{
 				'Content-Type': 'application/json',
-				'Authorization': 'Basic ' + btoa(
+				'Authorization': 'Basic ' + this.window_.btoa(
 												 this.inputValidationService_.removeLeadingAndTrailingWhitespaces(
 														this.apiKey) + ':')
 			}
@@ -186,12 +186,12 @@ AlphaDiversityComputationCtrl.prototype.computeAlphaDiversity = function(sample)
 					sample.alphaDiversity = response.data;
 					this.computeMeanAndStandardDeviationOfSelectedSamples_();
 				}
-			}).bind(this), function(error) {
+			}).bind(this), (function(error) {
 				// Alert the user since even after a page refresh, unlike as in entropy
 				// analysis, this error will not be fired due to the asynchronous nature
 				// of this operation.
 				this.window_.alert('Internal server error!');
-			});
+			}).bind(this));
 	}
 };
 
