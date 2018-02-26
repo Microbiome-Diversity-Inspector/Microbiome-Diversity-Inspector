@@ -1,4 +1,4 @@
-describe('AlphaDiversityComputationCtrl', function() {
+describe('Unit test for AlphaDiversityComputationCtrl', function() {
 	
 	beforeEach(angular.mock.module('microbiomeDiversityInspector'));
 	
