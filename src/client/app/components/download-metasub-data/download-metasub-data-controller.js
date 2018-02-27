@@ -26,7 +26,7 @@ function DownloadMetasubDataCtrl($window, inputValidationService) {
  * Sends a HTTP request to download the required Metasub data from
  * http://ala.boku.ac.at/ server.
  */
-DownloadMetasubDataCtrl.prototype.downloadMetaSubData = function() {
+DownloadMetasubDataCtrl.prototype.downloadMetasubData = function() {
 	this.window_.alert('Enter the below details to download the required file-\n' +
 				'Username- \'CAMDA\', Password- \'Pivo\'');
 	this.window_.open(
