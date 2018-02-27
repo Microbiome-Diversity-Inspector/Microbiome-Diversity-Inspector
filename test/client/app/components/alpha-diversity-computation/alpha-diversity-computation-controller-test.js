@@ -53,6 +53,16 @@ describe('Unit tests for AlphaDiversityComputationCtrl', function() {
     httpMock.verifyNoOutstandingRequest();
 	});
 	
+	it('should initialize controller variables', function() {
+		spyOn(ctrl, 'resetAlphaDiversityComputationVariables_');
+		ctrl.$onInit();
+		expect(ctrl.window_).toBe(windowService);
+		expect(ctrl.document_).toBe(documentService);
+		expect(ctrl.scope_).toBe(scope);
+		expect(ctrl.inputValidationService_).toBe(inputValidationService);
+		expect(ctrl.resetAlphaDiversityComputationVariables_).toHaveBeenCalled();
+	});
+	
 	it('should reset alpha diversity computation variables', function() {
 		ctrl.resetAlphaDiversityComputationVariables_();
 		expect(ctrl.shouldShowSamples).toBe(false);
