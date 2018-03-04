@@ -14,9 +14,15 @@ module.exports = function(config) {
 
 
     // list of files / patterns to load in the browser
+		// Note that the 'angular.js' and 'angular-mocks.js' should be loaded
+		// before all other AngularJS-related files.
     files: [
+			'node_modules/angular/angular.js',
+			'node_modules/angular-mocks/angular-mocks.js',
+			'src/client/app/**/*.js',
+			'src/client/assets/third_party/canvas.js',
       'test/client/app/**/*.js'
-    ],
+		],
 
 
     // list of files / patterns to exclude
