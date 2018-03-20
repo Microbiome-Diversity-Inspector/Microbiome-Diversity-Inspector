@@ -14,12 +14,14 @@
     "eslint-config-google": "^0.9.1",
     "jasmine-core": "^2.99.1",
     "karma": "^2.0.0",
+    "karma-browserify": "^5.2.0",
     "karma-chrome-launcher": "^2.2.0",
     "karma-firefox-launcher": "^1.1.0",
     "karma-jasmine": "^1.1.1",
     "mocha": "^5.0.0",
     "nodemon": "^1.14.11",
-    "supertest": "^3.0.0"
+    "supertest": "^3.0.0",
+    "watchify": "^3.11.0"
   },
   "scripts": {
     "start": "node src/server/server.js",

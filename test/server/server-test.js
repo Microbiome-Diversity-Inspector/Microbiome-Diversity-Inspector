@@ -2,7 +2,8 @@ let server = require('./../../src/server/server.js'),
 		request = require('supertest'),
 		assert = require('assert'),
 		fs = require('fs'),
-		path = require('path');
+		path = require('path')
+		util = require('./../test-util.js');
 
 process.env.NODE_ENV = 'test';
 				
@@ -228,19 +229,14 @@ describe('Integration Tests', function() {
 
 	describe('for alpha-diversity computation', function() {
 	  this.timeout(15000);
-	
-		function precisionRound(number, precision) {
-			let factor = Math.pow(10, precision);
-			return Math.round(number * factor) / factor;
-		}	
-	
+		
 		it('should compute the correct value of alpha-diversity if the order of diversity is not equal to 1',
 			function(done) {
 				request(server)
 					.get('/compute-alpha-diversity?apiKey=42b357bd1b5f46f88d3cc157f7919d2d&sampleId=0d25bce4f7a445f0&orderOfDiversity=2')
 					.end(function(err, res) {
 						assert.equal(res.statusCode, 200);
-						assert.equal(precisionRound(+res.text, 8), 6.60598583);
+						assert.equal(util.precisionRound(+res.text, 8), 6.60598583);
 						done();
 				});
 		});		
@@ -251,7 +247,7 @@ describe('Integration Tests', function() {
 					.get('/compute-alpha-diversity?apiKey=42b357bd1b5f46f88d3cc157f7919d2d&sampleId=0d25bce4f7a445f0&orderOfDiversity=1')
 					.end(function(err, res) {
 						assert.equal(res.statusCode, 200);
-						assert.equal(precisionRound(+res.text, 8), 1.99453478);
+						assert.equal(util.precisionRound(+res.text, 8), 1.99453478);
 						done();
 				});
 		});	
