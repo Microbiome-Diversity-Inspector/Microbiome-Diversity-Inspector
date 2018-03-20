@@ -1,3 +1,6 @@
+let util = require('./../../../../test-util.js');
+
+
 describe('Unit tests for AlphaDiversityComputationCtrl', function() {
 	
 	beforeEach(angular.mock.module('microbiomeDiversityInspector'));
@@ -99,10 +102,6 @@ describe('Unit tests for AlphaDiversityComputationCtrl', function() {
 
 		it('should calculate the mean and standard-deviation of the selected samples',
 			function() {
-				let precisionRound = function(number, precision) {
-					let factor = Math.pow(10, precision);
-					return Math.round(number * factor) / factor;
-				};
 				ctrl.samples = [
 					createSample(undefined, undefined, '5', undefined, undefined, true),
 					createSample(undefined, undefined, '53434.5', undefined, undefined, true),
@@ -114,8 +113,8 @@ describe('Unit tests for AlphaDiversityComputationCtrl', function() {
 				];
 				ctrl.computeMeanAndStandardDeviationOfSelectedSamples_();
 				let actualResultantMeanAndStandardDeviationAfterRoundingOff = {
-					mean: precisionRound(ctrl.resultantMeanAndStandardDeviation.mean, 3).toString(), 
-					standardDeviation: precisionRound(ctrl.resultantMeanAndStandardDeviation.standardDeviation, 3).toString()					
+					mean: util.precisionRound(ctrl.resultantMeanAndStandardDeviation.mean, 3).toString(), 
+					standardDeviation: util.precisionRound(ctrl.resultantMeanAndStandardDeviation.standardDeviation, 3).toString()					
 				};
 				expect(actualResultantMeanAndStandardDeviationAfterRoundingOff).toEqual({
 					mean: '3311897.704',
