@@ -1,25 +1,21 @@
+let util = require('./../../../../test-util.js');
+
+
 describe('Unit tests for EntropyAnalysisCtrl', function() {
 	
 	beforeEach(angular.mock.module('microbiomeDiversityInspector'));
 	
 	let ctrl;
 	let windowService;
-	let httpMock;
 	let timeout;
 	let interval;
 	
-	beforeEach(inject(function(_$controller_, _$window_, _$httpBackend_, _$timeout_, _$interval_) {
+	beforeEach(inject(function(_$controller_, _$window_, _$timeout_, _$interval_) {
 		ctrl = _$controller_('EntropyAnalysisCtrl', {});
 		windowService = _$window_;
-		httpMock = _$httpBackend_;
 		timeout = _$timeout_;
 		interval = _$interval_;
 	}));
-	
-	afterEach(function() {
-    httpMock.verifyNoOutstandingExpectation();
-    httpMock.verifyNoOutstandingRequest();
-	});
 	
 	it('should initialize controller variables', function() {
 		spyOn(ctrl, 'resetEntropyAnalysisVariables_');
@@ -150,4 +146,106 @@ describe('Unit tests for EntropyAnalysisCtrl', function() {
 			expect(chartMock.render).toHaveBeenCalled();					
 		});		
 	});
+	
+	describe('after initiating the entropy analysis process', function() {
+		let httpMock;
+		let sampleFileName = 'sample.fastq';
+		
+		let makeResponseObject =
+				function(statusCode, countOfA, countOfT, countOfG, countOfC, nextUrl) {
+					return {
+						statusCode: statusCode,
+						countObj: {
+							countOfA: countOfA,
+							countOfT: countOfT,
+							countOfG: countOfG,
+							countOfC: countOfC
+						},
+						nextUrl: nextUrl
+					};
+				};
+		
+		beforeEach(inject(function(_$httpBackend_) {
+			httpMock = _$httpBackend_;
+			ctrl.$onInit();
+			spyOn(ctrl, 'resetEntropyAnalysisVariables_');
+			spyOn(ctrl, 'refreshEntropyGraph_');
+			spyOn(ctrl, 'cancelAllTimerPromises_');
+		}));
+		
+		afterEach(function() {
+			httpMock.verifyNoOutstandingExpectation();
+			httpMock.verifyNoOutstandingRequest();
+		});
+				
+		it('should not show analysis and cancel all timer-based promises if there is a backend error',
+				function() {
+					httpMock.expectGET('http://localhost:8080/analyze?fileName=sample.fastq').respond(502);
+					ctrl.process_(sampleFileName);
+					timeout.flush(10);
+					httpMock.flush();
+					expect(ctrl.refreshEntropyGraph_).toHaveBeenCalled();
+					expect(ctrl.showAnalysis).toBe(false);
+					expect(ctrl.cancelAllTimerPromises_).toHaveBeenCalled();
+				});
+				
+		it('should not show analysis and cancel all timer-based promises if the uploaded file is not' +
+			 ' inside the appropriate directory', function() {
+					spyOn(windowService, 'alert');
+					httpMock
+							.expectGET('http://localhost:8080/analyze?fileName=sample.fastq')
+							.respond(201, {statusCode: 'e'});
+					ctrl.process_(sampleFileName);
+					timeout.flush(10);
+					httpMock.flush();
+					expect(ctrl.showAnalysis).toBe(false);
+					expect(ctrl.cancelAllTimerPromises_).toHaveBeenCalled();
+					expect(windowService.alert).toHaveBeenCalledWith(
+							'Sorry, unable to convert the uploaded file!\n' + 
+							'Please check if the uploaded file is inside the directory - ' + 
+							'\'Microbiome-Diversity-Inspector\'');
+			 });
+			 
+		it('should compute and show the entropy', function() {
+			let dummyUrl = 'http://localhost:8080/analyze?fileName=sample.fastq';
+			// A function to verify whether the actual entropy and counts of A, T, G and C matches
+			// with the given expected values. Note that the entropy is verified to 2 decimal places.
+			let verifyEntropyAndCounts =
+					function(
+						expectedEntropy,
+						expectedCountOfA,
+						expectedCountOfT,
+						expectedCountOfG,
+						expectedCountOfC) {
+							expect(util.precisionRound(ctrl.entropyOfCurrentWindow, 2)).toBe(expectedEntropy);
+							expect(ctrl.countOfA).toBe(expectedCountOfA);
+							expect(ctrl.countOfT).toBe(expectedCountOfT);
+							expect(ctrl.countOfG).toBe(expectedCountOfG);
+							expect(ctrl.countOfC).toBe(expectedCountOfC);
+						};
+						
+			httpMock.expectGET(dummyUrl).respond(201, makeResponseObject('o', 0, 0, 0, 0, dummyUrl));	
+		  ctrl.process_(sampleFileName);
+			timeout.flush(10);
+			httpMock.flush();
+			verifyEntropyAndCounts(0, 0, 0, 0, 0);
+			
+			httpMock.expectGET(dummyUrl).respond(201, makeResponseObject('o', 2, 3, 4, 5, dummyUrl));	
+			timeout.flush(10);
+			httpMock.flush();
+			verifyEntropyAndCounts(1.92, 2, 3, 4, 5);
+
+			httpMock.expectGET(dummyUrl).respond(201, makeResponseObject('o', 8, 0, 2, 4, dummyUrl));	
+			timeout.flush(10);
+			httpMock.flush();
+			verifyEntropyAndCounts(1.38, 10, 3, 6, 9);
+
+			httpMock.expectGET(dummyUrl).respond(201, makeResponseObject('x', 1, 1, 1, 1, dummyUrl));	
+			timeout.flush(10);
+			httpMock.flush();
+			verifyEntropyAndCounts(2, 11, 4, 7, 10);
+			expect(ctrl.showEntropy).toBe(true);
+			expect(ctrl.cancelAllTimerPromises_).toHaveBeenCalled();
+		});
+	});	
 });
