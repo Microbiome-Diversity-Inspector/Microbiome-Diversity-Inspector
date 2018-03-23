@@ -8,7 +8,7 @@ angular
 	.directive('fastaToFastqConversionFilePicker', ['$window', '$http', 'inputValidationService',
 		function($window, $http, inputValidationService) {
 			return {
-				link: function(scope, elem) {
+				link: function(scope, elem, attr) {
 					let isTestEnvironment = attr.environment === 'test';
 					// If this code is run as a part of a unit test, then bind the reference of this directive'savePreferences
 					// element to an object in the controller in order to expose it for testing.
@@ -17,7 +17,10 @@ angular
 					}								
 					elem.on('change', function() {
 						let convertToFastq = function(fileName) {
-							let isFastaFilePicker = (elem[0].id === 'fastaFileUploader');
+							let isFastaFilePicker =
+									(isTestEnvironment ?
+											attr.id === 'fastaFileUploader' :
+											elem[0].id === 'fastaFileUploader');
 							scope.fastaToFastqConversionCtrl.resetFastaToFastqConversionVariables_();
 							scope.$apply();
 							if (isFastaFilePicker === true &&
