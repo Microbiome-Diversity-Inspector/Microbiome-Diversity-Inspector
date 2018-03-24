@@ -74,8 +74,7 @@ angular
 						};
 						// If this code is run as a part of unit test, then provide a dummy
 						// file name, since due to security issues, it is not possibly to 
-						// programmatically specify the file name.
-						// See this for more - 
+						// programmatically specify the file name. See this for more - 
 						// https://stackoverflow.com/questions/1017224/dynamically-set-value-of-a-file-input
 						convertToFastq(isTestEnvironment ? attr.fileName : elem[0].files[0].name);
 						elem.val(null);
