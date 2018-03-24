@@ -118,6 +118,7 @@ AlphaDiversityComputationCtrl.prototype.showSamples = function() {
 			this.scope_.$digest();
 		}).bind(this), (function(error) {
 			this.window_.alert('Wrong credentials!');
+			this.shouldShowLoaderWhileRetrievingSamples = false;
 		}).bind(this))
 		.catch(function() {});	
 };
