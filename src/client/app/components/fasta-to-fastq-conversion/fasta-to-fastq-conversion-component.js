@@ -10,8 +10,8 @@ angular
 			return {
 				link: function(scope, elem, attr) {
 					let isTestEnvironment = attr.environment === 'test';
-					// If this code is run as a part of a unit test, then bind the reference of this directive's
-					// element to an object in the controller in order to expose it for testing.
+					// If this code is run as a part of a unit test, then bind the reference of this
+					// directive's element to an object in the controller in order to expose it for testing.
 					if (isTestEnvironment) {
 						scope.fastaToFastqConversionCtrl.filePickerElem = elem;
 					}								
