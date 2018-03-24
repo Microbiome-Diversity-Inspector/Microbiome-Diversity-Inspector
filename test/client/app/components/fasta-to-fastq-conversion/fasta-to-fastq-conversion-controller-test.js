@@ -12,7 +12,7 @@ describe('Unit tests for FastaToFastqConversionCtrl', function() {
 		spyOn(ctrl, 'resetFastaToFastqConversionVariables_');
 		ctrl.$onInit();		
 		expect(ctrl.resetFastaToFastqConversionVariables_).toHaveBeenCalled();
-	})
+	});
 	
 	it('should reset fasta to fastq conversion variables', function() {
 		ctrl.resetFastaToFastqConversionVariables_();
