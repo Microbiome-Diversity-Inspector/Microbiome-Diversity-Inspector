@@ -8,7 +8,7 @@ describe('Unit tests for FastaToFastqConversionCtrl', function() {
 		ctrl = _$controller_('FastaToFastqConversionCtrl', {});
 	}));
 	
-	it('should set initialize controller variables', function() {
+	it('should initialize controller variables', function() {
 		spyOn(ctrl, 'resetFastaToFastqConversionVariables_');
 		ctrl.$onInit();		
 		expect(ctrl.resetFastaToFastqConversionVariables_).toHaveBeenCalled();
