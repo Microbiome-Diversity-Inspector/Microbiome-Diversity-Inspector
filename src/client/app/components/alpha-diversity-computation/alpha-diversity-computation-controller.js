@@ -108,6 +108,7 @@ AlphaDiversityComputationCtrl.prototype.showSamples = function() {
 		 	this.samples = response.data;
 			for (let i=0; i<this.samples.length; i++) {
 				this.samples[i].alphaDiversity = '_';
+				this.samples[i].normalizedAlphaDiversity = '_';
 				this.samples[i].alphaDiversityComputationStatus = {
 					started: false,
 					completed: false,
@@ -152,6 +153,8 @@ AlphaDiversityComputationCtrl.prototype.toggleVisibility = function() {
  * @param {string} sample.orderOfDiversity Denoted by 'q', it is an important factor in determining
  *																				 the weight assigned to a species.
  * @param {string} sample.alphaDiversity  The alpha diversity of the sample.
+ * @param {string} sample.normalizedAlphaDiversity  The normalized alpha diversity of the sample,
+																										if possible to compute.
  * @param {Object} sample.alphaDiversityComputationStatus  Has two properties - 'started' and
  *																												 'completed' denoting whether the 
  *																												 computation has started or not and
@@ -161,6 +164,7 @@ AlphaDiversityComputationCtrl.prototype.toggleVisibility = function() {
 AlphaDiversityComputationCtrl.prototype.computeAlphaDiversity = function(sample) {
 	// Refresh the alpha-diversity computation status and alpha-diversity.
 	sample.alphaDiversity = '_';
+	sample.normalizedAlphaDiversity = '_';
 	sample.alphaDiversityComputationStatus = {
 		started: false,
 		completed: false,
@@ -185,7 +189,8 @@ AlphaDiversityComputationCtrl.prototype.computeAlphaDiversity = function(sample)
 					this.window_.alert('Internal server error!');
 				} else {
 					sample.alphaDiversityComputationStatus.completed = true;
-					sample.alphaDiversity = response.data;
+					sample.alphaDiversity = response.data.alphaDiversity;
+					sample.normalizedAlphaDiversity = response.data.normalizedAlphaDiversity;
 					this.computeMeanAndStandardDeviationOfSelectedSamples_();
 				}
 			}).bind(this), (function(error) {
