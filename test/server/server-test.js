@@ -236,7 +236,8 @@ describe('Integration Tests', function() {
 					.get('/compute-alpha-diversity?apiKey=42b357bd1b5f46f88d3cc157f7919d2d&sampleId=0d25bce4f7a445f0&orderOfDiversity=2')
 					.end(function(err, res) {
 						assert.equal(res.statusCode, 200);
-						assert.equal(util.precisionRound(+res.text, 8), 6.60598583);
+						assert.equal(util.precisionRound(+res.body.alphaDiversity, 8), 6.60598583);
+						assert.equal(res.body.normalizedAlphaDiversity, 'undefined');
 						done();
 				});
 		});		
@@ -247,7 +248,8 @@ describe('Integration Tests', function() {
 					.get('/compute-alpha-diversity?apiKey=42b357bd1b5f46f88d3cc157f7919d2d&sampleId=0d25bce4f7a445f0&orderOfDiversity=1')
 					.end(function(err, res) {
 						assert.equal(res.statusCode, 200);
-						assert.equal(util.precisionRound(+res.text, 8), 1.99453478);
+						assert.equal(util.precisionRound(+res.body.alphaDiversity, 8), 1.99453478);
+						assert.equal(util.precisionRound(+res.body.normalizedAlphaDiversity, 8), 0.77761176);
 						done();
 				});
 		});	
