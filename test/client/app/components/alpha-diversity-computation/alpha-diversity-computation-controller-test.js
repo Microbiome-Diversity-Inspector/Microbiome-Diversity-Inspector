@@ -15,6 +15,7 @@ describe('Unit tests for AlphaDiversityComputationCtrl', function() {
 			primaryClassificationRef,
 			orderOfDiversity,
 			alphaDiversity,
+			normalizedAlphaDiversity,
 			alphaDiversityComputationStarted,
 			alphaDiversityComputationCompleted,
 			isIncluded) {
@@ -24,6 +25,7 @@ describe('Unit tests for AlphaDiversityComputationCtrl', function() {
 					},
 					orderOfDiversity: orderOfDiversity,
 					alphaDiversity: alphaDiversity,
+					normalizedAlphaDiversity: normalizedAlphaDiversity,
 					alphaDiversityComputationStatus: {
 						started: alphaDiversityComputationStarted,
 						completed: alphaDiversityComputationCompleted
@@ -90,8 +92,8 @@ describe('Unit tests for AlphaDiversityComputationCtrl', function() {
 		it('should show \'_\' if one of the selected sample\'s alpha-diversity is not computed yet by the server',
 			function() {
 				ctrl.samples = [
-					createSample(undefined, undefined, '_', undefined, undefined, true),
-					createSample(undefined, undefined, '3.4', undefined, undefined, true)
+					createSample(undefined, undefined, '_', undefined, undefined, undefined, true),
+					createSample(undefined, undefined, '3.4', undefined, undefined, undefined, true)
 				];
 				ctrl.computeMeanAndStandardDeviationOfSelectedSamples_();
 				expect(ctrl.resultantMeanAndStandardDeviation).toEqual({
@@ -103,13 +105,14 @@ describe('Unit tests for AlphaDiversityComputationCtrl', function() {
 		it('should calculate the mean and standard-deviation of the selected samples',
 			function() {
 				ctrl.samples = [
-					createSample(undefined, undefined, '5', undefined, undefined, true),
-					createSample(undefined, undefined, '53434.5', undefined, undefined, true),
-					createSample(undefined, undefined, '4.9', undefined, undefined, true),
-					createSample(undefined, undefined, '4.85', undefined, undefined, true),
-					createSample(undefined, undefined, '87.45', undefined, undefined, true),
-					createSample(undefined, undefined, '23123312.2313', undefined, undefined, true),
-					createSample(undefined, undefined, '6435.0', undefined, undefined, true)
+					createSample(undefined, undefined, '5', undefined, undefined, undefined, true),
+					createSample(undefined, undefined, '53434.5', undefined, undefined, undefined, true),
+					createSample(undefined, undefined, '4.9', undefined, undefined, undefined, true),
+					createSample(undefined, undefined, '4.85', undefined, undefined, undefined, true),
+					createSample(undefined, undefined, '87.45', undefined, undefined, undefined, true),
+					createSample(
+							undefined, undefined, '23123312.2313', undefined, undefined, undefined, true),
+					createSample(undefined, undefined, '6435.0', undefined, undefined, undefined, true)
 				];
 				ctrl.computeMeanAndStandardDeviationOfSelectedSamples_();
 				let actualResultantMeanAndStandardDeviationAfterRoundingOff = {
@@ -140,12 +143,12 @@ describe('Unit tests for AlphaDiversityComputationCtrl', function() {
 
 		it('should show samples by setting proper variables', function() {
 			let responseSamples = [
-				createSample('ref1', undefined, undefined, undefined, undefined, undefined),
-				createSample('ref2', undefined, undefined, undefined, undefined, undefined),
+				createSample('ref1', undefined, undefined, undefined, undefined, undefined, undefined),
+				createSample('ref2', undefined, undefined, undefined, undefined, undefined, undefined)
 			];
 			let expectedSamples = [
-				createSample('ref1', undefined, '_', false, false, undefined),
-				createSample('ref2', undefined, '_', false, false, undefined),
+				createSample('ref1', undefined, '_', '_', false, false, undefined),
+				createSample('ref2', undefined, '_', '_', false, false, undefined),
 			]
 			httpMock.expectGET('https://app.onecodex.com/api/v1/samples', function(headers) {
 				return headers['Authorization'] === 'Basic mockbtoa==';
@@ -189,9 +192,9 @@ describe('Unit tests for AlphaDiversityComputationCtrl', function() {
 		
 		it('should alert the user if the order of diversity is not specified', function() {
 			let actualSample =
-					createSample(undefined, undefined, undefined, undefined, undefined, undefined);
+					createSample(undefined, undefined, undefined, undefined, undefined, undefined, undefined);
 			ctrl.computeAlphaDiversity(actualSample);
-			let expectedSample = createSample(undefined, undefined, '_', false, false, undefined);
+			let expectedSample = createSample(undefined, undefined, '_', '_', false, false, undefined);
 			expect(actualSample).toEqual(expectedSample);
 			expect(windowService.alert)
 					.toHaveBeenCalledWith('Please specify a valid order of diversity!');
@@ -202,6 +205,7 @@ describe('Unit tests for AlphaDiversityComputationCtrl', function() {
 					createSample(
 							'/api/v1/classifications/testRef',
 							'2',
+							undefined, 
 							undefined,
 							undefined,
 							undefined,
@@ -238,11 +242,15 @@ describe('Unit tests for AlphaDiversityComputationCtrl', function() {
  			it('should set the alpha diversity to the controller and start the initiation of mean and' +
 				 ' standard deviation of the selected samples', function() {
 				spyOn(ctrl, 'computeMeanAndStandardDeviationOfSelectedSamples_');
-				httpMock.expectGET(expectedUrl).respond(201, '3.46');
+				httpMock.expectGET(expectedUrl).respond(201, {
+					alphaDiversity: '3.46',
+					normalizedAlphaDiversity: '1.23'
+				});
 				ctrl.computeAlphaDiversity(actualSample);
 				httpMock.flush();
 				expect(actualSample.alphaDiversityComputationStatus.completed).toBe(true);
 				expect(actualSample.alphaDiversity).toBe('3.46');
+				expect(actualSample.normalizedAlphaDiversity).toBe('1.23');
 				expect(ctrl.computeMeanAndStandardDeviationOfSelectedSamples_).toHaveBeenCalled();
 			}); 				
 		});

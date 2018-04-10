@@ -46,6 +46,7 @@
 					<th>Order of Diversity(q)</th>
 					<th>Actions</th>
 					<th>Alpha-diversity</th>
+					<th>Normalized Alpha-diversity<br>(for q=1 only)</th>
 				</tr>			
 				<tr ng-repeat='sample in alphaDiversityComputationCtrl.samples track by $index'>
 					<td>{{$index+1}}</td>
@@ -71,16 +72,33 @@
 						<input type="checkbox" ng-model='sample.isIncluded.value' checkbox-mean-and-standard-deviation-trigger>
 					</td>
 					<td>
-					 <span ng-if='sample.alphaDiversityComputationStatus.started == false'>
-						 {{sample.alphaDiversity}}
-					 </span>
-					 <span ng-if='sample.alphaDiversityComputationStatus.started == true &&
-							 sample.alphaDiversityComputationStatus.completed == false'>
-						 <img height='50' width='50' src='assets/images/ball_loading.GIF'>
-					 </span>
-					 <span ng-if='sample.alphaDiversityComputationStatus.completed == true'>
-						 {{sample.alphaDiversity | number : 2}}
-					 </span>						
+						<span ng-if='sample.alphaDiversityComputationStatus.started === false'>
+							{{sample.alphaDiversity}}
+						</span>
+						<span ng-if='sample.alphaDiversityComputationStatus.started === true &&
+								sample.alphaDiversityComputationStatus.completed === false'>
+							<img height='50' width='50' src='assets/images/ball_loading.GIF'>
+						</span>
+						<span ng-if='sample.alphaDiversityComputationStatus.completed === true'>
+							{{sample.alphaDiversity | number : 2}}
+						</span>						
+					</td>
+					<td>
+						<span ng-if='sample.alphaDiversityComputationStatus.started === false'>
+							{{sample.normalizedAlphaDiversity}}
+						</span>
+						<span ng-if='sample.alphaDiversityComputationStatus.started === true &&
+								sample.alphaDiversityComputationStatus.completed === false'>
+							<img height='50' width='50' src='assets/images/ball_loading.GIF'>
+						</span>
+						<span ng-if='sample.alphaDiversityComputationStatus.completed === true'>
+							<span ng-if='+sample.orderOfDiversity === 1'>
+								{{sample.normalizedAlphaDiversity | number : 2}}
+							</span>
+							<span ng-if='+sample.orderOfDiversity !== 1'>
+								NA
+							</span>								
+						</span>						
 					</td>
 				</tr>
 			</table>		
