@@ -26,18 +26,22 @@ process.on('message', function(req) {
 					m += organisms[i].readcount;
 				}
 			}
-			let alphaDiversity;
+			let alphaDiversity, normalizedAlphaDiversity;
 			// If order of diversity is 1, then delegate to Shannon's index to compute
 			// alpha-diversity as mentioned here - 
 			// https://en.wikipedia.org/wiki/Diversity_index#Shannon_index
 			if (q === 1) {
 				alphaDiversity = 0;
+				let nonHostSpeciesCount = 0;
 				for (let i=0; i<organisms.length; i++) {
 					if (isNonHostSpecies(organisms[i]) === true) {
+						nonHostSpeciesCount++;
 						alphaDiversity -= (organisms[i].readcount === 0 ?
 								0 : (organisms[i].readcount/m) * Math.log(organisms[i].readcount/m));
 					}
 				}
+				normalizedAlphaDiversityInString =
+						(alphaDiversity/Math.log(nonHostSpeciesCount)).toString();
 			} else {
 				let basicSum = 0;
 				for (let i=0; i<organisms.length; i++) {
@@ -46,9 +50,13 @@ process.on('message', function(req) {
 					}
 				}
 				alphaDiversity = Math.pow(basicSum, 1-q);
+				normalizedAlphaDiversityInString = 'undefined';
 			}
 			logOnlyInNonTestEnvironment('Alpha-diversity of the file has been computed.');
-			process.send(alphaDiversity.toString());
+			process.send({
+				alphaDiversity: alphaDiversity.toString(),
+				normalizedAlphaDiversity: normalizedAlphaDiversityInString
+			});
 		}
 	};
 	request.send();
