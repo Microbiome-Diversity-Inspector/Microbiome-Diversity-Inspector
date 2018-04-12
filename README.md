@@ -102,8 +102,8 @@ Following the aforementioned common instructions, install [Nativefier](https://g
 ![conversion2](https://user-images.githubusercontent.com/17107752/36058587-57e37832-0e4a-11e8-843b-22cfe1059899.PNG)
 
 
-5) <ins>Computation of alpha-diversity</ins> :
-![alpha-diversity](https://user-images.githubusercontent.com/17107752/36058589-6368fb32-0e4a-11e8-8500-52d852746912.PNG)
+5) <ins>Computation of alpha-diversity and NormAlpha</ins> :
+![normaplha](https://user-images.githubusercontent.com/17107752/38657313-1dea83f0-3e3d-11e8-922c-3c30bff174ee.PNG)
 
 # Known Issues/Limitations - 
 
