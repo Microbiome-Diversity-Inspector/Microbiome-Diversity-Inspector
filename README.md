@@ -114,8 +114,9 @@ Following the aforementioned common instructions, install [Nativefier](https://g
 
 ![normalpha3](https://user-images.githubusercontent.com/17107752/38765829-81264f4e-3fe6-11e8-87a7-2ef5ea7f34b9.png)
 
-x-axis : Number of species in our sample  
-y-axis : NormAlpha(Red) and Alpha-diversity(Blue)
+**s** : Denotes the number of species in our sample  
+**x-axis** : Represents the instances of the combinations of probabilities of all the '**s**' species with a step value of 0.1  
+**y-axis** : NormAlpha(Red) and Alpha-diversity(Blue)  
 
 # Known Issues/Limitations - 
 
