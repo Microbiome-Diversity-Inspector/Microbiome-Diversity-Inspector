@@ -102,8 +102,20 @@ Following the aforementioned common instructions, install [Nativefier](https://g
 ![conversion2](https://user-images.githubusercontent.com/17107752/36058587-57e37832-0e4a-11e8-843b-22cfe1059899.PNG)
 
 
-5) <ins>Computation of alpha-diversity and NormAlpha</ins> :
+5) <ins>Computation of alpha-diversity and NormAlpha (Normalised alpha-diversity)</ins> :
 ![normaplha](https://user-images.githubusercontent.com/17107752/38657313-1dea83f0-3e3d-11e8-922c-3c30bff174ee.PNG)
+
+
+# Observations of our analysis for NormAlpha - 
+
+![normalpha1](https://user-images.githubusercontent.com/17107752/38765821-5545ef4c-3fe6-11e8-8791-e3d1306921e4.png)
+
+![normalpha2](https://user-images.githubusercontent.com/17107752/38765825-6fcfc61c-3fe6-11e8-8c55-648ea7c308ea.png)
+
+![normalpha3](https://user-images.githubusercontent.com/17107752/38765829-81264f4e-3fe6-11e8-87a7-2ef5ea7f34b9.png)
+
+x-axis : Number of species in our sample  
+y-axis : NormAlpha(Red) and Alpha-diversity(Blue)
 
 # Known Issues/Limitations - 
 
