@@ -87,7 +87,7 @@ Following the aforementioned common instructions, install [Nativefier](https://g
 # Screenshots Of The Platform - 
 
 1) <ins>Utility for downloading the MetaSUB data</ins> :
-![download](https://user-images.githubusercontent.com/17107752/36058579-2b79ca26-0e4a-11e8-92a9-d055dc3d2482.PNG)
+![figure-1](https://user-images.githubusercontent.com/17107752/39810689-8f9f4118-53a3-11e8-860c-914deb564efd.PNG)
 
 
 2) <ins>Showing the real-time entropy analysis</ins> :
