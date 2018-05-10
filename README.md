@@ -124,6 +124,8 @@ Following the aforementioned common instructions, install [Nativefier](https://g
 
 + The server will not send AJAX requests to One Codex's exposed URL endpoints if there is a proxy connection enabled in the browser. Since the desktop application is essentially an [Electron](https://electronjs.org) wrapper over the web application, hence this limitation also holds for the desktop application as well.
 
+Link To My Presentation: https://prezi.com/view/MF6K2USZDcbkS2jYVlnU/
+
 # Contributors
 
 <!-- ALL-CONTRIBUTORS-LIST:START - Do not remove or modify this section -->
