@@ -3,7 +3,7 @@
 # Aim of this project
 
 Presently, a lot of massive and groundbreaking initiatives are being undertaken to analyse microbiome data from diverse environments around the world in order to discover interesting secrets present in the world of microbiome. Microbiome Diversity Inspector can be used to highlight about the diversity of microbiome community in various materials found over different regions. The inclusion of other new algorithms in this platform can lead to interesting discoveries which may prove very beneficial to mankind.
-For more details, visit [this](https://docs.google.com/document/d/e/2PACX-1vSSyP_zWGJYvWN3Sc2B77Y9oSSxuvRRhQ7knKSE8d8liZtyfqq4t-VGuPdR-B0g_eNhZX1Ufr5bgVic/pub) link.
+For more details, visit [this](https://docs.google.com/document/d/e/2PACX-1vSSyP_zWGJYvWN3Sc2B77Y9oSSxuvRRhQ7knKSE8d8liZtyfqq4t-VGuPdR-B0g_eNhZX1Ufr5bgVic/pub) link. Visit - https://prezi.com/view/MF6K2USZDcbkS2jYVlnU/ for our project presentation.
 
 # What is Microbiome Diversity Inspector?
 
@@ -123,8 +123,6 @@ Following the aforementioned common instructions, install [Nativefier](https://g
 # Known Issues/Limitations - 
 
 + The server will not send AJAX requests to One Codex's exposed URL endpoints if there is a proxy connection enabled in the browser. Since the desktop application is essentially an [Electron](https://electronjs.org) wrapper over the web application, hence this limitation also holds for the desktop application as well.
-
-Link To our Presentation: https://prezi.com/view/MF6K2USZDcbkS2jYVlnU/
 
 # Contributors
 
