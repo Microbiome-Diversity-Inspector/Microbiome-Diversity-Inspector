@@ -343,7 +343,7 @@ function logOnlyInNonTestEnvironment(logMessage) {
 	}	
 }
 
-let server = app.listen(8080, function() {
+let server = app.listen(process.env.PORT || 8080, function() {
 	logOnlyInNonTestEnvironment(
 			'\'Microbiome Diversity Inspector\' now running at http://localhost:' +
 			server.address().port);
